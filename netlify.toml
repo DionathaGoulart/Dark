@@ -1,0 +1,21 @@
+# Configuração do monorepo para Netlify
+# Cada site precisa ser configurado separadamente no painel da Netlify
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Configuração para o Portfolio (site raiz)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Para configurar os 3 sites separadamente:
+# 1. Portfolio: Configure no Netlify apontando para apps/portfolio
+# 2. Dark-Links: Configure no Netlify apontando para apps/dark-links  
+# 3. Site3: Configure no Netlify apontando para apps/site3
+
+# Cada site precisa ter seu próprio projeto no Netlify com:
+# - Base directory: apps/portfolio (ou apps/dark-links ou apps/site3)
+# - Build command: npm run build
+# - Publish directory: .next
+
