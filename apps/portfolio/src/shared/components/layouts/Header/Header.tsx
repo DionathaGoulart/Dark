@@ -28,13 +28,29 @@ const DEFAULT_SOCIAL_URLS = {
 /**
  * Cria itens de navegação com rótulos traduzidos
  */
-const createNavItems = (t: any) => [
-  { label: t.nav.home, href: '/' },
-  { label: t.nav.about, href: '/about' },
-  { label: t.nav.projects, href: '/projects' },
-  { label: t.nav.contact, href: '/contact' },
-  { label: t.nav.prints, href: '/stores' }
-]
+const createNavItems = (t: any, language: string, customNav?: NavItem[], navigationItems?: any[]) => {
+  // Se houver navigationItems do Supabase, usar eles
+  if (navigationItems && navigationItems.length > 0) {
+    return navigationItems.map(item => ({
+      label: language === 'pt' ? item.label_pt : item.label_en,
+      href: item.href
+    }))
+  }
+  
+  // Se houver customNav, usar ele
+  if (customNav && customNav.length > 0) {
+    return customNav
+  }
+  
+  // Fallback para traduções padrão
+  return [
+    { label: t.nav.home, href: '/' },
+    { label: t.nav.about, href: '/about' },
+    { label: t.nav.projects, href: '/projects' },
+    { label: t.nav.contact, href: '/contact' },
+    { label: t.nav.prints, href: '/stores' }
+  ]
+}
 
 // ================================
 // SUB-COMPONENTES
@@ -109,15 +125,17 @@ export const LayoutHeader: React.FC<HeaderConfig> = ({
   logoAlt = 'Logo',
   showNavigation = true,
   instagramUrl = DEFAULT_SOCIAL_URLS.instagram,
-  youtubeUrl = DEFAULT_SOCIAL_URLS.youtube
+  youtubeUrl = DEFAULT_SOCIAL_URLS.youtube,
+  customNav,
+  navigationItems
 }) => {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
 
   // ================================
   // VALORES COMPUTADOS
   // ================================
 
-  const navItems = createNavItems(t)
+  const navItems = createNavItems(t, language, customNav, navigationItems)
 
   // ================================
   // RETORNOS ANTECIPADOS

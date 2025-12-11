@@ -54,12 +54,13 @@ const createScript = (src?: string, content?: string): void => {
  * Inicializa o Google Analytics com configuração GA4
  * Configura os scripts de rastreamento e configuração básica
  */
-export const initializeAnalytics = (): void => {
-  if (!ANALYTICS_CONFIG.enabled || !ANALYTICS_CONFIG.measurementId) return
+export const initializeAnalytics = (gaMeasurementId?: string): void => {
+  const measurementId = gaMeasurementId || ANALYTICS_CONFIG.measurementId
+  if (!ANALYTICS_CONFIG.enabled || !measurementId) return
 
   // Adiciona script de rastreamento GA4
   createScript(
-    `https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_CONFIG.measurementId}`
+    `https://www.googletagmanager.com/gtag/js?id=${measurementId}`
   )
 
   // Adiciona script de configuração
@@ -67,7 +68,7 @@ export const initializeAnalytics = (): void => {
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', '${ANALYTICS_CONFIG.measurementId}', {
+    gtag('config', '${measurementId}', {
       page_title: document.title,
       page_location: window.location.href,
       anonymize_ip: true

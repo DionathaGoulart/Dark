@@ -403,12 +403,22 @@ const useContactForm = (t: any) => {
 // MAIN COMPONENT
 // ================================
 
+interface ContactPageData {
+  title_pt: string
+  title_en: string
+  content_pt?: string
+  content_en?: string
+}
+
 /**
  * Contact page with form functionality using EmailJS
  * Features contact information and message sending capabilities
  */
-export const ContactPage: React.FC<ContactPageProps> = ({ className = '' }) => {
-  const { t } = useI18n()
+export const ContactPage: React.FC<ContactPageProps & { pageData?: ContactPageData | null }> = ({ 
+  className = '',
+  pageData
+}) => {
+  const { t, language } = useI18n()
   const {
     formData,
     isSubmitting,
@@ -419,6 +429,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({ className = '' }) => {
   } = useContactForm(t)
 
   useDocumentTitle('contact')
+
+  // Usar dados do Supabase se disponíveis
+  const title = pageData 
+    ? (language === 'pt' ? pageData.title_pt : pageData.title_en)
+    : t.pages.contact.title
+  const description = pageData
+    ? (language === 'pt' ? pageData.content_pt : pageData.content_en) || t.pages.contact.info.description
+    : t.pages.contact.info.description
 
   // ================================
   // COMPUTED VALUES
@@ -453,11 +471,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ className = '' }) => {
     <div className={containerClasses}>
       <div className="animate-fade-in">
         <h1 className="text-4xl font-bold text-primary-black dark:text-primary-white mb-8 tracking-tight">
-          {t.pages.contact.title}
+          {title}
         </h1>
 
         <div className="grid gap-8 md:gap-12 lg:grid-cols-2">
-          <ContactInfo description={t.pages.contact.info.description} />
+          <ContactInfo description={description} />
 
           <div className="border border-primary-black dark:border-primary-white p-8">
             <h3 className="text-xl font-medium text-primary-black dark:text-primary-white mb-6">
