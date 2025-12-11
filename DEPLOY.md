@@ -83,7 +83,7 @@ netlify init
 netlify deploy --prod
 ```
 
-## 🌐 Deploy do Site3
+## 🌐 Deploy do Admin
 
 ### Opção 1: Deploy via Netlify UI
 
@@ -91,9 +91,9 @@ netlify deploy --prod
 2. Clique em "Add new site" > "Import an existing project"
 3. **IMPORTANTE**: Selecione o mesmo repositório, mas configure como um novo site
 4. Configure as seguintes opções:
-   - **Base directory**: `apps/site3`
+   - **Base directory**: `apps/admin`
    - **Build command**: `npm run build`
-   - **Publish directory**: `apps/site3/.next`
+   - **Publish directory**: `apps/admin/.next`
    - **Node version**: `18` (ou superior)
 
 5. Clique em "Deploy site"
@@ -102,14 +102,14 @@ netlify deploy --prod
 ### Opção 2: Deploy via Netlify CLI
 
 ```bash
-# Navegue até o diretório do site3
-cd apps/site3
+# Navegue até o diretório do admin
+cd apps/admin
 
 # Inicialize o site (criará um novo site)
 netlify init
 
 # Siga as instruções e escolha:
-# - Base directory: apps/site3
+# - Base directory: apps/admin
 # - Build command: npm run build
 # - Publish directory: .next
 

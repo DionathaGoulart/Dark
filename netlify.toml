@@ -12,10 +12,10 @@
 # Para configurar os 3 sites separadamente:
 # 1. Portfolio: Configure no Netlify apontando para apps/portfolio
 # 2. Dark-Links: Configure no Netlify apontando para apps/dark-links  
-# 3. Site3: Configure no Netlify apontando para apps/site3
+# 3. Admin: Configure no Netlify apontando para apps/admin
 
 # Cada site precisa ter seu próprio projeto no Netlify com:
-# - Base directory: apps/portfolio (ou apps/dark-links ou apps/site3)
+# - Base directory: apps/portfolio (ou apps/dark-links ou apps/admin)
 # - Build command: npm run build
 # - Publish directory: .next
 
