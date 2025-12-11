@@ -15,11 +15,11 @@
     "start": "turbo run start",
     "lint": "turbo run lint",
     "dev:portfolio": "turbo run dev --filter=portfolio",
-    "dev:dark-links": "turbo run dev --filter=dark-links",
-    "dev:site3": "turbo run dev --filter=site3",
+    "dev:links": "turbo run dev --filter=links",
+    "dev:admin": "turbo run dev --filter=admin",
     "build:portfolio": "turbo run build --filter=portfolio",
-    "build:dark-links": "turbo run build --filter=dark-links",
-    "build:site3": "turbo run build --filter=site3"
+    "build:links": "turbo run build --filter=links",
+    "build:admin": "turbo run build --filter=admin"
   },
   "devDependencies": {
     "@eslint/css": "^0.11.1",

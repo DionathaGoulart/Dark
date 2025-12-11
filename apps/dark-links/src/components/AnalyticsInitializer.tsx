@@ -3,10 +3,16 @@
 import { useEffect } from 'react'
 import { initializeAnalytics } from '@/features/analytics'
 
-export function AnalyticsInitializer() {
+interface AnalyticsInitializerProps {
+  gaMeasurementId?: string
+}
+
+export function AnalyticsInitializer({ gaMeasurementId }: AnalyticsInitializerProps) {
   useEffect(() => {
-    initializeAnalytics()
-  }, [])
+    if (gaMeasurementId) {
+      initializeAnalytics(gaMeasurementId)
+    }
+  }, [gaMeasurementId])
 
   return null
 }
