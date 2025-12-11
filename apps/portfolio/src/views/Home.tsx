@@ -317,14 +317,34 @@ const useImageLoader = (t: any) => {
 // MAIN COMPONENT
 // ================================
 
+interface HomePageProps {
+  homeImages?: Array<{
+    id: string
+    image_url: string
+    alt_text_pt?: string
+    alt_text_en?: string
+    order_index: number
+  }>
+}
+
 /**
  * Home page component with masonry grid of images
  * Implements progressive loading for better user experience
  */
-export const HomePage: React.FC = () => {
-  const { t } = useI18n()
-  const { images, setImages, loadingState, loadImages } = useImageLoader(t)
+export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
+  const { t, language } = useI18n()
+  const fallbackLoader = useImageLoader(t)
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null)
+  const [supabaseImages, setSupabaseImages] = useState<ImageItem[]>([])
+  const [supabaseLoading, setSupabaseLoading] = useState<LoadingState>({
+    loading: true,
+    lazyLoading: false,
+    error: null
+  })
+
+  // Usar imagens do Supabase se disponíveis, senão usar fallback
+  const images = homeImages.length > 0 ? supabaseImages : fallbackLoader.images
+  const loadingState = homeImages.length > 0 ? supabaseLoading : fallbackLoader.loadingState
 
   useDocumentTitle('home')
 
@@ -338,14 +358,76 @@ export const HomePage: React.FC = () => {
       event_parameters: {
         page_title: 'Home - Portfolio',
         content_type: 'portfolio_gallery',
-        total_images_available: originalPrintUrls.length
+        total_images_available: homeImages.length || originalPrintUrls.length
       }
     })
-  }, [])
+  }, [homeImages.length])
 
   useEffect(() => {
-    loadImages()
-  }, [t])
+    if (homeImages.length > 0) {
+      const loadImagesFromSupabase = async () => {
+        setSupabaseLoading({ loading: true, lazyLoading: false, error: null })
+        try {
+          const imageUrls = homeImages.map(img => img.image_url)
+          const priorityUrls = imageUrls.slice(0, PRIORITY_IMAGES_COUNT)
+          const priorityImages = await processBatchImages(priorityUrls)
+
+          // Adicionar alt text baseado no idioma
+          const imagesWithAlt = priorityImages.map((img, idx) => ({
+            ...img,
+            id: homeImages[idx]?.id || img.id,
+            alt: language === 'pt' 
+              ? (homeImages[idx]?.alt_text_pt || homeImages[idx]?.alt_text_en || '')
+              : (homeImages[idx]?.alt_text_en || homeImages[idx]?.alt_text_pt || ''),
+            title: language === 'pt' 
+              ? (homeImages[idx]?.alt_text_pt || homeImages[idx]?.alt_text_en || '')
+              : (homeImages[idx]?.alt_text_en || homeImages[idx]?.alt_text_pt || '')
+          }))
+
+          setSupabaseImages(imagesWithAlt)
+          setSupabaseLoading({ loading: false, lazyLoading: false, error: null })
+
+          // Load remaining images lazily
+          if (imageUrls.length > PRIORITY_IMAGES_COUNT) {
+            const remainingUrls = imageUrls.slice(PRIORITY_IMAGES_COUNT)
+            const remainingImages = await processBatchImages(remainingUrls)
+            
+            const remainingWithAlt = remainingImages.map((img, idx) => ({
+              ...img,
+              id: homeImages[PRIORITY_IMAGES_COUNT + idx]?.id || img.id,
+              alt: language === 'pt' 
+                ? (homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_pt || homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_en || '')
+                : (homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_en || homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_pt || ''),
+              title: language === 'pt' 
+                ? (homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_pt || homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_en || '')
+                : (homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_en || homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_pt || '')
+            }))
+
+            setSupabaseImages((prev) => [...prev, ...remainingWithAlt])
+          }
+
+          if (priorityImages.length === 0) {
+            setSupabaseLoading({
+              loading: false,
+              lazyLoading: false,
+              error: t.common.noImages || 'Nenhuma imagem encontrada'
+            })
+          }
+        } catch (err) {
+          console.error('Error loading images from Supabase:', err)
+          setSupabaseLoading({
+            loading: false,
+            lazyLoading: false,
+            error: t.common.error || 'Erro ao carregar imagens'
+          })
+        }
+      }
+      loadImagesFromSupabase()
+    } else {
+      // Fallback para imagens hardcoded se não houver no Supabase
+      fallbackLoader.loadImages()
+    }
+  }, [homeImages, language, t])
 
   // ================================
   // HANDLERS
@@ -366,7 +448,11 @@ export const HomePage: React.FC = () => {
 
   const handleImageError = (image: ImageItem) => {
     console.error(`Error displaying image: ${image.id}`)
-    setImages((prev) => prev.filter((img) => img.id !== image.id))
+    if (homeImages.length > 0) {
+      setSupabaseImages((prev) => prev.filter((img) => img.id !== image.id))
+    } else {
+      fallbackLoader.setImages((prev) => prev.filter((img) => img.id !== image.id))
+    }
 
     trackEvent({
       event_name: 'image_display_error',

@@ -30,7 +30,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   children,
   header = { showNavigation: true },
   footer = { show: true },
-  className = ''
+  className = '',
+  logoSrc,
+  instagramUrl,
+  youtubeUrl,
+  footerText,
+  navigationItems
 }) => {
   // ================================
   // VALORES COMPUTADOS
@@ -50,16 +55,18 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   return (
     <div className={containerClasses}>
       <LayoutHeader
-        instagramUrl={DEFAULT_SOCIAL_URLS.instagram}
-        youtubeUrl={DEFAULT_SOCIAL_URLS.youtube}
+        logoSrc={logoSrc}
+        instagramUrl={instagramUrl || DEFAULT_SOCIAL_URLS.instagram}
+        youtubeUrl={youtubeUrl || DEFAULT_SOCIAL_URLS.youtube}
         showNavigation={header.showNavigation}
+        navigationItems={navigationItems}
       />
 
       <main className="flex-1 bg-primary-white dark:bg-primary-black text-primary-black dark:text-primary-white transition-all duration-300">
         {children}
       </main>
 
-      {footer.show && <LayoutFooter />}
+      {footer.show && <LayoutFooter footerText={footerText} />}
 
       <ScrollToTopButton
         showAfter={DEFAULT_SCROLL_CONFIG.showAfter}

@@ -36,9 +36,11 @@ Para mais detalhes, veja o [README das migrations](./supabase/migrations/README.
 
 ### Configurar Storage para Upload de Imagens
 
-Para permitir upload de favicon e foto de perfil, você precisa configurar o bucket de storage no Supabase.
+Para permitir upload de imagens, você precisa configurar os buckets de storage no Supabase.
 
-**IMPORTANTE**: Siga o guia em [storage-setup.md](./supabase/storage-setup.md) para configurar o bucket `dark-links-assets` e as políticas de acesso.
+**IMPORTANTE**: 
+- Para **Dark Links**: Siga o guia em [storage-setup.md](./supabase/storage-setup.md) para configurar o bucket `dark-links-assets` e as políticas de acesso.
+- Para **Portfolio**: Siga o guia em [portfolio-storage-setup.md](./supabase/portfolio-storage-setup.md) para configurar o bucket `portfolio-assets` e as políticas de acesso.
 
 ### Tabelas Criadas
 

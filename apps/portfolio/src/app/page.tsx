@@ -1,8 +1,7 @@
-'use client'
-
 import { HomePage } from '@/views/Home'
+import { getHomeImages } from '@/lib/api/server'
 
-export default function Home() {
-  return <HomePage />
+export default async function Home() {
+  const homeImages = await getHomeImages()
+  return <HomePage homeImages={homeImages} />
 }
-

@@ -19,9 +19,12 @@ Este diretório contém os arquivos SQL de migration para criar as tabelas neces
      - OU `003_enable_rls_and_policies.sql` (habilita RLS com políticas - use se precisar de controle de acesso)
    - **Se houver múltiplos registros nas tabelas** (erro "Results contain 5 rows"), execute:
      - `004_cleanup_duplicate_records.sql` (remove duplicados, mantém apenas o mais recente)
-   - **Para habilitar upload de imagens** (favicon e foto de perfil), execute:
-     - `005_setup_storage_policies.sql` (configura políticas RLS para o bucket de storage)
+   - **Para habilitar upload de imagens do Dark Links**, execute:
+     - `005_setup_storage_policies.sql` (configura políticas RLS para o bucket `dark-links-assets`)
      - **IMPORTANTE**: Crie o bucket `dark-links-assets` no Supabase Storage antes de executar esta migration
+   - **Para habilitar upload de imagens do Portfolio**, execute:
+     - `008_setup_portfolio_storage_policies.sql` (configura políticas RLS para o bucket `portfolio-assets`)
+     - **IMPORTANTE**: Crie o bucket `portfolio-assets` no Supabase Storage antes de executar esta migration
 6. Copie e cole o conteúdo de cada arquivo
 7. Clique em **Run** (ou pressione `Ctrl+Enter`)
 

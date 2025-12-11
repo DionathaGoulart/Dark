@@ -83,14 +83,26 @@ const getLinkTitle = (link: LinkData, t: any): string => {
 // MAIN COMPONENT
 // ================================
 
+interface PrintsPageData {
+  title_pt: string
+  title_en: string
+  content_pt?: string
+  content_en?: string
+}
+
 /**
  * Prints & Artwork links page component
  * Displays a collection of links to various art platforms and portfolio sites
  */
-export const PrintsPage: React.FC = () => {
+export const PrintsPage: React.FC<{ pageData?: PrintsPageData | null }> = ({ pageData }) => {
   const { t, language } = useI18n()
 
   useDocumentTitle('prints')
+
+  // Usar dados do Supabase se disponíveis
+  const title = pageData 
+    ? (language === 'pt' ? pageData.title_pt : pageData.title_en)
+    : t.pages.prints.title
 
   // ================================
   // EVENT HANDLERS
@@ -130,6 +142,18 @@ export const PrintsPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="animate-slide-up">
+        {title && (
+          <h1 className="text-4xl font-bold text-primary-black dark:text-primary-white mb-8 tracking-tight text-center">
+            {title}
+          </h1>
+        )}
+        {pageData && (language === 'pt' ? pageData.content_pt : pageData.content_en) && (
+          <div className="prose prose-lg max-w-none mb-8 text-center">
+            <p className="text-primary-black/60 dark:text-primary-white/60 leading-relaxed">
+              {language === 'pt' ? pageData.content_pt : pageData.content_en}
+            </p>
+          </div>
+        )}
         <div className="max-w-md mx-auto">
           <div className="space-y-4">
             {LINKS_DATA.map((link, index) => (

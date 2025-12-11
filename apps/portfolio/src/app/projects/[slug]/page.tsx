@@ -2,8 +2,12 @@ import { ProjectPage } from '@/views/ProjectPage'
 import { getProjectBySlug, getProjectImages } from '@/lib/api/server'
 import { notFound } from 'next/navigation'
 
-export default async function FacesOfHorrorPage() {
-  const project = await getProjectBySlug('facesofhorror')
+export default async function ProjectSlugPage({
+  params
+}: {
+  params: { slug: string }
+}) {
+  const project = await getProjectBySlug(params.slug)
   
   if (!project) {
     notFound()
