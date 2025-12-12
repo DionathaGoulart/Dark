@@ -13,7 +13,6 @@ import { useI18n } from '@/core/providers'
 import {
   ImageItem,
   ProjectData,
-  CloudinaryOptions,
   ProjectUrls,
   LoadingState,
   StableTranslations,
@@ -24,26 +23,6 @@ import {
 // ================================
 // CONSTANTS
 // ================================
-
-const CLOUDINARY_BASE_URL =
-  'https://res.cloudinary.com/dlaxva1qb/image/upload/v1758048739'
-
-const cloudinaryCovers = {
-  cover1: `${CLOUDINARY_BASE_URL}/pj1_cover.webp`,
-  cover2: `${CLOUDINARY_BASE_URL}/pj2_cover.webp`,
-  cover3: `${CLOUDINARY_BASE_URL}/pj3_cover.webp`,
-  cover4: `${CLOUDINARY_BASE_URL}/pj4_cover.webp`,
-  cover5: `${CLOUDINARY_BASE_URL}/pj5_cover.webp`,
-  cover6: `${CLOUDINARY_BASE_URL}/pj6_cover.webp`,
-  cover7: `${CLOUDINARY_BASE_URL}/pj7_cover.webp`,
-  cover8: `${CLOUDINARY_BASE_URL}/p8_cover.webp`
-} as const
-
-const DEFAULT_CLOUDINARY_OPTIONS: CloudinaryOptions = {
-  quality: 'auto',
-  format: 'auto',
-  crop: 'fit'
-}
 
 const PRIORITY_PROJECTS_COUNT = 4
 const GRID_COLUMN_CONFIG = {
@@ -64,130 +43,21 @@ const LOADER_KEYFRAMES = `
   }
 `
 
-const projectsData: ProjectData[] = [
-  {
-    id: 'faces-of-horror',
-    title: 'Faces of Horror',
-    titlePt: 'Faces do Horror',
-    url: cloudinaryCovers.cover1,
-    linkTo: '/facesofhorror'
-  },
-  {
-    id: 'macabre-faces',
-    title: 'Macabre Faces T-shirt',
-    titlePt: 'Camiseta Faces Macabras',
-    url: cloudinaryCovers.cover2,
-    linkTo: '/tshirt-raglan'
-  },
-  {
-    id: 'killer-ladybugs',
-    title: 'Killer Ladybugs',
-    titlePt: 'Joaninhas Assassinas',
-    url: cloudinaryCovers.cover3,
-    linkTo: '/ladybugs'
-  },
-  {
-    id: 'creepy-faces',
-    title: 'Creepy Faces',
-    titlePt: 'Rostos Assustadores',
-    url: cloudinaryCovers.cover4,
-    linkTo: '/creepy'
-  },
-  {
-    id: 'horror-art',
-    title: 'Horror Art',
-    titlePt: 'Arte de Horror',
-    url: cloudinaryCovers.cover5,
-    linkTo: '/horror-art'
-  },
-  {
-    id: 'halloween-tshirts',
-    title: 'Halloween T-shirts',
-    titlePt: 'Camisetas de Halloween',
-    url: cloudinaryCovers.cover6,
-    linkTo: '/halloween'
-  },
-  {
-    id: 'fantasy-creatures',
-    title: 'Fantasy Creatures',
-    titlePt: 'Criaturas Fantásticas',
-    url: cloudinaryCovers.cover7,
-    linkTo: '/fantasy'
-  },
-  {
-    id: 'arachnophobia',
-    title: 'Arachnophobia',
-    titlePt: 'Aracnofobia',
-    url: cloudinaryCovers.cover8,
-    linkTo: '/arachnophobia'
-  }
-]
+// Projects are now loaded from the database
+// This array is kept for backward compatibility but should be empty
+const projectsData: ProjectData[] = []
 
 // ================================
 // HELPER FUNCTIONS
 // ================================
 
 /**
- * Optimizes Cloudinary URLs with transformation parameters
- */
-const optimizeCloudinaryUrl = (
-  url: string,
-  options: CloudinaryOptions = {}
-): string => {
-  const mergedOptions = { ...DEFAULT_CLOUDINARY_OPTIONS, ...options }
-  const { width, height, quality, format, crop } = mergedOptions
-
-  const cloudinaryRegex =
-    /https:\/\/res\.cloudinary\.com\/([^\/]+)\/image\/upload\/(.+)/
-  const match = url.match(cloudinaryRegex)
-
-  if (!match) return url
-
-  const [, cloudName, imagePath] = match
-  const transformations: string[] = []
-
-  if (width || height) {
-    const dimensions: string[] = []
-    if (width) dimensions.push(`w_${width}`)
-    if (height) dimensions.push(`h_${height}`)
-    if (crop) dimensions.push(`c_${crop}`)
-    transformations.push(dimensions.join(','))
-  }
-
-  if (quality) transformations.push(`q_${quality}`)
-  if (format) transformations.push(`f_${format}`)
-
-  transformations.push('fl_progressive', 'fl_immutable_cache')
-
-  const transformationString = transformations.join('/')
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformationString}/${imagePath}`
-}
-
-/**
- * Generates optimized URLs for different project image sizes
+ * Generates URLs for different project image sizes (using original URL from Supabase Storage)
  */
 const generateProjectUrls = (originalUrl: string): ProjectUrls => ({
-  thumbnail: optimizeCloudinaryUrl(originalUrl, {
-    width: 400,
-    height: 400,
-    quality: 70,
-    format: 'webp',
-    crop: 'fill'
-  }),
-  medium: optimizeCloudinaryUrl(originalUrl, {
-    width: 800,
-    height: 800,
-    quality: 80,
-    format: 'webp',
-    crop: 'fit'
-  }),
-  large: optimizeCloudinaryUrl(originalUrl, {
-    width: 1200,
-    height: 1200,
-    quality: 85,
-    format: 'webp',
-    crop: 'fit'
-  }),
+  thumbnail: originalUrl,
+  medium: originalUrl,
+  large: originalUrl,
   original: originalUrl
 })
 
@@ -199,13 +69,7 @@ const createImageItem = (
   language: string
 ): ImageItem => ({
   id: project.id,
-  url: optimizeCloudinaryUrl(project.url, {
-    width: 600,
-    height: 600,
-    quality: 80,
-    format: 'webp',
-    crop: 'fill'
-  }),
+  url: project.url,
   alt: language === 'pt' ? project.titlePt : project.title,
   title: language === 'pt' ? project.titlePt : project.title,
   linkTo: project.linkTo,
@@ -219,15 +83,7 @@ const processProjectsBatch = async (
   projects: ProjectData[],
   language: string
 ): Promise<ImageItem[]> => {
-  const urls = projects.map((project) =>
-    optimizeCloudinaryUrl(project.url, {
-      width: 600,
-      height: 600,
-      quality: 80,
-      format: 'webp',
-      crop: 'fill'
-    })
-  )
+  const urls = projects.map((project) => project.url)
 
   const preloadedImages = await batchPreloadImages(urls)
 
@@ -553,6 +409,7 @@ export const ProjectsPage: React.FC = () => {
             gap={3}
             isSquareGrid
             showHoverEffect
+            emptyMessage={language === 'pt' ? 'Nenhum projeto disponível' : 'No projects available'}
           />
         )}
       </section>

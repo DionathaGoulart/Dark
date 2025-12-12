@@ -7,7 +7,6 @@ import {
   MasonryGridLoaderProps,
   ErrorStateProps,
   ImageItem,
-  CloudinaryOptions,
   OptimizedUrls
 } from '@/types'
 import {
@@ -22,15 +21,6 @@ import { trackEvent } from '@/features'
 // ================================
 // CONSTANTS
 // ================================
-
-const CLOUDINARY_BASE_URL =
-  'https://res.cloudinary.com/dlaxva1qb/image/upload/v1751235158'
-
-const DEFAULT_CLOUDINARY_OPTIONS: CloudinaryOptions = {
-  quality: 'auto',
-  format: 'auto',
-  crop: 'fit'
-}
 
 const PRIORITY_IMAGES_COUNT = 12
 const MASONRY_HEIGHTS = [
@@ -60,89 +50,25 @@ const LOADER_KEYFRAMES = `
   }
 `
 
-const originalPrintUrls = Array.from(
-  { length: 30 },
-  (_, index) => `${CLOUDINARY_BASE_URL}/${index + 1}.png`
-)
-
 // ================================
 // HELPER FUNCTIONS
 // ================================
 
 /**
- * Optimizes Cloudinary URLs with transformation parameters
- */
-const optimizeCloudinaryUrl = (
-  url: string,
-  options: CloudinaryOptions = {}
-): string => {
-  const mergedOptions = { ...DEFAULT_CLOUDINARY_OPTIONS, ...options }
-  const { width, height, quality, format, crop } = mergedOptions
-
-  const cloudinaryRegex =
-    /https:\/\/res\.cloudinary\.com\/([^\/]+)\/image\/upload\/(.+)/
-  const match = url.match(cloudinaryRegex)
-
-  if (!match) return url
-
-  const [, cloudName, imagePath] = match
-  const transformations: string[] = []
-
-  if (width || height) {
-    const dimensions: string[] = []
-    if (width) dimensions.push(`w_${width}`)
-    if (height) dimensions.push(`h_${height}`)
-    if (crop) dimensions.push(`c_${crop}`)
-    transformations.push(dimensions.join(','))
-  }
-
-  if (quality) transformations.push(`q_${quality}`)
-  if (format) transformations.push(`f_${format}`)
-
-  transformations.push('fl_progressive', 'fl_immutable_cache')
-
-  const transformationString = transformations.join('/')
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformationString}/${imagePath}`
-}
-
-/**
- * Generates optimized URLs for different image sizes
+ * Generates URLs for different image sizes (using original URL from Supabase Storage)
  */
 const generateOptimizedUrls = (originalUrl: string): OptimizedUrls => ({
-  thumbnail: optimizeCloudinaryUrl(originalUrl, {
-    width: 400,
-    height: 400,
-    quality: 70,
-    format: 'webp'
-  }),
-  medium: optimizeCloudinaryUrl(originalUrl, {
-    width: 800,
-    height: 800,
-    quality: 80,
-    format: 'webp'
-  }),
-  large: optimizeCloudinaryUrl(originalUrl, {
-    width: 1200,
-    height: 1200,
-    quality: 85,
-    format: 'webp'
-  }),
+  thumbnail: originalUrl,
+  medium: originalUrl,
+  large: originalUrl,
   original: originalUrl
 })
 
 /**
- * Processes batch of URLs and returns ImageItems with optimized URLs
+ * Processes batch of URLs and returns ImageItems
  */
 const processBatchImages = async (urls: string[]): Promise<ImageItem[]> => {
-  const optimizedUrls = urls.map((url) =>
-    optimizeCloudinaryUrl(url, {
-      width: 600,
-      quality: 'auto',
-      format: 'auto'
-    })
-  )
-
-  const preloadedImages = await batchPreloadImages(optimizedUrls)
+  const preloadedImages = await batchPreloadImages(urls)
 
   return preloadedImages.map((image, index) => ({
     ...image,
@@ -232,88 +158,6 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error }) => (
 )
 
 // ================================
-// HOOKS
-// ================================
-
-/**
- * Custom hook to handle image loading and state management
- */
-const useImageLoader = (t: any) => {
-  const [images, setImages] = useState<ImageItem[]>([])
-  const [loadingState, setLoadingState] = useState<LoadingState>({
-    loading: true,
-    lazyLoading: true,
-    error: null
-  })
-
-  const loadImages = async () => {
-    setLoadingState({ loading: true, lazyLoading: true, error: null })
-
-    try {
-      // Load priority images first
-      const priorityUrls = originalPrintUrls.slice(0, PRIORITY_IMAGES_COUNT)
-      const priorityImages = await processBatchImages(priorityUrls)
-
-      setImages(priorityImages)
-      setLoadingState((prev) => ({ ...prev, loading: false }))
-
-      trackEvent({
-        event_name: 'images_loaded',
-        event_parameters: {
-          images_count: priorityImages.length,
-          load_type: 'priority',
-          load_time: 'initial'
-        }
-      })
-
-      // Load remaining images lazily
-      if (originalPrintUrls.length > PRIORITY_IMAGES_COUNT) {
-        const remainingUrls = originalPrintUrls.slice(PRIORITY_IMAGES_COUNT)
-        const remainingImages = await processBatchImages(remainingUrls)
-
-        setImages((prev) => [...prev, ...remainingImages])
-
-        trackEvent({
-          event_name: 'lazy_images_loaded',
-          event_parameters: {
-            total_images: priorityImages.length + remainingImages.length,
-            lazy_images: remainingImages.length,
-            load_type: 'lazy'
-          }
-        })
-      }
-
-      setLoadingState((prev) => ({ ...prev, lazyLoading: false }))
-
-      if (priorityImages.length === 0) {
-        setLoadingState((prev) => ({
-          ...prev,
-          error: t.common.noImages || 'Nenhuma imagem encontrada'
-        }))
-      }
-    } catch (err) {
-      console.error('Error loading images:', err)
-
-      trackEvent({
-        event_name: 'image_load_error',
-        event_parameters: {
-          error_message: err instanceof Error ? err.message : 'Unknown error',
-          error_type: 'batch_load_failure'
-        }
-      })
-
-      setLoadingState({
-        loading: false,
-        lazyLoading: false,
-        error: t.common.error || 'Erro ao carregar imagens'
-      })
-    }
-  }
-
-  return { images, setImages, loadingState, loadImages }
-}
-
-// ================================
 // MAIN COMPONENT
 // ================================
 
@@ -333,7 +177,6 @@ interface HomePageProps {
  */
 export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
   const { t, language } = useI18n()
-  const fallbackLoader = useImageLoader(t)
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null)
   const [supabaseImages, setSupabaseImages] = useState<ImageItem[]>([])
   const [supabaseLoading, setSupabaseLoading] = useState<LoadingState>({
@@ -355,9 +198,9 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
     )
   }, [supabaseImages])
 
-  // Usar imagens do Supabase se disponíveis, senão usar fallback
-  const images = homeImages.length > 0 ? uniqueSupabaseImages : fallbackLoader.images
-  const loadingState = homeImages.length > 0 ? supabaseLoading : fallbackLoader.loadingState
+  // Usar apenas imagens do Supabase (sem fallback)
+  const images = uniqueSupabaseImages
+  const loadingState = supabaseLoading
 
   useDocumentTitle('home')
 
@@ -371,7 +214,7 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
       event_parameters: {
         page_title: 'Home - Portfolio',
         content_type: 'portfolio_gallery',
-        total_images_available: homeImages.length || originalPrintUrls.length
+        total_images_available: homeImages.length
       }
     })
   }, [homeImages.length])
@@ -463,8 +306,9 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
       }
       loadImagesFromSupabase()
     } else {
-      // Fallback para imagens hardcoded se não houver no Supabase
-      fallbackLoader.loadImages()
+      // Se não houver imagens no banco, apenas definir estado como carregado e vazio
+      setSupabaseLoading({ loading: false, lazyLoading: false, error: null })
+      setSupabaseImages([])
     }
     
     // Cleanup function para cancelar carregamentos pendentes
@@ -495,11 +339,7 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
 
   const handleImageError = (image: ImageItem) => {
     console.error(`Error displaying image: ${image.id}`)
-    if (homeImages.length > 0) {
-      setSupabaseImages((prev) => prev.filter((img) => img.id !== image.id))
-    } else {
-      fallbackLoader.setImages((prev) => prev.filter((img) => img.id !== image.id))
-    }
+    setSupabaseImages((prev) => prev.filter((img) => img.id !== image.id))
 
     trackEvent({
       event_name: 'image_display_error',

@@ -28,7 +28,10 @@ export interface PortfolioSettingsData {
   logo_url?: string
   instagram_url?: string
   youtube_url?: string
-  footer_text?: string
+  footer_text?: string // Mantido para compatibilidade
+  footer_text_pt?: string
+  footer_text_en?: string
+  contact_email?: string
 }
 
 export interface NavigationItem {
@@ -85,5 +88,16 @@ export interface ProjectImage {
   aspect_ratio?: 'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto'
   object_fit?: 'cover' | 'contain'
   grid_group_id?: string
+}
+
+export interface StoreCard {
+  id: string
+  title_pt?: string
+  title_en?: string
+  url: string
+  description?: string
+  icon_url?: string
+  order_index: number
+  is_active: boolean
 }
 

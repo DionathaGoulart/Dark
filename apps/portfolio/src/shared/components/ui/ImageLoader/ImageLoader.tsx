@@ -8,7 +8,7 @@ import React, { useState, useRef, useEffect } from 'react'
 // ================================
 
 /**
- * Garante que a URL use protocolo HTTPS para compatibilidade com Cloudinary
+ * Garante que a URL use protocolo HTTPS
  */
 const ensureHttps = (url: string): string => {
   if (url.startsWith('http://')) {

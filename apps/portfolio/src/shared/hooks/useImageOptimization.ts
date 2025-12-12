@@ -6,16 +6,7 @@ import { batchPreloadImages } from '../utils'
 // Tipos e Interfaces
 // ================================
 
-/** Opções de otimização de URL do Cloudinary */
-interface CloudinaryOptions {
-  width?: number
-  height?: number
-  quality?: 'auto' | number
-  format?: 'auto' | 'webp' | 'jpg' | 'png'
-  crop?: 'fill' | 'fit' | 'scale' | 'pad'
-}
-
-/** URLs otimizadas para diferentes tamanhos de tela */
+/** URLs otimizadas para diferentes tamanhos de tela (usando URLs originais do Supabase Storage) */
 interface OptimizedUrls {
   small: string
   medium: string
@@ -48,73 +39,17 @@ interface UseImageOptimizationReturn {
 // ================================
 
 /**
- * Otimiza URLs do Cloudinary com transformações especificadas
- * @param url - URL original do Cloudinary
- * @param options - Parâmetros de otimização
- * @returns URL otimizada ou original se não for Cloudinary
- */
-const optimizeCloudinaryUrl = (
-  url: string,
-  options: CloudinaryOptions = {}
-): string => {
-  const cloudinaryRegex =
-    /https:\/\/res\.cloudinary\.com\/([^\/]+)\/image\/upload\/(.+)/
-  const match = url.match(cloudinaryRegex)
-
-  if (!match) return url
-
-  const [, cloudName, imagePath] = match
-  const transformations = []
-
-  // Adiciona transformações de dimensão
-  if (options.width || options.height) {
-    const dimensions = []
-    if (options.width) dimensions.push(`w_${options.width}`)
-    if (options.height) dimensions.push(`h_${options.height}`)
-    if (options.crop) dimensions.push(`c_${options.crop}`)
-    transformations.push(dimensions.join(','))
-  }
-
-  // Adiciona transformações de qualidade e formato
-  if (options.quality) transformations.push(`q_${options.quality}`)
-  if (options.format) transformations.push(`f_${options.format}`)
-
-  // Adiciona otimizações de performance
-  transformations.push('fl_progressive')
-  transformations.push('fl_immutable_cache')
-
-  const transformationString = transformations.join('/')
-
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformationString}/${imagePath}`
-}
-
-/**
- * Gera múltiplas variantes de URL otimizadas para carregamento responsivo
- * @param originalUrl - URL base para otimizar
- * @returns Objeto com URLs otimizadas para diferentes tamanhos de tela
+ * Gera múltiplas variantes de URL para carregamento responsivo
+ * Usa a URL original do Supabase Storage (sem transformações)
+ * @param originalUrl - URL base
+ * @returns Objeto com URLs para diferentes tamanhos de tela
  */
 const generateOptimizedUrls = (originalUrl: string): OptimizedUrls => {
   return {
-    small: optimizeCloudinaryUrl(originalUrl, {
-      width: 800,
-      quality: 90,
-      format: 'webp'
-    }),
-    medium: optimizeCloudinaryUrl(originalUrl, {
-      width: 1400,
-      quality: 95,
-      format: 'webp'
-    }),
-    large: optimizeCloudinaryUrl(originalUrl, {
-      width: 2000,
-      quality: 95,
-      format: 'webp'
-    }),
-    main: optimizeCloudinaryUrl(originalUrl, {
-      width: 1200,
-      quality: 95,
-      format: 'webp'
-    })
+    small: originalUrl,
+    medium: originalUrl,
+    large: originalUrl,
+    main: originalUrl
   }
 }
 
@@ -161,11 +96,7 @@ export const useImageOptimization = (
         const priorityUrls = originalUrls.slice(0, priorityCount)
         const priorityPromises = priorityUrls.map(
           async (originalUrl, index) => {
-            let optimizedUrl = optimizeCloudinaryUrl(originalUrl, {
-              width: 1400,
-              quality: 95,
-              format: 'webp'
-            })
+            let optimizedUrl = originalUrl
 
             // Adiciona cache-busting para desenvolvimento
             if (bypassCache) {
@@ -204,11 +135,7 @@ export const useImageOptimization = (
           const remainingPromises = remainingUrls.map(
             async (originalUrl, index) => {
               const actualIndex = index + priorityCount
-              let optimizedUrl = optimizeCloudinaryUrl(originalUrl, {
-                width: 1400,
-                quality: 95,
-                format: 'webp'
-              })
+              let optimizedUrl = originalUrl
 
               // Adiciona cache-busting para desenvolvimento
               if (bypassCache) {

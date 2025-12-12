@@ -101,7 +101,14 @@ export default async function RootLayout({
               logoSrc={settingsData?.logo_url}
               instagramUrl={settingsData?.instagram_url}
               youtubeUrl={settingsData?.youtube_url}
-              footerText={settingsData?.footer_text}
+              footerText={
+                settingsData?.footer_text_pt || settingsData?.footer_text_en
+                  ? {
+                      pt: settingsData?.footer_text_pt || settingsData?.footer_text || '',
+                      en: settingsData?.footer_text_en || settingsData?.footer_text || ''
+                    }
+                  : undefined
+              }
               navigationItems={navigationItems}
             >
               {children}

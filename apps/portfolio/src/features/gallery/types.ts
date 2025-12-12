@@ -208,15 +208,6 @@ export interface GridLoadingSkeletonProps {
 // Tipos de Otimização de Imagem
 // ================================
 
-/** Opções de otimização do Cloudinary */
-export interface CloudinaryOptions {
-  width?: number
-  height?: number
-  quality?: 'auto' | number
-  format?: 'auto' | 'webp' | 'jpg' | 'png'
-  crop?: 'fit' | 'fill' | 'crop' | 'scale'
-}
-
 /** URLs otimizadas para diferentes tamanhos */
 export interface OptimizedUrls {
   thumbnail: string

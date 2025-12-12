@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
 
 // ================================
@@ -26,9 +27,12 @@ export const LayoutHeader: React.FC<HeaderProps> = ({
       <div className="px-4 sm:px-10 lg:px-14">
         <div className="flex items-center justify-between h-20 sm:h-24">
           <div className="flex-shrink-0">
-            <h1 className="text-2xl font-bold text-primary-black dark:text-primary-white">
+            <Link 
+              href="/dashboard"
+              className="text-2xl font-bold text-primary-black dark:text-primary-white hover:opacity-70 transition-opacity cursor-pointer"
+            >
               {title}
-            </h1>
+            </Link>
           </div>
 
           <div className="flex items-center space-x-4">

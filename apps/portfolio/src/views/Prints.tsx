@@ -90,11 +90,25 @@ interface PrintsPageData {
   content_en?: string
 }
 
+interface StoreCard {
+  id: string
+  title_pt?: string
+  title_en?: string
+  url: string
+  description?: string
+  icon_url?: string
+  order_index: number
+  is_active: boolean
+}
+
 /**
  * Prints & Artwork links page component
  * Displays a collection of links to various art platforms and portfolio sites
  */
-export const PrintsPage: React.FC<{ pageData?: PrintsPageData | null }> = ({ pageData }) => {
+export const PrintsPage: React.FC<{ 
+  pageData?: PrintsPageData | null
+  storeCards?: StoreCard[]
+}> = ({ pageData, storeCards = [] }) => {
   const { t, language } = useI18n()
 
   useDocumentTitle('prints')
@@ -104,18 +118,28 @@ export const PrintsPage: React.FC<{ pageData?: PrintsPageData | null }> = ({ pag
     ? (language === 'pt' ? pageData.title_pt : pageData.title_en)
     : t.pages.prints.title
 
+  // Usar apenas cards do banco, sem fallback
+  const displayCards = storeCards.map(card => ({
+    title: language === 'pt' 
+      ? (card.title_pt || card.title_en || '')
+      : (card.title_en || card.title_pt || ''),
+    url: card.url,
+    icon: card.icon_url || '',
+    eventName: 'click_store_card'
+  }))
+
   // ================================
   // EVENT HANDLERS
   // ================================
 
-  const handleLinkClick = (link: LinkData) => {
+  const handleLinkClick = (link: { title: string; url: string; eventName?: string }) => {
     trackEvent({
-      event_name: link.eventName,
+      event_name: link.eventName || 'click_store_link',
       event_parameters: {
         link_url: link.url,
-        link_title: link.titleKey || link.title || 'Unknown',
+        link_title: link.title || 'Unknown',
         language: language,
-        page_title: 'Prints & Artwork - Portfolio'
+        page_title: 'Stores - Portfolio'
       }
     })
   }
@@ -155,17 +179,27 @@ export const PrintsPage: React.FC<{ pageData?: PrintsPageData | null }> = ({ pag
           </div>
         )}
         <div className="max-w-md mx-auto">
-          <div className="space-y-4">
-            {LINKS_DATA.map((link, index) => (
-              <LinkItem
-                key={index}
-                title={getLinkTitle(link, t)}
-                url={link.url}
-                icon={link.icon}
-                onClick={() => handleLinkClick(link)}
-              />
-            ))}
-          </div>
+          {displayCards.length > 0 ? (
+            <div className="space-y-4">
+              {displayCards.map((link, index) => (
+                <LinkItem
+                  key={storeCards[index]?.id || `card-${index}`}
+                  title={link.title}
+                  url={link.url}
+                  icon={link.icon}
+                  onClick={() => handleLinkClick(link)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-primary-black/50 dark:text-primary-white/50">
+                {language === 'pt' 
+                  ? 'Nenhuma loja disponível no momento.'
+                  : 'No stores available at the moment.'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

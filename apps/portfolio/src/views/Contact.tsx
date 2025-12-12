@@ -21,7 +21,7 @@ import {
 // ================================
 
 const EMAILJS_API_URL = 'https://api.emailjs.com/api/v1.0/email/send'
-const CONTACT_EMAIL = 'darkning.arts@gmail.com'
+const DEFAULT_CONTACT_EMAIL = 'darkning.arts@gmail.com'
 
 const INITIAL_FORM_DATA: FormData = {
   name: '',
@@ -76,8 +76,9 @@ const getEmailJSConfig = (): EmailJSConfig => {
 /**
  * Sends email using EmailJS API
  */
-const sendEmail = async (formData: FormData): Promise<void> => {
+const sendEmail = async (formData: FormData, contactEmail?: string): Promise<void> => {
   const config = getEmailJSConfig()
+  const toEmail = contactEmail || DEFAULT_CONTACT_EMAIL
 
   const response = await fetch(EMAILJS_API_URL, {
     method: 'POST',
@@ -92,7 +93,7 @@ const sendEmail = async (formData: FormData): Promise<void> => {
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
-        to_email: CONTACT_EMAIL
+        to_email: toEmail
       }
     })
   })
@@ -111,27 +112,31 @@ const sendEmail = async (formData: FormData): Promise<void> => {
 /**
  * Contact information section
  */
-const ContactInfo: React.FC<ContactInfoProps> = ({ description }) => (
-  <div className="border-l-2 border-primary-black dark:border-primary-white pl-6">
-    <p className="text-primary-black/60 dark:text-primary-white/60 leading-relaxed mb-8">
-      {description}
-    </p>
+const ContactInfo: React.FC<ContactInfoProps & { contactEmail?: string }> = ({ description, contactEmail }) => {
+  const email = contactEmail || DEFAULT_CONTACT_EMAIL
+  
+  return (
+    <div className="border-l-2 border-primary-black dark:border-primary-white pl-6">
+      <p className="text-primary-black/60 dark:text-primary-white/60 leading-relaxed mb-8">
+        {description}
+      </p>
 
-    <div className="space-y-4">
-      <a
-        href={`mailto:${CONTACT_EMAIL}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
-      >
-        <div className="w-2 h-2 bg-primary-black dark:bg-primary-white" />
-        <span className="text-primary-black dark:text-primary-white font-medium">
-          {CONTACT_EMAIL}
-        </span>
-      </a>
+      <div className="space-y-4">
+        <a
+          href={`mailto:${email}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
+        >
+          <div className="w-2 h-2 bg-primary-black dark:bg-primary-white" />
+          <span className="text-primary-black dark:text-primary-white font-medium">
+            {email}
+          </span>
+        </a>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 /**
  * Success message component
@@ -305,7 +310,7 @@ const DecorativeDivider: React.FC = () => (
 /**
  * Custom hook to handle form state and submission
  */
-const useContactForm = (t: any) => {
+const useContactForm = (t: any, contactEmail?: string) => {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
@@ -347,7 +352,7 @@ const useContactForm = (t: any) => {
     })
 
     try {
-      await sendEmail(formData)
+      await sendEmail(formData, contactEmail)
       setSubmitStatus('success')
       setFormData(INITIAL_FORM_DATA)
 
@@ -414,9 +419,10 @@ interface ContactPageData {
  * Contact page with form functionality using EmailJS
  * Features contact information and message sending capabilities
  */
-export const ContactPage: React.FC<ContactPageProps & { pageData?: ContactPageData | null }> = ({ 
+export const ContactPage: React.FC<ContactPageProps & { pageData?: ContactPageData | null; contactEmail?: string }> = ({ 
   className = '',
-  pageData
+  pageData,
+  contactEmail
 }) => {
   const { t, language } = useI18n()
   const {
@@ -426,7 +432,7 @@ export const ContactPage: React.FC<ContactPageProps & { pageData?: ContactPageDa
     handleInputChange,
     handleSubmit,
     handleResetForm
-  } = useContactForm(t)
+  } = useContactForm(t, contactEmail)
 
   useDocumentTitle('contact')
 
@@ -475,7 +481,7 @@ export const ContactPage: React.FC<ContactPageProps & { pageData?: ContactPageDa
         </h1>
 
         <div className="grid gap-8 md:gap-12 lg:grid-cols-2">
-          <ContactInfo description={description} />
+          <ContactInfo description={description} contactEmail={contactEmail} />
 
           <div className="border border-primary-black dark:border-primary-white p-8">
             <h3 className="text-xl font-medium text-primary-black dark:text-primary-white mb-6">

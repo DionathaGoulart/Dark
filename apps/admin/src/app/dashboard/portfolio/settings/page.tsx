@@ -12,7 +12,9 @@ interface SettingsData {
   logo_url: string
   instagram_url: string
   youtube_url: string
-  footer_text: string
+  footer_text?: string // Mantido para compatibilidade
+  footer_text_pt: string
+  footer_text_en: string
 }
 
 export default function PortfolioSettingsPage() {
@@ -26,7 +28,8 @@ export default function PortfolioSettingsPage() {
     logo_url: '',
     instagram_url: '',
     youtube_url: '',
-    footer_text: ''
+    footer_text_pt: '',
+    footer_text_en: ''
   })
   const iconFileInputRef = useRef<HTMLInputElement>(null)
   const logoFileInputRef = useRef<HTMLInputElement>(null)
@@ -66,8 +69,13 @@ export default function PortfolioSettingsPage() {
         const defaultValues = {
           instagram_url: 'https://www.instagram.com/darkning.art',
           youtube_url: 'https://www.youtube.com/@darkning_art',
-          footer_text: '© 2024 Dark. All rights reserved.'
+          footer_text_pt: '© 2025 Todos os direitos reservados.',
+          footer_text_en: '© 2025 All rights reserved.'
         }
+
+        // Migração: se tiver footer_text antigo, usar para ambos
+        const footerTextPt = data.footer_text_pt || data.footer_text || defaultValues.footer_text_pt
+        const footerTextEn = data.footer_text_en || data.footer_text || defaultValues.footer_text_en
 
         setSettingsData({
           id: data.id,
@@ -75,7 +83,8 @@ export default function PortfolioSettingsPage() {
           logo_url: data.logo_url || '',
           instagram_url: data.instagram_url || defaultValues.instagram_url,
           youtube_url: data.youtube_url || defaultValues.youtube_url,
-          footer_text: data.footer_text || defaultValues.footer_text
+          footer_text_pt: footerTextPt,
+          footer_text_en: footerTextEn
         })
       } else {
         setSettingsData({
@@ -83,7 +92,8 @@ export default function PortfolioSettingsPage() {
           logo_url: '',
           instagram_url: 'https://www.instagram.com/darkning.art',
           youtube_url: 'https://www.youtube.com/@darkning_art',
-          footer_text: '© 2024 Dark. All rights reserved.'
+          footer_text_pt: '© 2025 Todos os direitos reservados.',
+          footer_text_en: '© 2025 All rights reserved.'
         })
       }
       setLoading(false)
@@ -205,13 +215,18 @@ export default function PortfolioSettingsPage() {
         result = data
       }
 
+      // Migração: se tiver footer_text antigo, usar para ambos
+      const footerTextPt = result.footer_text_pt || result.footer_text || ''
+      const footerTextEn = result.footer_text_en || result.footer_text || ''
+
       setSettingsData({
         id: result.id,
         site_icon_url: result.site_icon_url || '',
         logo_url: result.logo_url || '',
         instagram_url: result.instagram_url || '',
         youtube_url: result.youtube_url || '',
-        footer_text: result.footer_text || ''
+        footer_text_pt: footerTextPt,
+        footer_text_en: footerTextEn
       })
       alert('Configurações salvas com sucesso!')
     } catch (error) {
@@ -443,17 +458,31 @@ export default function PortfolioSettingsPage() {
             <h2 className="text-2xl font-bold text-primary-black dark:text-primary-white mb-6">
               Rodapé
             </h2>
-            <div>
-              <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
-                Texto do Rodapé
-              </label>
-              <input
-                type="text"
-                value={settingsData.footer_text || ''}
-                onChange={(e) => setSettingsData({ ...settingsData, footer_text: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
-                placeholder="© 2024 Dark. All rights reserved."
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
+                  Texto do Rodapé (Português)
+                </label>
+                <input
+                  type="text"
+                  value={settingsData.footer_text_pt || ''}
+                  onChange={(e) => setSettingsData({ ...settingsData, footer_text_pt: e.target.value })}
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  placeholder="© 2025 Todos os direitos reservados."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
+                  Texto do Rodapé (English)
+                </label>
+                <input
+                  type="text"
+                  value={settingsData.footer_text_en || ''}
+                  onChange={(e) => setSettingsData({ ...settingsData, footer_text_en: e.target.value })}
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  placeholder="© 2025 All rights reserved."
+                />
+              </div>
             </div>
           </div>
         </div>
