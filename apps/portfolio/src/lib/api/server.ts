@@ -6,7 +6,8 @@ import type {
   PortfolioPage,
   HomeImage,
   Project,
-  ProjectImage
+  ProjectImage,
+  StoreCard
 } from './portfolio'
 
 /**
@@ -209,6 +210,30 @@ export async function getProjectImages(projectId: string): Promise<ProjectImage[
     return data || []
   } catch (error) {
     console.error('Erro ao buscar imagens do projeto:', error)
+    return []
+  }
+}
+
+/**
+ * Busca cards da Store (server-side)
+ */
+export async function getStoreCards(): Promise<StoreCard[]> {
+  try {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('portfolio_store_cards')
+      .select('*')
+      .eq('is_active', true)
+      .order('order_index', { ascending: true })
+
+    if (error) {
+      console.error('Erro ao buscar cards da Store:', error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error('Erro ao buscar cards da Store:', error)
     return []
   }
 }

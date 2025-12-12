@@ -238,12 +238,51 @@ export default function ProjectImagesPage() {
     setUploadObjectFit('cover')
   }
 
+  const extractFilePathFromUrl = (url: string): string | null => {
+    try {
+      // Extrai o caminho do arquivo da URL do Supabase Storage
+      // Formato: https://[project].supabase.co/storage/v1/object/public/portfolio-assets/portfolio/projects/[id]/filename.jpg
+      const urlObj = new URL(url)
+      const pathMatch = urlObj.pathname.match(/\/portfolio-assets\/(.+)/)
+      if (pathMatch && pathMatch[1]) {
+        return pathMatch[1]
+      }
+      return null
+    } catch (error) {
+      console.error('Erro ao extrair caminho do arquivo:', error)
+      return null
+    }
+  }
+
   const handleDelete = async (id: string) => {
     if (!confirm('Tem certeza que deseja remover esta imagem?')) {
       return
     }
 
     try {
+      // Buscar a imagem para obter a URL antes de deletar
+      const imageToDelete = images.find(img => img.id === id)
+      if (!imageToDelete) {
+        alert('Imagem não encontrada')
+        return
+      }
+
+      // Deletar o arquivo do storage se a URL for do Supabase Storage
+      if (imageToDelete.image_url && imageToDelete.image_url.includes('supabase.co/storage')) {
+        const filePath = extractFilePathFromUrl(imageToDelete.image_url)
+        if (filePath) {
+          const { error: storageError } = await supabase.storage
+            .from('portfolio-assets')
+            .remove([filePath])
+
+          if (storageError) {
+            console.warn('Erro ao deletar arquivo do storage:', storageError)
+            // Continua mesmo se houver erro no storage para deletar do banco
+          }
+        }
+      }
+
+      // Deletar do banco de dados
       const { error } = await supabase
         .from('portfolio_project_images')
         .delete()

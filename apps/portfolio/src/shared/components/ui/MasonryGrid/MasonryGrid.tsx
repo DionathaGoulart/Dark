@@ -80,7 +80,8 @@ export const MasonryGrid: React.FC<MasonryGridPropsExtended> = ({
   error = null,
   isSquareGrid = false,
   showHoverEffect = false,
-  objectFit = 'cover'
+  objectFit = 'cover',
+  emptyMessage
 }) => {
   // ================================
   // ESTADO E REFS
@@ -162,7 +163,7 @@ export const MasonryGrid: React.FC<MasonryGridPropsExtended> = ({
       >
         <div className="text-center">
           <div className="text-gray-700 dark:text-gray-300 text-lg">
-            📷 Nenhuma imagem disponível
+            {emptyMessage || '📷 Nenhuma imagem disponível'}
           </div>
         </div>
       </div>

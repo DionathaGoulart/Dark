@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { MainLayout } from '@/shared'
-import { Search, Settings, Navigation as NavIcon, Home, FolderKanban, FileText, Mail, Store } from 'lucide-react'
+import { ArrowLeft, Search, Settings, Navigation as NavIcon, Home, FolderKanban, FileText, Mail, Store } from 'lucide-react'
 
 export default function PortfolioDashboardPage() {
   const router = useRouter()
@@ -10,6 +10,14 @@ export default function PortfolioDashboardPage() {
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto">
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="mb-6 flex items-center gap-2 text-primary-black dark:text-primary-white hover:opacity-70 transition-opacity"
+        >
+          <ArrowLeft size={20} />
+          Voltar ao Dashboard
+        </button>
+
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-primary-black dark:text-primary-white mb-2">
             Gerenciar Portfolio

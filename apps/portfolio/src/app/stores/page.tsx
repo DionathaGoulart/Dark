@@ -1,8 +1,9 @@
 import { PrintsPage } from '@/views/Prints'
-import { getPageBySlug } from '@/lib/api/server'
+import { getPageBySlug, getStoreCards } from '@/lib/api/server'
 
 export default async function Stores() {
   const pageData = await getPageBySlug('stores')
-  return <PrintsPage pageData={pageData} />
+  const storeCards = await getStoreCards()
+  return <PrintsPage pageData={pageData} storeCards={storeCards} />
 }
 

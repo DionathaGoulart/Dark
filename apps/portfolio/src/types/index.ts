@@ -20,7 +20,6 @@ export * from './contact'
 
 // Re-export feature types for convenience (avoiding conflicts)
 export type {
-  CloudinaryOptions as GalleryCloudinaryOptions,
   ColumnCount as GalleryColumnCount,
   ErrorStateProps as GalleryErrorStateProps,
   FolderCardProps as GalleryFolderCardProps,

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { trackEvent } from '@/features/analytics'
-import { batchPreloadImages, generateOptimizedUrls, optimizeCloudinaryUrl } from '../utils'
-import { ImageItem, LoadingState, CloudinaryOptions } from '../types'
+import { batchPreloadImages, generateOptimizedUrls } from '../utils'
+import { ImageItem, LoadingState } from '../types'
 
 // ================================
 // Constantes
@@ -9,29 +9,15 @@ import { ImageItem, LoadingState, CloudinaryOptions } from '../types'
 
 const PRIORITY_IMAGES_COUNT = 12
 
-const DEFAULT_CLOUDINARY_OPTIONS: CloudinaryOptions = {
-  quality: 'auto',
-  format: 'auto',
-  crop: 'fit'
-}
-
 // ================================
 // Utilitários
 // ================================
 
 /**
- * Processes batch of URLs and returns ImageItems with optimized URLs
+ * Processes batch of URLs and returns ImageItems
  */
 const processBatchImages = async (urls: string[]): Promise<ImageItem[]> => {
-  const optimizedUrls = urls.map((url) =>
-    optimizeCloudinaryUrl(url, {
-      width: 600,
-      quality: 'auto',
-      format: 'auto'
-    })
-  )
-
-  const preloadedImages = await batchPreloadImages(optimizedUrls)
+  const preloadedImages = await batchPreloadImages(urls)
 
   return preloadedImages.map((image, index) => ({
     ...image,

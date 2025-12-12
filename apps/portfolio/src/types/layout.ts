@@ -83,7 +83,7 @@ export interface FooterConfig {
 /** Props do componente LayoutFooter */
 export interface LayoutFooterProps {
   className?: string
-  footerText?: string
+  footerText?: string | { pt?: string; en?: string }
 }
 
 // ================================
@@ -113,7 +113,7 @@ export interface MainLayoutProps {
   logoSrc?: string
   instagramUrl?: string
   youtubeUrl?: string
-  footerText?: string
+  footerText?: string | { pt?: string; en?: string }
   navigationItems?: NavItem[]
 }
 

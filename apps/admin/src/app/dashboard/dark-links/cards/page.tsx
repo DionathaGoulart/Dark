@@ -158,12 +158,68 @@ export default function CardsManagementPage() {
     }
   }
 
+  const extractFilePathFromUrl = (url: string): string | null => {
+    try {
+      // Extrai o caminho do arquivo da URL do Supabase Storage
+      // Formato: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
+      const urlObj = new URL(url)
+      // Pode ser dark-links-assets ou outro bucket
+      const pathMatch = urlObj.pathname.match(/\/storage\/v1\/object\/public\/([^\/]+)\/(.+)/)
+      if (pathMatch && pathMatch[1] && pathMatch[2]) {
+        return pathMatch[2]
+      }
+      return null
+    } catch (error) {
+      console.error('Erro ao extrair caminho do arquivo:', error)
+      return null
+    }
+  }
+
+  const getBucketFromUrl = (url: string): string | null => {
+    try {
+      const urlObj = new URL(url)
+      const pathMatch = urlObj.pathname.match(/\/storage\/v1\/object\/public\/([^\/]+)\//)
+      if (pathMatch && pathMatch[1]) {
+        return pathMatch[1]
+      }
+      return null
+    } catch (error) {
+      console.error('Erro ao extrair bucket da URL:', error)
+      return null
+    }
+  }
+
   const handleDelete = async (id: string) => {
     if (!confirm('Tem certeza que deseja excluir este card?')) {
       return
     }
 
     try {
+      // Buscar o card para obter a URL da imagem antes de deletar
+      const cardToDelete = cards.find(card => card.id === id)
+      if (!cardToDelete) {
+        alert('Card não encontrado')
+        return
+      }
+
+      // Deletar o arquivo do storage se houver icon_url e for do Supabase Storage
+      if (cardToDelete.icon_url && cardToDelete.icon_url.includes('supabase.co/storage')) {
+        const filePath = extractFilePathFromUrl(cardToDelete.icon_url)
+        const bucket = getBucketFromUrl(cardToDelete.icon_url)
+        
+        if (filePath && bucket) {
+          const { error: storageError } = await supabase.storage
+            .from(bucket)
+            .remove([filePath])
+
+          if (storageError) {
+            console.warn('Erro ao deletar arquivo do storage:', storageError)
+            // Continua mesmo se houver erro no storage para deletar do banco
+          }
+        }
+      }
+
+      // Deletar do banco de dados
       const { error } = await supabase
         .from('links_content')
         .delete()

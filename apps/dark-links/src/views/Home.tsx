@@ -216,8 +216,8 @@ export const HomePage: React.FC<HomePageProps> = ({ settings, cards = [] }) => {
                 onClick={() => handleLinkClick(social.label, social.href)}
                 className={`p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-110 ${
                   theme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-gray-800'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                    ? 'text-gray-400 hover:text-white'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
                 aria-label={social.label}
               >
