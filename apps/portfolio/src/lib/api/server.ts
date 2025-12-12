@@ -125,7 +125,14 @@ export async function getHomeImages(): Promise<HomeImage[]> {
       return []
     }
 
-    return data || []
+    const images = data || []
+    
+    // Remover duplicatas baseado no ID
+    const uniqueImages = images.filter((img, index, self) => 
+      index === self.findIndex((i) => i.id === img.id)
+    )
+
+    return uniqueImages
   } catch (error) {
     console.error('Erro ao buscar imagens da home:', error)
     return []

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 
 import {
   LoadingState,
@@ -342,8 +342,21 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
     error: null
   })
 
+  // Criar uma string de referência estável baseada nos IDs das imagens
+  const homeImagesKey = useMemo(
+    () => homeImages.map(img => img.id).join(','),
+    [homeImages]
+  )
+
+  // Remover duplicatas das imagens do Supabase antes de usar
+  const uniqueSupabaseImages = useMemo(() => {
+    return supabaseImages.filter((img, index, self) => 
+      index === self.findIndex((i) => i.id === img.id)
+    )
+  }, [supabaseImages])
+
   // Usar imagens do Supabase se disponíveis, senão usar fallback
-  const images = homeImages.length > 0 ? supabaseImages : fallbackLoader.images
+  const images = homeImages.length > 0 ? uniqueSupabaseImages : fallbackLoader.images
   const loadingState = homeImages.length > 0 ? supabaseLoading : fallbackLoader.loadingState
 
   useDocumentTitle('home')
@@ -363,19 +376,47 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
     })
   }, [homeImages.length])
 
+  // Ref para rastrear se o carregamento foi cancelado e evitar duplicação
+  const loadingRef = useRef<string | null>(null)
+  const hasLoadedRef = useRef<string | null>(null)
+
   useEffect(() => {
+    // Criar uma chave única para este carregamento
+    const loadKey = `${homeImagesKey}-${language}`
+    
+    // Se já carregamos com esta chave, não carregar novamente
+    if (hasLoadedRef.current === loadKey) {
+      return
+    }
+    
+    loadingRef.current = loadKey
+    
+    // Limpar imagens anteriores para evitar duplicação
+    setSupabaseImages([])
+    
     if (homeImages.length > 0) {
       const loadImagesFromSupabase = async () => {
         setSupabaseLoading({ loading: true, lazyLoading: false, error: null })
         try {
-          const imageUrls = homeImages.map(img => img.image_url)
-          const priorityUrls = imageUrls.slice(0, PRIORITY_IMAGES_COUNT)
-          const priorityImages = await processBatchImages(priorityUrls)
+          // Verificar se o carregamento ainda é válido antes de começar
+          if (loadingRef.current !== loadKey || hasLoadedRef.current === loadKey) {
+            return
+          }
 
-          // Adicionar alt text baseado no idioma
-          const imagesWithAlt = priorityImages.map((img, idx) => ({
+          const imageUrls = homeImages.map(img => img.image_url)
+          
+          // Carregar todas as imagens de uma vez para evitar duplicação
+          const allImages = await processBatchImages(imageUrls)
+
+          // Verificar se o carregamento ainda é válido
+          if (loadingRef.current !== loadKey || hasLoadedRef.current === loadKey) {
+            return
+          }
+
+          // Adicionar alt text baseado no idioma e garantir IDs únicos
+          const imagesWithAlt = allImages.map((img, idx) => ({
             ...img,
-            id: homeImages[idx]?.id || img.id,
+            id: homeImages[idx]?.id || `img-${idx}-${Date.now()}`,
             alt: language === 'pt' 
               ? (homeImages[idx]?.alt_text_pt || homeImages[idx]?.alt_text_en || '')
               : (homeImages[idx]?.alt_text_en || homeImages[idx]?.alt_text_pt || ''),
@@ -384,29 +425,23 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
               : (homeImages[idx]?.alt_text_en || homeImages[idx]?.alt_text_pt || '')
           }))
 
-          setSupabaseImages(imagesWithAlt)
-          setSupabaseLoading({ loading: false, lazyLoading: false, error: null })
+          // Remover duplicatas baseado no ID antes de definir o estado
+          const uniqueImages = imagesWithAlt.filter((img, index, self) => 
+            index === self.findIndex((i) => i.id === img.id)
+          )
 
-          // Load remaining images lazily
-          if (imageUrls.length > PRIORITY_IMAGES_COUNT) {
-            const remainingUrls = imageUrls.slice(PRIORITY_IMAGES_COUNT)
-            const remainingImages = await processBatchImages(remainingUrls)
-            
-            const remainingWithAlt = remainingImages.map((img, idx) => ({
-              ...img,
-              id: homeImages[PRIORITY_IMAGES_COUNT + idx]?.id || img.id,
-              alt: language === 'pt' 
-                ? (homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_pt || homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_en || '')
-                : (homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_en || homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_pt || ''),
-              title: language === 'pt' 
-                ? (homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_pt || homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_en || '')
-                : (homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_en || homeImages[PRIORITY_IMAGES_COUNT + idx]?.alt_text_pt || '')
-            }))
-
-            setSupabaseImages((prev) => [...prev, ...remainingWithAlt])
+          // Verificar novamente antes de atualizar o estado
+          if (loadingRef.current !== loadKey || hasLoadedRef.current === loadKey) {
+            return
           }
 
-          if (priorityImages.length === 0) {
+          // Marcar como carregado ANTES de atualizar o estado
+          hasLoadedRef.current = loadKey
+          
+          setSupabaseImages(uniqueImages)
+          setSupabaseLoading({ loading: false, lazyLoading: false, error: null })
+
+          if (uniqueImages.length === 0) {
             setSupabaseLoading({
               loading: false,
               lazyLoading: false,
@@ -414,6 +449,10 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
             })
           }
         } catch (err) {
+          // Verificar se ainda é o carregamento atual antes de atualizar o erro
+          if (loadingRef.current !== loadKey || hasLoadedRef.current === loadKey) {
+            return
+          }
           console.error('Error loading images from Supabase:', err)
           setSupabaseLoading({
             loading: false,
@@ -427,7 +466,15 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
       // Fallback para imagens hardcoded se não houver no Supabase
       fallbackLoader.loadImages()
     }
-  }, [homeImages, language, t])
+    
+    // Cleanup function para cancelar carregamentos pendentes
+    return () => {
+      if (loadingRef.current === loadKey) {
+        loadingRef.current = null
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [homeImagesKey, language])
 
   // ================================
   // HANDLERS
