@@ -1,8 +1,7 @@
 [build]
   command = "npm run build"
-  publish = ".next"
-  # Com Base directory configurado como apps/portfolio no Netlify,
-  # o caminho .next será resolvido corretamente como apps/portfolio/.next
+  # Para monorepos, o publish directory deve ser relativo à raiz do repositório
+  publish = "apps/portfolio/.next"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
