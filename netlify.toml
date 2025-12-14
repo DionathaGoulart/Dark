@@ -1,30 +1,18 @@
 # Configuração do monorepo para Netlify
 # 
-# IMPORTANTE: Para que o deploy funcione corretamente, você DEVE configurar o Base directory no painel da Netlify:
+# IMPORTANTE: Este arquivo é apenas para referência.
+# Para que o deploy funcione corretamente, você DEVE:
 # 
-# Para cada site no Netlify, configure:
-# 1. Portfolio:
-#    - Base directory: apps/portfolio
-#    - Build command: (deixe vazio ou use: cd apps/portfolio && npm run build)
-#    - Publish directory: .next
+# 1. Configurar o Base directory no painel da Netlify para cada site:
+#    - Portfolio: Base directory = apps/portfolio
+#    - Dark-Links: Base directory = apps/dark-links
+#    - Admin: Base directory = apps/admin
 #
-# 2. Dark-Links:
-#    - Base directory: apps/dark-links
-#    - Build command: (deixe vazio ou use: cd apps/dark-links && npm run build)
-#    - Publish directory: .next
+# 2. Deixar o Build command e Publish directory vazios no painel
+#    (o netlify.toml dentro de cada app será usado automaticamente)
 #
-# 3. Admin:
-#    - Base directory: apps/admin
-#    - Build command: (deixe vazio ou use: cd apps/admin && npm run build)
-#    - Publish directory: .next
+# 3. O plugin Next.js detecta automaticamente o diretório .next
 #
-# Se o Base directory não estiver configurado, este arquivo não funcionará.
-# Remova este arquivo da raiz e use apenas os netlify.toml dentro de cada app.
-
-[build]
-  command = "npm run build:portfolio"
-  publish = "apps/portfolio/.next"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+# NOTA: Se você não configurar o Base directory, o Netlify usará este arquivo
+# e tentará fazer build na raiz, o que não funcionará para um monorepo.
 
