@@ -25,21 +25,41 @@ const addCacheBuster = (url: string): string => {
   return `${url}${separator}cb=${Date.now()}`
 }
 
+/**
+ * Preconnect para domínios de imagens (otimização de performance)
+ */
+const preconnectImageDomain = (url: string) => {
+  try {
+    const urlObj = new URL(url)
+    const link = document.createElement('link')
+    link.rel = 'preconnect'
+    link.href = `${urlObj.protocol}//${urlObj.hostname}`
+    link.crossOrigin = 'anonymous'
+    if (!document.querySelector(`link[href="${link.href}"]`)) {
+      document.head.appendChild(link)
+    }
+  } catch {
+    // Ignora erros de URL inválida
+  }
+}
+
 // ================================
 // COMPONENTE PRINCIPAL
 // ================================
 
 /**
- * Componente ImageLoader com conversão automática para HTTPS, recuperação de erros e estados de carregamento
- * Possui lazy loading, decodificação assíncrona e cache-busting para carregamentos que falharam
+ * Componente ImageLoader otimizado com Intersection Observer, preload inteligente e otimizações de performance
+ * Possui lazy loading eficiente, decodificação assíncrona e cache-busting para carregamentos que falharam
  */
-export const ImageLoader: React.FC<ImageLoaderProps> = ({
+export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; sizes?: string }> = ({
   src,
   alt,
   onLoad,
   onError,
   className = '',
-  crossOrigin = 'anonymous'
+  crossOrigin = 'anonymous',
+  priority = false,
+  sizes
 }) => {
   // ================================
   // ESTADO E REFS
@@ -48,7 +68,9 @@ export const ImageLoader: React.FC<ImageLoaderProps> = ({
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
   const [imageSrc, setImageSrc] = useState(src)
+  const [shouldLoad, setShouldLoad] = useState(priority) // Carrega imediatamente se for prioridade
   const imgRef = useRef<HTMLImageElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // ================================
   // EFEITOS
@@ -60,7 +82,39 @@ export const ImageLoader: React.FC<ImageLoaderProps> = ({
     if (httpsUrl !== imageSrc) {
       setImageSrc(httpsUrl)
     }
+    
+    // Preconnect para domínio da imagem (otimização)
+    if (httpsUrl) {
+      preconnectImageDomain(httpsUrl)
+    }
   }, [src, imageSrc])
+
+  // Intersection Observer para lazy loading eficiente
+  useEffect(() => {
+    if (priority || shouldLoad) return // Já está carregando ou é prioridade
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true)
+            observer.disconnect()
+          }
+        })
+      },
+      {
+        rootMargin: '50px' // Começa a carregar 50px antes de entrar na viewport
+      }
+    )
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [priority, shouldLoad])
 
   // ================================
   // MANIPULADORES DE EVENTOS
@@ -128,21 +182,25 @@ export const ImageLoader: React.FC<ImageLoaderProps> = ({
   // ================================
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden">
       {isLoading && renderLoadingState()}
 
-      <img
-        ref={imgRef}
-        src={imageSrc}
-        alt={alt}
-        onLoad={handleLoad}
-        onError={handleError}
-        crossOrigin={crossOrigin}
-        referrerPolicy="no-referrer-when-downgrade"
-        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-        loading="lazy"
-        decoding="async"
-      />
+      {shouldLoad && (
+        <img
+          ref={imgRef}
+          src={imageSrc}
+          alt={alt}
+          onLoad={handleLoad}
+          onError={handleError}
+          crossOrigin={crossOrigin}
+          referrerPolicy="no-referrer-when-downgrade"
+          className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={priority ? 'high' : 'auto'}
+          sizes={sizes}
+        />
+      )}
     </div>
   )
 }

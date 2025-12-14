@@ -206,7 +206,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.title_pt}
                   onChange={(e) => setSeoData({ ...seoData, title_pt: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="Dark - Portfolio"
                 />
               </div>
@@ -218,7 +218,7 @@ export default function PortfolioSeoPage() {
                   type="url"
                   value={seoData.canonical_url_pt}
                   onChange={(e) => setSeoData({ ...seoData, canonical_url_pt: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="https://dark.art.br"
                 />
               </div>
@@ -230,7 +230,7 @@ export default function PortfolioSeoPage() {
                   value={seoData.description_pt}
                   onChange={(e) => setSeoData({ ...seoData, description_pt: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="Portfolio de arte digital e design"
                 />
               </div>
@@ -242,7 +242,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.keywords_pt}
                   onChange={(e) => setSeoData({ ...seoData, keywords_pt: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="dark, portfolio, arte digital, design"
                 />
               </div>
@@ -266,7 +266,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.title_en}
                   onChange={(e) => setSeoData({ ...seoData, title_en: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="Dark - Portfolio"
                 />
               </div>
@@ -278,7 +278,7 @@ export default function PortfolioSeoPage() {
                   type="url"
                   value={seoData.canonical_url_en}
                   onChange={(e) => setSeoData({ ...seoData, canonical_url_en: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="https://dark.art.br"
                 />
               </div>
@@ -290,7 +290,7 @@ export default function PortfolioSeoPage() {
                   value={seoData.description_en}
                   onChange={(e) => setSeoData({ ...seoData, description_en: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="Digital art and design portfolio"
                 />
               </div>
@@ -302,7 +302,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.keywords_en}
                   onChange={(e) => setSeoData({ ...seoData, keywords_en: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="dark, portfolio, digital art, design"
                 />
               </div>
@@ -323,7 +323,7 @@ export default function PortfolioSeoPage() {
                   type="url"
                   value={seoData.og_image_url}
                   onChange={(e) => setSeoData({ ...seoData, og_image_url: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="https://example.com/og-image.jpg"
                 />
               </div>
@@ -334,7 +334,7 @@ export default function PortfolioSeoPage() {
                 <select
                   value={seoData.og_type}
                   onChange={(e) => setSeoData({ ...seoData, og_type: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                 >
                   <option value="website">Website</option>
                   <option value="article">Article</option>
@@ -349,7 +349,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.og_site_name}
                   onChange={(e) => setSeoData({ ...seoData, og_site_name: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="Dark - Portfolio"
                 />
               </div>
@@ -369,7 +369,7 @@ export default function PortfolioSeoPage() {
                 <select
                   value={seoData.twitter_card_type}
                   onChange={(e) => setSeoData({ ...seoData, twitter_card_type: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                 >
                   <option value="summary">Summary</option>
                   <option value="summary_large_image">Summary Large Image</option>
@@ -385,7 +385,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.twitter_site}
                   onChange={(e) => setSeoData({ ...seoData, twitter_site: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="@darkning"
                 />
               </div>
@@ -397,7 +397,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.twitter_creator}
                   onChange={(e) => setSeoData({ ...seoData, twitter_creator: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="@darkning"
                 />
               </div>
@@ -418,7 +418,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.ga_measurement_id}
                   onChange={(e) => setSeoData({ ...seoData, ga_measurement_id: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="G-XXXXXXXXXX"
                 />
               </div>
@@ -430,7 +430,7 @@ export default function PortfolioSeoPage() {
                   type="text"
                   value={seoData.robots_txt}
                   onChange={(e) => setSeoData({ ...seoData, robots_txt: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                  className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   placeholder="index, follow"
                 />
                 <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">

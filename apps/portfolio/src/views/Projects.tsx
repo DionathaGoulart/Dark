@@ -19,6 +19,7 @@ import {
   ProjectGridLoaderProps,
   ErrorStateProps
 } from '@/types'
+import { createClient } from '@/lib/supabase/client'
 
 // ================================
 // CONSTANTS
@@ -194,6 +195,29 @@ const useProjectImages = (
       }
 
       try {
+        // Load projects from database
+        const supabase = createClient()
+        const { data: projects, error } = await supabase
+          .from('portfolio_projects')
+          .select('*')
+          .eq('is_active', true)
+          .order('order_index', { ascending: true })
+
+        if (error) {
+          throw error
+        }
+
+        if (isCancelled) return
+
+        // Convert database projects to ProjectData format
+        const projectsData: ProjectData[] = (projects || []).map((project) => ({
+          id: project.id,
+          title: project.title_en || '',
+          titlePt: project.title_pt || '',
+          url: project.cover_image_url || '',
+          linkTo: `/projects/${project.slug}`
+        }))
+
         // Load priority projects
         const priorityProjects = projectsData.slice(0, PRIORITY_PROJECTS_COUNT)
         const priorityItems = await processProjectsBatch(
@@ -369,12 +393,12 @@ export const ProjectsPage: React.FC = () => {
       event_name: 'page_view_projects',
       event_parameters: {
         page_title: 'Projects - Portfolio',
-        projects_total: projectsData.length,
+        projects_total: images.length,
         language: language,
         content_type: 'project_gallery'
       }
     })
-  }, [language])
+  }, [language, images.length])
 
   // ================================
   // EARLY RETURNS
@@ -407,7 +431,7 @@ export const ProjectsPage: React.FC = () => {
             onImageError={handleImageError}
             columnCount={GRID_COLUMN_CONFIG}
             gap={3}
-            isSquareGrid
+            isSquareGrid={true}
             showHoverEffect
             emptyMessage={language === 'pt' ? 'Nenhum projeto disponível' : 'No projects available'}
           />

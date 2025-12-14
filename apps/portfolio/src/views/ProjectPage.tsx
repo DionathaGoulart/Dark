@@ -117,6 +117,22 @@ const createGridSections = (
     const layoutType = firstImageWithLayout.layout_type || 'solo'
     const aspectRatio = firstImageWithLayout.aspect_ratio || 'auto'
     const objectFit = firstImageWithLayout.object_fit || 'cover'
+    const dominantSide = firstImageWithLayout.grid_dominant_side || 'none'
+    const paddingHorizontal = firstImageWithLayout.padding_horizontal
+    const paddingVertical = firstImageWithLayout.padding_vertical
+    
+    // Criar estilo de padding se houver (usando margin negativo para não expandir o container)
+    const paddingStyle: React.CSSProperties = {}
+    if (paddingHorizontal !== null && paddingHorizontal !== undefined && paddingHorizontal > 0) {
+      paddingStyle.paddingLeft = `${paddingHorizontal}px`
+      paddingStyle.paddingRight = `${paddingHorizontal}px`
+      paddingStyle.marginLeft = `-${paddingHorizontal}px`
+      paddingStyle.marginRight = `-${paddingHorizontal}px`
+    }
+    if (paddingVertical !== null && paddingVertical !== undefined && paddingVertical > 0) {
+      paddingStyle.paddingTop = `${paddingVertical}px`
+      paddingStyle.paddingBottom = `${paddingVertical}px`
+    }
 
     if (layoutType === 'grid-2' && group.images.length >= 2) {
       // Processar em pares
@@ -125,15 +141,18 @@ const createGridSections = (
           const gridImages = group.images.slice(i, i + 2)
           sections.push({
             component: (
-              <AdaptiveTwoColumnGrid
-                images={gridImages}
-                adaptiveMode="manual"
-                fallbackAspectRatio={aspectRatio}
-                fallbackObjectFit={objectFit}
-                onImageClick={onImageClick}
-                onImageError={onImageError}
-                gap={1}
-              />
+              <div style={Object.keys(paddingStyle).length > 0 ? paddingStyle : undefined}>
+                <AdaptiveTwoColumnGrid
+                  images={gridImages}
+                  adaptiveMode="manual"
+                  fallbackAspectRatio={aspectRatio}
+                  fallbackObjectFit={objectFit}
+                  dominantSide={dominantSide as 'none' | 'left' | 'right'}
+                  onImageClick={onImageClick}
+                  onImageError={onImageError}
+                  gap={1}
+                />
+              </div>
             ),
             imageIndices: group.indices.slice(i, i + 2),
             context: 'grid',
@@ -144,21 +163,23 @@ const createGridSections = (
                 ))}
               </div>
             ),
-            containerClass: 'mb-12 sm:px-16'
+            containerClass: 'mb-12'
           })
         } else {
           // Imagem solitária no final
           sections.push({
             component: (
-              <AdaptiveSoloGrid
-                images={[group.images[i]]}
-                adaptiveMode="manual"
-                fallbackAspectRatio={aspectRatio}
-                fallbackObjectFit={objectFit}
-                onImageClick={onImageClick}
-                onImageError={onImageError}
-                gap={1}
-              />
+              <div style={Object.keys(paddingStyle).length > 0 ? paddingStyle : undefined}>
+                <AdaptiveSoloGrid
+                  images={[group.images[i]]}
+                  adaptiveMode="manual"
+                  fallbackAspectRatio={aspectRatio}
+                  fallbackObjectFit={objectFit}
+                  onImageClick={onImageClick}
+                  onImageError={onImageError}
+                  gap={1}
+                />
+              </div>
             ),
             imageIndices: [group.indices[i]],
             context: 'solo',
@@ -176,15 +197,17 @@ const createGridSections = (
           const gridImages = group.images.slice(i, i + 3)
           sections.push({
             component: (
-              <AdaptiveThreeColumnGrid
-                images={gridImages}
-                adaptiveMode="manual"
-                fallbackAspectRatio={aspectRatio}
-                fallbackObjectFit={objectFit}
-                onImageClick={onImageClick}
-                onImageError={onImageError}
-                gap={1}
-              />
+              <div style={Object.keys(paddingStyle).length > 0 ? paddingStyle : undefined}>
+                <AdaptiveThreeColumnGrid
+                  images={gridImages}
+                  adaptiveMode="manual"
+                  fallbackAspectRatio={aspectRatio}
+                  fallbackObjectFit={objectFit}
+                  onImageClick={onImageClick}
+                  onImageError={onImageError}
+                  gap={1}
+                />
+              </div>
             ),
             imageIndices: group.indices.slice(i, i + 3),
             context: 'grid',
@@ -195,7 +218,7 @@ const createGridSections = (
                 ))}
               </div>
             ),
-            containerClass: 'mb-12 sm:px-16'
+            containerClass: 'mb-12'
           })
         } else {
           // Imagens restantes como solo
@@ -203,15 +226,17 @@ const createGridSections = (
           remaining.forEach((img, idx) => {
             sections.push({
               component: (
-                <AdaptiveSoloGrid
-                  images={[img]}
-                  adaptiveMode="manual"
-                  fallbackAspectRatio={aspectRatio}
-                  fallbackObjectFit={objectFit}
-                  onImageClick={onImageClick}
-                  onImageError={onImageError}
-                  gap={1}
-                />
+                <div style={Object.keys(paddingStyle).length > 0 ? paddingStyle : undefined}>
+                  <AdaptiveSoloGrid
+                    images={[img]}
+                    adaptiveMode="manual"
+                    fallbackAspectRatio={aspectRatio}
+                    fallbackObjectFit={objectFit}
+                    onImageClick={onImageClick}
+                    onImageError={onImageError}
+                    gap={1}
+                  />
+                </div>
               ),
               imageIndices: [group.indices[i + idx]],
               context: 'solo',
@@ -230,15 +255,17 @@ const createGridSections = (
           const gridImages = group.images.slice(i, i + 5)
           sections.push({
             component: (
-              <AdaptiveFiveColumnGrid
-                images={gridImages}
-                adaptiveMode="manual"
-                fallbackAspectRatio={aspectRatio}
-                fallbackObjectFit={objectFit}
-                onImageClick={onImageClick}
-                onImageError={onImageError}
-                gap={1}
-              />
+              <div style={Object.keys(paddingStyle).length > 0 ? paddingStyle : undefined}>
+                <AdaptiveFiveColumnGrid
+                  images={gridImages}
+                  adaptiveMode="manual"
+                  fallbackAspectRatio={aspectRatio}
+                  fallbackObjectFit={objectFit}
+                  onImageClick={onImageClick}
+                  onImageError={onImageError}
+                  gap={1}
+                />
+              </div>
             ),
             imageIndices: group.indices.slice(i, i + 5),
             context: 'grid',
@@ -249,7 +276,7 @@ const createGridSections = (
                 ))}
               </div>
             ),
-            containerClass: 'mb-12 sm:px-16'
+            containerClass: 'mb-12'
           })
         } else {
           // Imagens restantes como solo
@@ -257,15 +284,17 @@ const createGridSections = (
           remaining.forEach((img, idx) => {
             sections.push({
               component: (
-                <AdaptiveSoloGrid
-                  images={[img]}
-                  adaptiveMode="manual"
-                  fallbackAspectRatio={aspectRatio}
-                  fallbackObjectFit={objectFit}
-                  onImageClick={onImageClick}
-                  onImageError={onImageError}
-                  gap={1}
-                />
+                <div style={Object.keys(paddingStyle).length > 0 ? paddingStyle : undefined}>
+                  <AdaptiveSoloGrid
+                    images={[img]}
+                    adaptiveMode="manual"
+                    fallbackAspectRatio={aspectRatio}
+                    fallbackObjectFit={objectFit}
+                    onImageClick={onImageClick}
+                    onImageError={onImageError}
+                    gap={1}
+                  />
+                </div>
               ),
               imageIndices: [group.indices[i + idx]],
               context: 'solo',
@@ -282,15 +311,17 @@ const createGridSections = (
       group.images.forEach((img, idx) => {
         sections.push({
           component: (
-            <AdaptiveSoloGrid
-              images={[img]}
-              adaptiveMode="manual"
-              fallbackAspectRatio={aspectRatio}
-              fallbackObjectFit={objectFit}
-              onImageClick={onImageClick}
-              onImageError={onImageError}
-              gap={1}
-            />
+            <div style={Object.keys(paddingStyle).length > 0 ? paddingStyle : undefined}>
+              <AdaptiveSoloGrid
+                images={[img]}
+                adaptiveMode="manual"
+                fallbackAspectRatio={aspectRatio}
+                fallbackObjectFit={objectFit}
+                onImageClick={onImageClick}
+                onImageError={onImageError}
+                gap={1}
+              />
+            </div>
           ),
           imageIndices: [group.indices[idx]],
           context: 'solo',
@@ -309,18 +340,35 @@ const createGridSections = (
     .forEach(({ image, projectImage, index }) => {
       const aspectRatio = projectImage.aspect_ratio || 'auto'
       const objectFit = projectImage.object_fit || 'cover'
+      const paddingHorizontal = projectImage.padding_horizontal
+      const paddingVertical = projectImage.padding_vertical
+      
+      // Criar estilo de padding se houver (usando margin negativo para não expandir o container)
+      const paddingStyle: React.CSSProperties = {}
+      if (paddingHorizontal !== null && paddingHorizontal !== undefined && paddingHorizontal > 0) {
+        paddingStyle.paddingLeft = `${paddingHorizontal}px`
+        paddingStyle.paddingRight = `${paddingHorizontal}px`
+        paddingStyle.marginLeft = `-${paddingHorizontal}px`
+        paddingStyle.marginRight = `-${paddingHorizontal}px`
+      }
+      if (paddingVertical !== null && paddingVertical !== undefined && paddingVertical > 0) {
+        paddingStyle.paddingTop = `${paddingVertical}px`
+        paddingStyle.paddingBottom = `${paddingVertical}px`
+      }
 
       sections.push({
         component: (
-          <AdaptiveSoloGrid
-            images={[image]}
-            adaptiveMode="manual"
-            fallbackAspectRatio={aspectRatio}
-            fallbackObjectFit={objectFit}
-            onImageClick={onImageClick}
-            onImageError={onImageError}
-            gap={1}
-          />
+          <div style={Object.keys(paddingStyle).length > 0 ? paddingStyle : undefined}>
+            <AdaptiveSoloGrid
+              images={[image]}
+              adaptiveMode="manual"
+              fallbackAspectRatio={aspectRatio}
+              fallbackObjectFit={objectFit}
+              onImageClick={onImageClick}
+              onImageError={onImageError}
+              gap={1}
+            />
+          </div>
         ),
         imageIndices: [index],
         context: 'solo',
@@ -413,6 +461,23 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
     document.title = `${title} - Dark`
   }, [project, language])
 
+  // Preload de imagens prioritárias (primeiras 6)
+  useEffect(() => {
+    if (images.length > 0) {
+      const priorityImages = images.slice(0, 6).map(img => img.image_url)
+      priorityImages.forEach(url => {
+        const link = document.createElement('link')
+        link.rel = 'preload'
+        link.as = 'image'
+        link.href = url
+        link.crossOrigin = 'anonymous'
+        if (!document.querySelector(`link[href="${url}"]`)) {
+          document.head.appendChild(link)
+        }
+      })
+    }
+  }, [images])
+
   // ================================
   // HANDLERS
   // ================================
@@ -440,18 +505,15 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
 
   return (
     <div className="py-12 md:py-16">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header do Projeto */}
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary-black dark:text-primary-white mb-4">
-            {title}
-          </h1>
-          {description && (
-            <p className="text-lg text-primary-black/70 dark:text-primary-white/70 max-w-2xl mx-auto">
+      <section className="px-6 sm:px-8 lg:px-16">
+        {/* Header do Projeto - apenas subtítulo pequeno */}
+        {description && (
+          <div className="text-center mb-16 animate-fade-in">
+            <p className="text-primary-black/60 dark:text-primary-white/60 leading-relaxed">
               {description}
             </p>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Grid Sections */}
         <div className="space-y-8">
@@ -464,7 +526,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
           )}
 
           {!loading && gridSections.map((section, index) => (
-            <div key={index} className={section.containerClass || ''}>
+            <div key={index} className={section.containerClass || ''} style={{ width: '100%', maxWidth: '100%' }}>
               {lazyLoading && index === gridSections.length - 1 ? (
                 section.loadingComponent
               ) : (
