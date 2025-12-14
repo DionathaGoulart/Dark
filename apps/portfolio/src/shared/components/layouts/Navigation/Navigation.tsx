@@ -105,6 +105,7 @@ const DesktopNavigation: React.FC<{
         href={item.href}
         onClick={item.onClick}
         className={getDesktopLinkClasses(item.href, isActive)}
+        prefetch={true}
       >
         {item.label}
       </Link>
@@ -173,6 +174,7 @@ const MobileNavigation: React.FC<{
               href={item.href}
               onClick={onLinkClick}
               className={getMobileLinkClasses(item.href, isActive)}
+              prefetch={true}
             >
               {item.label}
             </Link>

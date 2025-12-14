@@ -15,7 +15,7 @@ interface ProjectImage {
   order_index: number
   is_active: boolean
   layout_type?: 'solo' | 'grid-2' | 'grid-3' | 'grid-5'
-  aspect_ratio?: 'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto'
+  aspect_ratio?: 'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto' | 'landscape'
   object_fit?: 'cover' | 'contain'
   grid_group_id?: string
   padding_horizontal?: number | null
@@ -36,7 +36,7 @@ export default function ProjectImagesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
   const [uploadLayoutType, setUploadLayoutType] = useState<'solo' | 'grid-2' | 'grid-3' | 'grid-5'>('solo')
-  const [uploadAspectRatio, setUploadAspectRatio] = useState<'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto'>('auto')
+  const [uploadAspectRatio, setUploadAspectRatio] = useState<'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto' | 'landscape'>('auto')
   const [uploadObjectFit, setUploadObjectFit] = useState<'cover' | 'contain'>('cover')
   const [uploadGridDominantSide, setUploadGridDominantSide] = useState<'none' | 'left' | 'right'>('none')
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
@@ -44,7 +44,7 @@ export default function ProjectImagesPage() {
     alt_text_pt: '',
     alt_text_en: '',
     layout_type: 'solo' as 'solo' | 'grid-2' | 'grid-3' | 'grid-5',
-    aspect_ratio: 'auto' as 'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto',
+    aspect_ratio: 'auto' as 'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto' | 'landscape',
     object_fit: 'cover' as 'cover' | 'contain',
     padding_horizontal: null as number | null,
     padding_vertical: null as number | null,
@@ -944,6 +944,7 @@ export default function ProjectImagesPage() {
                     <option value="auto">Auto (automático)</option>
                     <option value="square">Square (1:1)</option>
                     <option value="wide">Wide (16:9)</option>
+                    <option value="landscape">Landscape (4:3)</option>
                     <option value="portrait">Portrait (3:4)</option>
                     <option value="card">Card (4:5)</option>
                     <option value="cinema">Cinema (21:9)</option>
@@ -1168,6 +1169,7 @@ export default function ProjectImagesPage() {
                     <option value="auto">Auto (automático)</option>
                     <option value="square">Square (1:1)</option>
                     <option value="wide">Wide (16:9)</option>
+                    <option value="landscape">Landscape (4:3)</option>
                     <option value="portrait">Portrait (3:4)</option>
                     <option value="card">Card (4:5)</option>
                     <option value="cinema">Cinema (21:9)</option>
