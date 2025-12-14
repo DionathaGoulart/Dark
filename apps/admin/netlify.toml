@@ -1,6 +1,7 @@
 [build]
   command = "npm run build"
-  publish = ".next"
+  # Para monorepos, o publish directory deve ser relativo à raiz do repositório
+  publish = "apps/admin/.next"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -8,14 +9,17 @@
 # Configuração de deploy por contexto
 [context.production]
   command = "npm run build"
+  publish = "apps/admin/.next"
   # Deploy apenas na branch main
   branch = "main"
 
 [context.deploy-preview]
   command = "npm run build"
+  publish = "apps/admin/.next"
   # Deploy automático em pull requests
 
 [context.branch-deploy]
   command = "npm run build"
+  publish = "apps/admin/.next"
   # Deploy em outras branches (opcional)
 

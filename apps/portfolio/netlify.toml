@@ -9,14 +9,17 @@
 # Configuração de deploy por contexto
 [context.production]
   command = "npm run build"
+  publish = "apps/portfolio/.next"
   # Deploy apenas na branch main
   branch = "main"
 
 [context.deploy-preview]
   command = "npm run build"
+  publish = "apps/portfolio/.next"
   # Deploy automático em pull requests
 
 [context.branch-deploy]
   command = "npm run build"
+  publish = "apps/portfolio/.next"
   # Deploy em outras branches (opcional)
 
