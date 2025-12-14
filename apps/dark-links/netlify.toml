@@ -5,3 +5,17 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Configuração de deploy por contexto
+[context.production]
+  command = "npm run build"
+  # Deploy apenas na branch main
+  branch = "main"
+
+[context.deploy-preview]
+  command = "npm run build"
+  # Deploy automático em pull requests
+
+[context.branch-deploy]
+  command = "npm run build"
+  # Deploy em outras branches (opcional)
+

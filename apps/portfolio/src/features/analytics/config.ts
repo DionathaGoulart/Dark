@@ -1,4 +1,3 @@
-import { validateAnalyticsEnv } from '@/shared/utils/envValidation'
 import { AnalyticsConfig } from './types'
 
 // ================================
@@ -6,12 +5,12 @@ import { AnalyticsConfig } from './types'
 // ================================
 
 /**
- * Configuração do Google Analytics usando variáveis de ambiente
- * Garante que nenhuma informação sensível seja exposta no código
+ * Configuração do Google Analytics
+ * O measurementId é configurado via admin e vem do banco de dados
  */
 export const ANALYTICS_CONFIG: AnalyticsConfig = {
-  measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
-  enabled: process.env.NODE_ENV === 'production' && validateAnalyticsEnv()
+  measurementId: undefined, // Será definido dinamicamente via props
+  enabled: process.env.NODE_ENV === 'production'
 }
 
 // ================================
@@ -19,9 +18,26 @@ export const ANALYTICS_CONFIG: AnalyticsConfig = {
 // ================================
 
 /**
- * Valida se as variáveis de ambiente necessárias estão definidas
- * @returns {boolean} True se o ambiente de analytics estiver configurado corretamente
+ * Valida se o ID de medição do Google Analytics está configurado corretamente
+ * @param {string | undefined} measurementId - ID de medição do GA4
+ * @returns {boolean} True se o ID for válido
  */
-export const validateAnalyticsConfig = (): boolean => {
-  return validateAnalyticsEnv()
+export const validateAnalyticsConfig = (measurementId?: string): boolean => {
+  if (!measurementId) {
+    return false
+  }
+
+  // Valida formato do GA4 (deve começar com "G-")
+  if (!measurementId.startsWith('G-')) {
+    console.warn('Analytics: ID de medição deve começar com "G-"')
+    return false
+  }
+
+  // Valida se não é um placeholder
+  if (measurementId === 'G-XXXXXXXXXX') {
+    console.warn('Analytics: Usando ID de placeholder - substitua pelo ID real')
+    return false
+  }
+
+  return true
 }

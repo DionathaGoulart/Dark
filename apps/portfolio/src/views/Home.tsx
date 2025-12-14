@@ -13,8 +13,10 @@ import {
   batchPreloadImages,
   MasonryGrid,
   ModalZoom,
-  useDocumentTitle
+  useDocumentTitle,
+  usePagePrefetch
 } from '@/shared'
+import Link from 'next/link'
 import { useI18n } from '@/core/providers'
 import { trackEvent } from '@/features'
 
@@ -54,15 +56,7 @@ const LOADER_KEYFRAMES = `
 // HELPER FUNCTIONS
 // ================================
 
-/**
- * Generates URLs for different image sizes (using original URL from Supabase Storage)
- */
-const generateOptimizedUrls = (originalUrl: string): OptimizedUrls => ({
-  thumbnail: originalUrl,
-  medium: originalUrl,
-  large: originalUrl,
-  original: originalUrl
-})
+import { generateOptimizedUrls } from '@/features/gallery/utils'
 
 /**
  * Processes batch of URLs and returns ImageItems
@@ -203,6 +197,36 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
   const loadingState = supabaseLoading
 
   useDocumentTitle('home')
+
+  // ================================
+  // PREFETCH DE PÁGINAS
+  // ================================
+
+  // Rotas principais para pré-carregar após a home carregar
+  const mainRoutes = [
+    '/about',
+    '/contact',
+    '/projects',
+    '/stores',
+    '/facesofhorror',
+    '/halloween',
+    '/horror-art',
+    '/fantasy',
+    '/creepy',
+    '/arachnophobia',
+    '/ladybugs',
+    '/tshirt-raglan'
+  ]
+
+  // Fazer prefetch das páginas quando a home estiver totalmente carregada
+  const isFullyLoaded = !loadingState.loading && !loadingState.lazyLoading && images.length > 0
+  usePagePrefetch({
+    routes: mainRoutes,
+    delay: 1000, // 1 segundo após carregar
+    batchDelay: 200, // 200ms entre cada prefetch
+    waitForFullLoad: false, // Vamos controlar manualmente
+    isReady: isFullyLoaded // Só prefetch quando estiver totalmente carregado
+  })
 
   // ================================
   // EFFECTS
@@ -399,6 +423,15 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
 
       {selectedImage && (
         <ModalZoom image={selectedImage} onClose={handleModalClose} />
+      )}
+
+      {/* Links invisíveis para prefetch automático do Next.js quando a página estiver carregada */}
+      {isFullyLoaded && (
+        <div className="hidden" aria-hidden="true">
+          {mainRoutes.map((route) => (
+            <Link key={route} href={route} prefetch={true} />
+          ))}
+        </div>
       )}
     </div>
   )

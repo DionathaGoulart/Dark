@@ -374,19 +374,28 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     // Para grids, garantir que todas as imagens tenham a mesma altura
     const isGridMode = mode === 'grid' && gridColumns !== 2 && !isDominantGrid
     const containerClasses = isDominantGrid
-      ? 'w-full h-auto' // Deixa a altura se ajustar automaticamente
+      ? isNonDominant
+        ? 'w-full h-full flex items-center justify-center' // Não dominante: altura completa com fundo branco
+        : 'w-full h-auto' // Dominante: deixa a altura se ajustar automaticamente
       : isGridMode
         ? `w-full h-full ${centeringClasses}` // Grid: usar altura 100% para preencher a célula do grid
         : `${aspectClasses} ${centeringClasses}` // Solo: usar aspect ratio normal
 
     const imageClasses =
-      isDominantGrid &&
-      (adaptiveObjectFit === 'scale-down' || adaptiveObjectFit === 'contain')
-        ? 'max-w-full max-h-full'
-        : 'w-full h-full'
+      isDominantGrid && isNonDominant
+        ? 'max-w-full max-h-full object-contain' // Não dominante: centralizar e manter proporção
+        : isDominantGrid &&
+          (adaptiveObjectFit === 'scale-down' || adaptiveObjectFit === 'contain')
+          ? 'max-w-full max-h-full'
+          : 'w-full h-full'
 
     // Aplicar background tanto no container quanto no ImageCard
-    const backgroundStyle = backgroundColor ? { backgroundColor } : {}
+    // Se for imagem não dominante em grid dominante, usar fundo transparente
+    const backgroundStyle = isDominantGrid && isNonDominant
+      ? { backgroundColor: 'transparent' }
+      : backgroundColor
+        ? { backgroundColor }
+        : {}
 
     return (
       <div key={image.id} className={dominanceClasses}>
@@ -397,14 +406,23 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
             ...backgroundStyle
           }}
         >
-          <div className="w-full h-full" style={backgroundStyle}>
+          <div 
+            className={isDominantGrid && isNonDominant ? 'w-full h-full flex items-center justify-center' : 'w-full h-full'} 
+            style={backgroundStyle}
+          >
             <ImageCard
               image={image}
               onClick={onImageClick}
               onLoad={handleImageLoad}
               onError={handleImageError}
               isSquare={false}
-              objectFit={isGridMode ? 'cover' : (adaptiveObjectFit as any)} // Forçar cover em grids para cortar excesso
+              objectFit={
+                isDominantGrid && isNonDominant
+                  ? 'contain' // Não dominante: usar contain para centralizar
+                  : isGridMode
+                    ? 'cover' // Forçar cover em grids para cortar excesso
+                    : (adaptiveObjectFit as any)
+              }
               showHoverEffect={false}
               enableHoverScale={false}
               showTitle={false}

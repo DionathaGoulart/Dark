@@ -37,7 +37,7 @@ const ENV_CONFIG: EnvConfig = {
     'NEXT_PUBLIC_EMAILJS_TEMPLATE_ID',
     'NEXT_PUBLIC_EMAILJS_PUBLIC_KEY'
   ],
-  optional: ['NEXT_PUBLIC_GA_MEASUREMENT_ID']
+  optional: []
 }
 
 // ================================
@@ -105,7 +105,7 @@ const logValidationResults = ({ errors, warnings }: ValidationResult): void => {
  */
 const isValidGAFormat = (measurementId: string): boolean => {
   if (!measurementId.startsWith('G-')) {
-    console.error('Analytics: VITE_GA_MEASUREMENT_ID deve começar com "G-"')
+    console.error('Analytics: ID de medição do GA deve começar com "G-"')
     return false
   }
 
@@ -134,14 +134,13 @@ export const validateEnvironment = (): void => {
 
 /**
  * Função específica para validar a configuração do Analytics
- * @returns {boolean} Verdadeiro se o ambiente do analytics estiver configurado corretamente
+ * @param {string | undefined} measurementId - ID de medição do GA4 (vem do banco de dados)
+ * @returns {boolean} Verdadeiro se o analytics estiver configurado corretamente
  */
-export const validateAnalyticsEnv = (): boolean => {
-  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
-
+export const validateAnalyticsEnv = (measurementId?: string): boolean => {
   if (!isValidEnvVar(measurementId) || !measurementId) {
     console.info(
-      'Analytics: NEXT_PUBLIC_GA_MEASUREMENT_ID não configurado - Analytics desabilitado'
+      'Analytics: ID de medição não configurado no admin - Analytics desabilitado'
     )
     return false
   }

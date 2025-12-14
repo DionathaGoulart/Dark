@@ -131,12 +131,13 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
         `}
       >
         <ImageLoader
-          src={image.url}
+          src={image.urls?.medium || image.urls?.large || image.url}
           alt={image.alt || 'Image'}
           onLoad={handleLoad}
           onError={handleError}
           className={imageClasses.replace('h-auto', 'h-full')}
           priority={priority}
+          thumbnailUrl={image.urls?.thumbnail}
           sizes={isSquare ? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' : '(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px'}
         />
 

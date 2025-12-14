@@ -125,29 +125,49 @@ export const preloadImage = (url: string): Promise<boolean> => {
 }
 
 /**
- * Pré-carrega múltiplas imagens em paralelo e retorna as carregadas com sucesso
+ * Pré-carrega múltiplas imagens em lotes para melhor performance
+ * Carrega em lotes menores para evitar sobrecarga da rede
  * @param urls - Array de URLs de imagem para pré-carregar
+ * @param batchSize - Tamanho do lote (padrão: 6 para melhor performance)
  * @returns Promise que resolve para array de objetos ImageItem das imagens carregadas com sucesso
  */
 export const batchPreloadImages = async (
-  urls: string[]
+  urls: string[],
+  batchSize: number = 6
 ): Promise<ImageItem[]> => {
-  const results = await Promise.allSettled(
-    urls.map(async (url, index) => {
-      const isValid = await preloadImage(url)
+  const allResults: ImageItem[] = []
+  
+  // Processar em lotes para evitar sobrecarga
+  for (let i = 0; i < urls.length; i += batchSize) {
+    const batch = urls.slice(i, i + batchSize)
+    
+    const batchResults = await Promise.allSettled(
+      batch.map(async (url, batchIndex) => {
+        const globalIndex = i + batchIndex
+        const isValid = await preloadImage(url)
 
-      if (isValid) {
-        return createImageFromUrl(url, index)
-      }
+        if (isValid) {
+          return createImageFromUrl(url, globalIndex)
+        }
 
-      throw new Error(`Falha ao carregar: ${url}`)
-    })
-  )
-
-  return results
-    .filter(
-      (result): result is PromiseFulfilledResult<ImageItem> =>
-        result.status === 'fulfilled'
+        throw new Error(`Falha ao carregar: ${url}`)
+      })
     )
-    .map((result) => result.value)
+
+    const successfulResults = batchResults
+      .filter(
+        (result): result is PromiseFulfilledResult<ImageItem> =>
+          result.status === 'fulfilled'
+      )
+      .map((result) => result.value)
+    
+    allResults.push(...successfulResults)
+    
+    // Pequena pausa entre lotes para não sobrecarregar a rede
+    if (i + batchSize < urls.length) {
+      await new Promise(resolve => setTimeout(resolve, 50))
+    }
+  }
+
+  return allResults
 }

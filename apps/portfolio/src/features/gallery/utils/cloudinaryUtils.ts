@@ -5,14 +5,23 @@ import { OptimizedUrls } from '../types'
 // ================================
 
 /**
- * Generates URLs for different image sizes (using original URL from Supabase Storage)
+ * Gera URLs otimizadas para diferentes tamanhos
+ * Nota: Supabase Storage não suporta transformações via query params
+ * Esta função mantém a estrutura para futuras melhorias (ex: usar serviço de transformação)
+ * Por enquanto, todas as URLs são iguais, mas o sistema de carregamento progressivo
+ * otimiza o carregamento usando lazy loading e priorização inteligente
  */
-export const generateOptimizedUrls = (originalUrl: string): OptimizedUrls => ({
-  thumbnail: originalUrl,
-  medium: originalUrl,
-  large: originalUrl,
-  original: originalUrl
-})
+export const generateOptimizedUrls = (originalUrl: string): OptimizedUrls => {
+  // Por enquanto, todas as URLs são iguais
+  // Futuramente pode-se integrar com serviço de transformação de imagens
+  // ou usar Supabase Image Transformations (se disponível)
+  return {
+    thumbnail: originalUrl, // Para lazy loading inicial
+    medium: originalUrl,    // Para visualização padrão
+    large: originalUrl,     // Para telas maiores
+    original: originalUrl   // Para zoom/full size
+  }
+}
 
 /**
  * Legacy function - returns empty string as Cloudinary is no longer used

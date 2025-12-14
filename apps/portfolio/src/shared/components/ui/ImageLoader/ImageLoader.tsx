@@ -51,7 +51,7 @@ const preconnectImageDomain = (url: string) => {
  * Componente ImageLoader otimizado com Intersection Observer, preload inteligente e otimizações de performance
  * Possui lazy loading eficiente, decodificação assíncrona e cache-busting para carregamentos que falharam
  */
-export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; sizes?: string }> = ({
+export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; sizes?: string; thumbnailUrl?: string }> = ({
   src,
   alt,
   onLoad,
@@ -59,7 +59,8 @@ export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; size
   className = '',
   crossOrigin = 'anonymous',
   priority = false,
-  sizes
+  sizes,
+  thumbnailUrl
 }) => {
   // ================================
   // ESTADO E REFS
@@ -67,8 +68,13 @@ export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; size
 
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
-  const [imageSrc, setImageSrc] = useState(src)
+  
+  // Só usa thumbnail se for diferente de src (para evitar loops quando são iguais)
+  const hasValidThumbnail = thumbnailUrl && thumbnailUrl !== src
+  const initialSrc = hasValidThumbnail ? thumbnailUrl : ensureHttps(src)
+  const [imageSrc, setImageSrc] = useState(initialSrc)
   const [shouldLoad, setShouldLoad] = useState(priority) // Carrega imediatamente se for prioridade
+  const [isThumbnailLoaded, setIsThumbnailLoaded] = useState(false)
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -79,19 +85,32 @@ export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; size
   useEffect(() => {
     // Garante que a URL inicial use HTTPS
     const httpsUrl = ensureHttps(src)
-    if (httpsUrl !== imageSrc) {
-      setImageSrc(httpsUrl)
-    }
     
     // Preconnect para domínio da imagem (otimização)
     if (httpsUrl) {
       preconnectImageDomain(httpsUrl)
     }
-  }, [src, imageSrc])
+    
+    // Se não tiver thumbnail válido (diferente de src), sempre usar src direto
+    if (!hasValidThumbnail) {
+      if (imageSrc !== httpsUrl) {
+        setImageSrc(httpsUrl)
+      }
+    }
+    // Se tiver thumbnail válido mas já carregou, usar src completo
+    else if (isThumbnailLoaded && imageSrc !== httpsUrl) {
+      setImageSrc(httpsUrl)
+    }
+  }, [src, hasValidThumbnail, isThumbnailLoaded])
 
-  // Intersection Observer para lazy loading eficiente
+  // Intersection Observer para lazy loading eficiente com rootMargin otimizado
   useEffect(() => {
     if (priority || shouldLoad) return // Já está carregando ou é prioridade
+
+    // RootMargin maior para conexões rápidas, menor para lentas
+    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
+    const isSlowConnection = connection && (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g')
+    const rootMargin = isSlowConnection ? '100px' : '200px' // Carrega mais cedo para conexões rápidas
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -103,7 +122,8 @@ export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; size
         })
       },
       {
-        rootMargin: '50px' // Começa a carregar 50px antes de entrar na viewport
+        rootMargin, // Começa a carregar antes de entrar na viewport
+        threshold: 0.01 // Dispara quando 1% da imagem está visível
       }
     )
 
@@ -121,6 +141,19 @@ export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; size
   // ================================
 
   const handleLoad = () => {
+    // Se estiver carregando thumbnail válido, carregar a imagem completa depois
+    if (hasValidThumbnail && !isThumbnailLoaded && imageSrc === thumbnailUrl) {
+      setIsThumbnailLoaded(true)
+      setIsLoading(true) // Continua loading enquanto carrega a versão completa
+      // Aguardar um pouco antes de carregar a versão completa para melhor UX
+      setTimeout(() => {
+        const httpsUrl = ensureHttps(src)
+        setImageSrc(httpsUrl)
+      }, 100)
+      return
+    }
+    
+    // Se não tiver thumbnail válido ou já carregou o thumbnail e agora está carregando a versão completa
     setIsLoading(false)
     setHasError(false)
     onLoad?.()
@@ -181,25 +214,41 @@ export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; size
   // RENDERIZAÇÃO PRINCIPAL
   // ================================
 
+  // Determina se deve mostrar placeholder blur (só quando tem thumbnail válido e ainda está carregando ele)
+  const showBlurPlaceholder = hasValidThumbnail && !isThumbnailLoaded && imageSrc === thumbnailUrl
+  
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden">
-      {isLoading && renderLoadingState()}
+      {isLoading && !showBlurPlaceholder && renderLoadingState()}
 
       {shouldLoad && (
-        <img
-          ref={imgRef}
-          src={imageSrc}
-          alt={alt}
-          onLoad={handleLoad}
-          onError={handleError}
-          crossOrigin={crossOrigin}
-          referrerPolicy="no-referrer-when-downgrade"
-          className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
-          fetchPriority={priority ? 'high' : 'auto'}
-          sizes={sizes}
-        />
+        <>
+          {/* Placeholder blur enquanto carrega thumbnail */}
+          {showBlurPlaceholder && thumbnailUrl && (
+            <div 
+              className="absolute inset-0 bg-gray-200 dark:bg-gray-800 animate-pulse"
+              style={{ backgroundImage: `url(${thumbnailUrl})`, backgroundSize: 'cover', filter: 'blur(10px)' }}
+            />
+          )}
+          <img
+            ref={imgRef}
+            src={imageSrc}
+            alt={alt}
+            onLoad={handleLoad}
+            onError={handleError}
+            crossOrigin={crossOrigin}
+            referrerPolicy="no-referrer-when-downgrade"
+            className={`${className} ${
+              isLoading && !showBlurPlaceholder
+                ? 'opacity-0' 
+                : 'opacity-100'
+            } transition-opacity duration-300`}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchPriority={priority ? 'high' : 'auto'}
+            sizes={sizes}
+          />
+        </>
       )}
     </div>
   )

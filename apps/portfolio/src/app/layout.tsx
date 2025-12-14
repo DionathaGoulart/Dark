@@ -89,7 +89,7 @@ export default async function RootLayout({
   const seoData = await getPortfolioSeoData('pt')
   const settingsData = await getPortfolioSettings()
   const navigationItems = await getNavigationItems()
-  const gaMeasurementId = seoData?.ga_measurement_id || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+  const gaMeasurementId = seoData?.ga_measurement_id
 
   return (
     <html lang="pt" suppressHydrationWarning>

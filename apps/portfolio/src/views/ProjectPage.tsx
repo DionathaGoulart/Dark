@@ -36,18 +36,18 @@ interface GridSection {
 /**
  * Converte ProjectImage para ImageItem
  */
-const convertToImageItem = (img: ProjectImage, index: number): ImageItem => ({
-  id: img.id,
-  url: img.image_url,
-  urls: {
-    original: img.image_url,
-    thumbnail: img.image_url,
-    medium: img.image_url,
-    large: img.image_url
-  },
-  title: img.alt_text_pt || img.alt_text_en || '',
-  alt: img.alt_text_pt || img.alt_text_en || ''
-})
+import { generateOptimizedUrls } from '@/features/gallery/utils'
+
+const convertToImageItem = (img: ProjectImage, index: number): ImageItem => {
+  const optimizedUrls = generateOptimizedUrls(img.image_url)
+  return {
+    id: img.id,
+    url: optimizedUrls.medium || img.image_url,
+    urls: optimizedUrls,
+    title: img.alt_text_pt || img.alt_text_en || '',
+    alt: img.alt_text_pt || img.alt_text_en || ''
+  }
+}
 
 /**
  * Mapeia aspect_ratio para classes Tailwind
