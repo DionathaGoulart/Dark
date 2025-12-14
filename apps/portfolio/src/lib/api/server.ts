@@ -15,7 +15,7 @@ import type {
  */
 export async function getPortfolioSeoData(locale: 'pt' | 'en' = 'pt'): Promise<PortfolioSeoData | null> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_seo')
       .select('*')
@@ -40,7 +40,7 @@ export async function getPortfolioSeoData(locale: 'pt' | 'en' = 'pt'): Promise<P
  */
 export async function getPortfolioSettings(): Promise<PortfolioSettingsData | null> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_settings')
       .select('*')
@@ -65,7 +65,7 @@ export async function getPortfolioSettings(): Promise<PortfolioSettingsData | nu
  */
 export async function getNavigationItems(): Promise<NavigationItem[]> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_navigation')
       .select('*')
@@ -89,7 +89,7 @@ export async function getNavigationItems(): Promise<NavigationItem[]> {
  */
 export async function getPageBySlug(slug: string): Promise<PortfolioPage | null> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_pages')
       .select('*')
@@ -114,7 +114,7 @@ export async function getPageBySlug(slug: string): Promise<PortfolioPage | null>
  */
 export async function getHomeImages(): Promise<HomeImage[]> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_home_images')
       .select('*')
@@ -145,7 +145,7 @@ export async function getHomeImages(): Promise<HomeImage[]> {
  */
 export async function getProjects(): Promise<Project[]> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_projects')
       .select('*')
@@ -169,7 +169,7 @@ export async function getProjects(): Promise<Project[]> {
  */
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_projects')
       .select('*')
@@ -194,7 +194,7 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
  */
 export async function getProjectImages(projectId: string): Promise<ProjectImage[]> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_project_images')
       .select('*')
@@ -219,7 +219,7 @@ export async function getProjectImages(projectId: string): Promise<ProjectImage[
  */
 export async function getStoreCards(): Promise<StoreCard[]> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_store_cards')
       .select('*')

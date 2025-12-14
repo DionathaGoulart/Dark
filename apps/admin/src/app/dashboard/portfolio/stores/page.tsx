@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -48,24 +48,7 @@ export default function StoresPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
-      if (error || !user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(user)
-      loadPage()
-      loadCards()
-    }
-
-    getUser()
-  }, [router, supabase])
-
-  const loadCards = async () => {
+  const loadCards = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('portfolio_store_cards')
@@ -77,9 +60,9 @@ export default function StoresPage() {
     } catch (error) {
       console.error('Erro ao carregar cards:', error)
     }
-  }
+  }, [supabase])
 
-  const loadPage = async () => {
+  const loadPage = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('portfolio_pages')
@@ -103,7 +86,24 @@ export default function StoresPage() {
       console.error('Erro ao carregar página:', error)
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      
+      if (error || !user) {
+        router.push('/login')
+        return
+      }
+
+      setUser(user)
+      loadPage()
+      loadCards()
+    }
+
+    getUser()
+  }, [router, supabase, loadPage, loadCards])
 
   const handleSave = async () => {
     if (!pageData.title_pt || !pageData.title_en) {

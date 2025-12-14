@@ -10,7 +10,7 @@ import {
   ThemeToggle
 } from '@/shared'
 import { useI18n } from '@/core/providers'
-import { HeaderConfig, SocialUrls } from '@/types'
+import { HeaderConfig, SocialUrls, NavItem } from '@/types'
 
 // ================================
 // CONSTANTES

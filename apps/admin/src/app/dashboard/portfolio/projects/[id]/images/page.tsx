@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -54,24 +54,7 @@ export default function ProjectImagesPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
-      if (error || !user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(user)
-      loadProject()
-      loadImages()
-    }
-
-    getUser()
-  }, [router, supabase, projectId])
-
-  const loadProject = async () => {
+  const loadProject = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('portfolio_projects')
@@ -84,9 +67,9 @@ export default function ProjectImagesPage() {
     } catch (error) {
       console.error('Erro ao carregar projeto:', error)
     }
-  }
+  }, [supabase, projectId])
 
-  const loadImages = async () => {
+  const loadImages = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('portfolio_project_images')
@@ -101,7 +84,7 @@ export default function ProjectImagesPage() {
       console.error('Erro ao carregar imagens:', error)
       setLoading(false)
     }
-  }
+  }, [supabase, projectId])
 
   const uploadFile = async (file: File): Promise<string | null> => {
     try {

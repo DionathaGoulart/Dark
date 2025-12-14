@@ -1,12 +1,10 @@
 {
   "parser": "@typescript-eslint/parser",
   "extends": [
-    "react-app",
+    "next/core-web-vitals",
     "plugin:react/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:react-hooks/recommended",
-    "airbnb",
-    "airbnb/hooks",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript",
@@ -36,7 +34,11 @@
         "ts": "never",
         "tsx": "never"
       }
-    ]
+    ],
+    "@next/next/no-img-element": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "react/no-unescaped-entities": "off",
+    "react-hooks/exhaustive-deps": "warn"
   },
   "settings": {
     "import/resolver": {

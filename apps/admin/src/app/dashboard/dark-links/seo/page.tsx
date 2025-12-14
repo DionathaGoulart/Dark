@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -51,23 +51,7 @@ export default function SeoManagementPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
-      if (error || !user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(user)
-      loadSeoData()
-    }
-
-    getUser()
-  }, [router, supabase])
-
-  const loadSeoData = async () => {
+  const loadSeoData = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('dark_links_seo')
@@ -88,7 +72,23 @@ export default function SeoManagementPage() {
       console.error('Erro ao carregar dados de SEO:', error)
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      
+      if (error || !user) {
+        router.push('/login')
+        return
+      }
+
+      setUser(user)
+      loadSeoData()
+    }
+
+    getUser()
+  }, [router, supabase, loadSeoData])
 
   const handleSave = async () => {
     setSaving(true)

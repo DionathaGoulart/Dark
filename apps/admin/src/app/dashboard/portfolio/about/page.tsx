@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -29,23 +29,7 @@ export default function AboutPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
-      if (error || !user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(user)
-      loadPage()
-    }
-
-    getUser()
-  }, [router, supabase])
-
-  const loadPage = async () => {
+  const loadPage = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('portfolio_pages')
@@ -71,7 +55,7 @@ export default function AboutPage() {
       console.error('Erro ao carregar página:', error)
       setLoading(false)
     }
-  }
+  }, [supabase])
 
   const handleSave = async () => {
     if (!pageData.title_pt || !pageData.title_en) {

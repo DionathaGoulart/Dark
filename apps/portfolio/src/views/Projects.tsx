@@ -196,7 +196,7 @@ const useProjectImages = (
 
       try {
         // Load projects from database
-        const supabase = createClient()
+        const supabase = await createClient()
         const { data: projects, error } = await supabase
           .from('portfolio_projects')
           .select('*')

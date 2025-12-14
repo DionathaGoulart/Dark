@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -13,6 +13,22 @@ export default function LinksManagementPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  const loadLinks = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('links_content')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setLinks(data || [])
+      setLoading(false)
+    } catch (error) {
+      console.error('Erro ao carregar links:', error)
+      setLoading(false)
+    }
+  }, [supabase])
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
@@ -23,26 +39,11 @@ export default function LinksManagementPage() {
       }
 
       setUser(user)
-      setLoading(false)
       loadLinks()
     }
 
     getUser()
-  }, [router, supabase])
-
-  const loadLinks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('links_content')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setLinks(data || [])
-    } catch (error) {
-      console.error('Erro ao carregar links:', error)
-    }
-  }
+  }, [router, supabase, loadLinks])
 
   if (loading) {
     return (

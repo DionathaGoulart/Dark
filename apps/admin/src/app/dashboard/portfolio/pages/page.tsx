@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -35,6 +35,22 @@ export default function PagesManagementPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  const loadPages = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('portfolio_pages')
+        .select('*')
+        .order('order_index', { ascending: true })
+
+      if (error) throw error
+      setPages(data || [])
+      setLoading(false)
+    } catch (error) {
+      console.error('Erro ao carregar páginas:', error)
+      setLoading(false)
+    }
+  }, [supabase])
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
@@ -49,23 +65,7 @@ export default function PagesManagementPage() {
     }
 
     getUser()
-  }, [router, supabase])
-
-  const loadPages = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('portfolio_pages')
-        .select('*')
-        .order('order_index', { ascending: true })
-
-      if (error) throw error
-      setPages(data || [])
-      setLoading(false)
-    } catch (error) {
-      console.error('Erro ao carregar páginas:', error)
-      setLoading(false)
-    }
-  }
+  }, [router, supabase, loadPages])
 
   const openModal = (page?: Page) => {
     if (page) {
@@ -119,11 +119,10 @@ export default function PagesManagementPage() {
         slug: formData.slug,
         title_pt: formData.title_pt,
         title_en: formData.title_en,
-        content_pt: formData.content_pt || null,
-        content_en: formData.content_en || null,
+        content_pt: formData.content_pt || undefined,
+        content_en: formData.content_en || undefined,
         is_active: formData.is_active,
-        order_index: formData.order_index,
-        updated_at: new Date().toISOString()
+        order_index: formData.order_index
       }
 
       if (editingPage?.id) {

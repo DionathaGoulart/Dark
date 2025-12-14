@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { unstable_noStore as noStore } from 'next/cache'
 import { I18nProvider } from '@/core/providers/I18nProvider'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { MainLayout } from '@/shared/components/layouts/MainLayout'
@@ -20,6 +21,7 @@ const inter = Inter({
 })
 
 export async function generateMetadata(): Promise<Metadata> {
+  noStore()
   const seoData = await getPortfolioSeoData('pt')
   const settingsData = await getPortfolioSettings()
 
@@ -86,6 +88,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  noStore()
   const seoData = await getPortfolioSeoData('pt')
   const settingsData = await getPortfolioSettings()
   const navigationItems = await getNavigationItems()

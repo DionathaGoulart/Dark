@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -31,6 +31,22 @@ export default function NavigationManagementPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  const loadNavItems = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('portfolio_navigation')
+        .select('*')
+        .order('order_index', { ascending: true })
+
+      if (error) throw error
+      setNavItems(data || [])
+      setLoading(false)
+    } catch (error) {
+      console.error('Erro ao carregar itens de navegação:', error)
+      setLoading(false)
+    }
+  }, [supabase])
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
@@ -45,23 +61,7 @@ export default function NavigationManagementPage() {
     }
 
     getUser()
-  }, [router, supabase])
-
-  const loadNavItems = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('portfolio_navigation')
-        .select('*')
-        .order('order_index', { ascending: true })
-
-      if (error) throw error
-      setNavItems(data || [])
-      setLoading(false)
-    } catch (error) {
-      console.error('Erro ao carregar itens de navegação:', error)
-      setLoading(false)
-    }
-  }
+  }, [router, supabase, loadNavItems])
 
   const openModal = (item?: NavItem) => {
     if (item) {
@@ -110,8 +110,7 @@ export default function NavigationManagementPage() {
         label_en: formData.label_en,
         href: formData.href,
         order_index: formData.order_index,
-        is_active: formData.is_active,
-        updated_at: new Date().toISOString()
+        is_active: formData.is_active
       }
 
       if (editingItem?.id) {
