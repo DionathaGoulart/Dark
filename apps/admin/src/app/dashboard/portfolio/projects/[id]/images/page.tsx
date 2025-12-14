@@ -18,6 +18,9 @@ interface ProjectImage {
   aspect_ratio?: 'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto'
   object_fit?: 'cover' | 'contain'
   grid_group_id?: string
+  padding_horizontal?: number | null
+  padding_vertical?: number | null
+  grid_dominant_side?: 'none' | 'left' | 'right'
 }
 
 export default function ProjectImagesPage() {
@@ -29,18 +32,23 @@ export default function ProjectImagesPage() {
   const [images, setImages] = useState<ProjectImage[]>([])
   const [uploading, setUploading] = useState(false)
   const [editingImage, setEditingImage] = useState<ProjectImage | null>(null)
+  const [editingGridImages, setEditingGridImages] = useState<ProjectImage[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
   const [uploadLayoutType, setUploadLayoutType] = useState<'solo' | 'grid-2' | 'grid-3' | 'grid-5'>('solo')
   const [uploadAspectRatio, setUploadAspectRatio] = useState<'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto'>('auto')
   const [uploadObjectFit, setUploadObjectFit] = useState<'cover' | 'contain'>('cover')
+  const [uploadGridDominantSide, setUploadGridDominantSide] = useState<'none' | 'left' | 'right'>('none')
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [formData, setFormData] = useState({
     alt_text_pt: '',
     alt_text_en: '',
     layout_type: 'solo' as 'solo' | 'grid-2' | 'grid-3' | 'grid-5',
     aspect_ratio: 'auto' as 'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto',
-    object_fit: 'cover' as 'cover' | 'contain'
+    object_fit: 'cover' as 'cover' | 'contain',
+    padding_horizontal: null as number | null,
+    padding_vertical: null as number | null,
+    grid_dominant_side: 'none' as 'none' | 'left' | 'right'
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
@@ -166,7 +174,19 @@ export default function ProjectImagesPage() {
       // Se for grid, agrupar imagens em grupos do tamanho especificado
       if (uploadLayoutType.startsWith('grid-')) {
         // Gerar um grid_group_id único para todas as imagens deste upload
-        const gridGroupId = crypto.randomUUID()
+        const generateUUID = () => {
+          // Fallback para navegadores que não suportam crypto.randomUUID
+          if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID()
+          }
+          // Fallback alternativo
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = Math.random() * 16 | 0
+            const v = c === 'x' ? r : (r & 0x3 | 0x8)
+            return v.toString(16)
+          })
+        }
+        const gridGroupId = generateUUID()
         
         for (let i = 0; i < pendingFiles.length; i++) {
           const file = pendingFiles[i]
@@ -183,7 +203,8 @@ export default function ProjectImagesPage() {
               layout_type: uploadLayoutType, // Todas recebem o mesmo layout_type
               aspect_ratio: uploadAspectRatio,
               object_fit: uploadObjectFit,
-              grid_group_id: gridGroupId // Todas as imagens do upload compartilham o mesmo grupo
+              grid_group_id: gridGroupId, // Todas as imagens do upload compartilham o mesmo grupo
+              grid_dominant_side: uploadLayoutType === 'grid-2' ? uploadGridDominantSide : undefined
             })
           }
         }
@@ -227,6 +248,7 @@ export default function ProjectImagesPage() {
       setUploadLayoutType('solo')
       setUploadAspectRatio('auto')
       setUploadObjectFit('cover')
+      setUploadGridDominantSide('none')
     }
   }
 
@@ -236,6 +258,7 @@ export default function ProjectImagesPage() {
     setUploadLayoutType('solo')
     setUploadAspectRatio('auto')
     setUploadObjectFit('cover')
+    setUploadGridDominantSide('none')
   }
 
   const extractFilePathFromUrl = (url: string): string | null => {
@@ -294,6 +317,58 @@ export default function ProjectImagesPage() {
     } catch (error) {
       console.error('Erro ao remover imagem:', error)
       alert('Erro ao remover imagem. Tente novamente.')
+    }
+  }
+
+  const handleDeleteGrid = async (gridGroupId: string) => {
+    if (!confirm('Tem certeza que deseja remover todo o grid? Todas as imagens do grid serão removidas.')) {
+      return
+    }
+
+    try {
+      // Buscar todas as imagens do grid
+      const gridImages = images.filter(img => img.grid_group_id === gridGroupId)
+      
+      if (gridImages.length === 0) {
+        alert('Nenhuma imagem encontrada no grid')
+        return
+      }
+
+      // Deletar arquivos do storage
+      const filePaths: string[] = []
+      for (const img of gridImages) {
+        if (img.image_url && img.image_url.includes('supabase.co/storage')) {
+          const filePath = extractFilePathFromUrl(img.image_url)
+          if (filePath) {
+            filePaths.push(filePath)
+          }
+        }
+      }
+
+      if (filePaths.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from('portfolio-assets')
+          .remove(filePaths)
+
+        if (storageError) {
+          console.warn('Erro ao deletar arquivos do storage:', storageError)
+          // Continua mesmo se houver erro no storage
+        }
+      }
+
+      // Deletar todas as imagens do grid do banco de dados
+      const imageIds = gridImages.map(img => img.id).filter(Boolean) as string[]
+      const { error } = await supabase
+        .from('portfolio_project_images')
+        .delete()
+        .in('id', imageIds)
+
+      if (error) throw error
+      loadImages()
+      alert(`Grid removido com sucesso! ${gridImages.length} imagem(ns) removida(s).`)
+    } catch (error) {
+      console.error('Erro ao remover grid:', error)
+      alert('Erro ao remover grid. Tente novamente.')
     }
   }
 
@@ -390,12 +465,26 @@ export default function ProjectImagesPage() {
 
   const openEditModal = (image: ProjectImage) => {
     setEditingImage(image)
+    
+    // Se a imagem pertence a um grid, carregar todas as imagens do grid
+    if (image.grid_group_id) {
+      const gridImages = images
+        .filter(img => img.grid_group_id === image.grid_group_id)
+        .sort((a, b) => a.order_index - b.order_index)
+      setEditingGridImages(gridImages)
+    } else {
+      setEditingGridImages([])
+    }
+    
     setFormData({
       alt_text_pt: image.alt_text_pt || '',
       alt_text_en: image.alt_text_en || '',
       layout_type: image.layout_type || 'solo',
       aspect_ratio: image.aspect_ratio || 'auto',
-      object_fit: image.object_fit || 'cover'
+      object_fit: image.object_fit || 'cover',
+      padding_horizontal: image.padding_horizontal ?? null,
+      padding_vertical: image.padding_vertical ?? null,
+      grid_dominant_side: image.grid_dominant_side || 'none'
     })
     setIsModalOpen(true)
   }
@@ -403,12 +492,16 @@ export default function ProjectImagesPage() {
   const closeEditModal = () => {
     setIsModalOpen(false)
     setEditingImage(null)
+    setEditingGridImages([])
     setFormData({
       alt_text_pt: '',
       alt_text_en: '',
       layout_type: 'solo',
       aspect_ratio: 'auto',
-      object_fit: 'cover'
+      object_fit: 'cover',
+      padding_horizontal: null,
+      padding_vertical: null,
+      grid_dominant_side: 'none'
     })
   }
 
@@ -416,13 +509,52 @@ export default function ProjectImagesPage() {
     if (!editingImage?.id) return
 
     try {
-      // Verificar se a imagem pertence a um grid
+      // Se está editando um grid, atualizar todas as imagens do grid
+      if (editingGridImages.length > 0) {
+        const updateData: any = {
+          layout_type: formData.layout_type,
+          aspect_ratio: formData.aspect_ratio,
+          object_fit: formData.object_fit,
+          padding_horizontal: formData.padding_horizontal || null,
+          padding_vertical: formData.padding_vertical || null,
+          grid_dominant_side: formData.layout_type === 'grid-2' ? formData.grid_dominant_side : null,
+          updated_at: new Date().toISOString()
+        }
+
+        // Atualizar todas as imagens do grid com as mesmas configurações
+        const imageIds = editingGridImages.map(img => img.id).filter(Boolean) as string[]
+        
+        const { error } = await supabase
+          .from('portfolio_project_images')
+          .update(updateData)
+          .in('id', imageIds)
+
+        if (error) throw error
+        
+        // Atualizar textos alternativos individualmente (podem ser diferentes)
+        for (const img of editingGridImages) {
+          if (img.id) {
+            await supabase
+              .from('portfolio_project_images')
+              .update({
+                alt_text_pt: formData.alt_text_pt || null,
+                alt_text_en: formData.alt_text_en || null
+              })
+              .eq('id', img.id)
+          }
+        }
+
+        closeEditModal()
+        loadImages()
+        alert(`Configurações do grid (${editingGridImages.length} imagens) salvas com sucesso!`)
+        return
+      }
+
+      // Se não é grid, editar individualmente (comportamento antigo)
       const belongsToGrid = editingImage.grid_group_id !== null && editingImage.grid_group_id !== undefined
       const originalLayoutType = editingImage.layout_type || 'solo'
       const newLayoutType = formData.layout_type
       
-      // Se a imagem pertence a um grid e o layout_type mudou, desvincular do grid
-      // Também desvincular se mudou para solo ou para um grid diferente
       const shouldUnlinkFromGrid = belongsToGrid && (
         originalLayoutType !== newLayoutType || 
         newLayoutType === 'solo' ||
@@ -435,13 +567,14 @@ export default function ProjectImagesPage() {
         layout_type: formData.layout_type,
         aspect_ratio: formData.aspect_ratio,
         object_fit: formData.object_fit,
+        padding_horizontal: formData.padding_horizontal || null,
+        padding_vertical: formData.padding_vertical || null,
+        grid_dominant_side: formData.layout_type === 'grid-2' ? formData.grid_dominant_side : null,
         updated_at: new Date().toISOString()
       }
 
-      // Se deve desvincular do grid, remover grid_group_id
       if (shouldUnlinkFromGrid) {
         updateData.grid_group_id = null
-        // Se mudou para algo que não é grid, garantir que seja solo
         if (!newLayoutType.startsWith('grid-')) {
           updateData.layout_type = 'solo'
         }
@@ -532,36 +665,67 @@ export default function ProjectImagesPage() {
               </p>
             </div>
           ) : (() => {
-            // Agrupar imagens por grid_group_id
-            const groupedImages = new Map<string | 'solo', ProjectImage[]>()
+            // Agrupar imagens respeitando a ordem sequencial do order_index
+            // Imagens solo são grupos individuais, imagens de grid são agrupadas
+            // Mas mantendo a ordem global (solo, grid, solo, grid, etc.)
+            const groupedImages: Array<{ groupKey: string | 'solo', images: ProjectImage[], orderIndex: number }> = []
+            const processedIds = new Set<string>()
             
-            images.forEach(image => {
-              const groupKey = image.grid_group_id || 'solo'
-              if (!groupedImages.has(groupKey)) {
-                groupedImages.set(groupKey, [])
+            // Processar imagens na ordem do order_index
+            const sortedImages = [...images].sort((a, b) => a.order_index - b.order_index)
+            
+            sortedImages.forEach((image) => {
+              // Pular se já foi processada (faz parte de um grid já processado)
+              if (image.id && processedIds.has(image.id)) return
+              
+              if (image.grid_group_id) {
+                // É um grid - agrupar todas as imagens do mesmo grid_group_id
+                // que ainda não foram processadas
+                const gridImages = sortedImages.filter(
+                  img => img.grid_group_id === image.grid_group_id && 
+                         img.id && !processedIds.has(img.id)
+                ).sort((a, b) => a.order_index - b.order_index)
+                
+                // Marcar todas como processadas
+                gridImages.forEach(img => {
+                  if (img.id) processedIds.add(img.id)
+                })
+                
+                // Usar o menor order_index do grid como posição na sequência
+                const minOrderIndex = Math.min(...gridImages.map(img => img.order_index))
+                
+                groupedImages.push({
+                  groupKey: image.grid_group_id,
+                  images: gridImages,
+                  orderIndex: minOrderIndex
+                })
+              } else {
+                // É uma imagem solo - criar grupo individual
+                if (image.id) processedIds.add(image.id)
+                groupedImages.push({
+                  groupKey: 'solo',
+                  images: [image],
+                  orderIndex: image.order_index
+                })
               }
-              groupedImages.get(groupKey)!.push(image)
             })
+            
+            // Reordenar grupos pela ordem sequencial (order_index mínimo de cada grupo)
+            groupedImages.sort((a, b) => a.orderIndex - b.orderIndex)
 
-            // Ordenar grupos pela order_index da primeira imagem de cada grupo
-            // E ordenar imagens dentro de cada grupo também
-            const sortedGroups = Array.from(groupedImages.entries()).map(([key, imgs]) => {
-              return [key, imgs.sort((a, b) => a.order_index - b.order_index)] as [string | 'solo', ProjectImage[]]
-            }).sort((a, b) => {
-              const aFirst = a[1][0]?.order_index || 0
-              const bFirst = b[1][0]?.order_index || 0
-              return aFirst - bFirst
-            })
-
-            return sortedGroups.map(([groupKey, groupImages], groupIndex) => {
+            return groupedImages.map((group, groupIndex) => {
+              const { groupKey, images: groupImages } = group
               const isGrid = groupKey !== 'solo'
               const firstImage = groupImages[0]
               const layoutType = firstImage.layout_type || 'solo'
               const gridSize = layoutType === 'grid-2' ? 2 : layoutType === 'grid-3' ? 3 : layoutType === 'grid-5' ? 5 : 1
 
+              // Criar uma chave única para cada grupo
+              const uniqueKey = isGrid ? groupKey : `solo-${firstImage.id || groupIndex}`
+              
               return (
                 <div
-                  key={groupKey}
+                  key={uniqueKey}
                   className={`border-2 border-primary-black dark:border-primary-white p-6 rounded-lg ${isGrid ? 'bg-primary-black/5 dark:bg-primary-white/5' : ''}`}
                 >
                   {/* Header do Grupo */}
@@ -576,22 +740,32 @@ export default function ProjectImagesPage() {
                             {groupImages.length} imagem(ns)
                           </span>
                         </div>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => firstImage.id && handleMove(firstImage.id, 'up')}
+                              disabled={groupIndex === 0}
+                              className="p-2 border-2 border-primary-black dark:border-primary-white rounded disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary-black dark:hover:bg-primary-white hover:text-primary-white dark:hover:text-primary-black transition-all"
+                              title="Mover grupo para cima"
+                            >
+                              <ArrowUp size={16} />
+                            </button>
+                            <button
+                              onClick={() => firstImage.id && handleMove(firstImage.id, 'down')}
+                              disabled={groupIndex === groupedImages.length - 1}
+                              className="p-2 border-2 border-primary-black dark:border-primary-white rounded disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary-black dark:hover:bg-primary-white hover:text-primary-black dark:hover:text-primary-white transition-all"
+                              title="Mover grupo para baixo"
+                            >
+                              <ArrowDown size={16} />
+                            </button>
+                          </div>
                           <button
-                            onClick={() => firstImage.id && handleMove(firstImage.id, 'up')}
-                            disabled={groupIndex === 0}
-                            className="p-2 border-2 border-primary-black dark:border-primary-white rounded disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary-black dark:hover:bg-primary-white hover:text-primary-white dark:hover:text-primary-black transition-all"
-                            title="Mover grupo para cima"
+                            onClick={() => firstImage.grid_group_id && handleDeleteGrid(firstImage.grid_group_id)}
+                            className="px-4 py-2 border-2 border-red-500 rounded hover:bg-red-500 hover:text-white transition-all duration-300 flex items-center gap-2"
+                            title="Remover grid inteiro"
                           >
-                            <ArrowUp size={16} />
-                          </button>
-                          <button
-                            onClick={() => firstImage.id && handleMove(firstImage.id, 'down')}
-                            disabled={groupIndex === sortedGroups.length - 1}
-                            className="p-2 border-2 border-primary-black dark:border-primary-white rounded disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary-black dark:hover:bg-primary-white hover:text-primary-black dark:hover:text-primary-white transition-all"
-                            title="Mover grupo para baixo"
-                          >
-                            <ArrowDown size={16} />
+                            <Trash2 size={16} />
+                            Remover Grid
                           </button>
                         </div>
                       </div>
@@ -724,7 +898,7 @@ export default function ProjectImagesPage() {
                   <select
                     value={uploadLayoutType}
                     onChange={(e) => setUploadLayoutType(e.target.value as any)}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   >
                     <option value="solo">Solo (Imagem única)</option>
                     <option value="grid-2">Grid 2 Colunas</option>
@@ -738,6 +912,26 @@ export default function ProjectImagesPage() {
                   </p>
                 </div>
 
+                {uploadLayoutType === 'grid-2' && (
+                  <div>
+                    <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
+                      Lado Dominante (Apenas Grid 2 Colunas)
+                    </label>
+                    <select
+                      value={uploadGridDominantSide}
+                      onChange={(e) => setUploadGridDominantSide(e.target.value as 'none' | 'left' | 'right')}
+                      className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
+                    >
+                      <option value="none">Nenhum (largura igual - 50% cada)</option>
+                      <option value="left">Esquerda Dominante (esquerda maior)</option>
+                      <option value="right">Direita Dominante (direita maior)</option>
+                    </select>
+                    <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
+                      Define qual lado do grid de 2 colunas terá maior largura
+                    </p>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
                     Aspect Ratio (Proporção)
@@ -745,7 +939,7 @@ export default function ProjectImagesPage() {
                   <select
                     value={uploadAspectRatio}
                     onChange={(e) => setUploadAspectRatio(e.target.value as any)}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   >
                     <option value="auto">Auto (automático)</option>
                     <option value="square">Square (1:1)</option>
@@ -764,7 +958,7 @@ export default function ProjectImagesPage() {
                   <select
                     value={uploadObjectFit}
                     onChange={(e) => setUploadObjectFit(e.target.value as any)}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   >
                     <option value="cover">Cover (preencher)</option>
                     <option value="contain">Contain (conter)</option>
@@ -806,9 +1000,16 @@ export default function ProjectImagesPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-primary-white dark:bg-primary-black border-2 border-primary-black dark:border-primary-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-primary-black dark:text-primary-white">
-                  Editar Layout da Imagem
-                </h2>
+                <div>
+                  <h2 className="text-2xl font-bold text-primary-black dark:text-primary-white">
+                    {editingGridImages.length > 0 ? 'Editar Grid' : 'Editar Layout da Imagem'}
+                  </h2>
+                  {editingGridImages.length > 0 && (
+                    <p className="text-sm text-primary-black/60 dark:text-primary-white/60 mt-1">
+                      Editando {editingGridImages.length} imagem(ns) do grid - alterações serão aplicadas a todas
+                    </p>
+                  )}
+                </div>
                 <button
                   onClick={closeEditModal}
                   className="p-2 hover:bg-primary-black/10 dark:hover:bg-primary-white/10 rounded transition-colors"
@@ -818,11 +1019,29 @@ export default function ProjectImagesPage() {
               </div>
 
               <div className="space-y-4 mb-6">
-                <img
-                  src={editingImage.image_url}
-                  alt={editingImage.alt_text_pt || 'Preview'}
-                  className="w-full h-64 object-cover rounded border-2 border-primary-black dark:border-primary-white"
-                />
+                {editingGridImages.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-primary-black/60 dark:text-primary-white/60">
+                      Preview do Grid ({editingGridImages.length} imagens):
+                    </p>
+                    <div className={`grid gap-2 ${editingGridImages.length === 2 ? 'grid-cols-2' : editingGridImages.length === 3 ? 'grid-cols-3' : editingGridImages.length === 5 ? 'grid-cols-5' : 'grid-cols-3'}`}>
+                      {editingGridImages.map((img) => (
+                        <img
+                          key={img.id}
+                          src={img.image_url}
+                          alt={img.alt_text_pt || 'Preview'}
+                          className="w-full h-32 object-cover rounded border-2 border-primary-black dark:border-primary-white"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={editingImage.image_url}
+                    alt={editingImage.alt_text_pt || 'Preview'}
+                    className="w-full h-64 object-cover rounded border-2 border-primary-black dark:border-primary-white"
+                  />
+                )}
               </div>
 
               <div className="space-y-4">
@@ -834,7 +1053,7 @@ export default function ProjectImagesPage() {
                     type="text"
                     value={formData.alt_text_pt}
                     onChange={(e) => setFormData({ ...formData, alt_text_pt: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                     placeholder="Descrição da imagem em português"
                   />
                 </div>
@@ -846,7 +1065,7 @@ export default function ProjectImagesPage() {
                     type="text"
                     value={formData.alt_text_en}
                     onChange={(e) => setFormData({ ...formData, alt_text_en: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                     placeholder="Image description in English"
                   />
                 </div>
@@ -854,33 +1073,88 @@ export default function ProjectImagesPage() {
                   <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
                     Tipo de Layout
                   </label>
-                  <select
-                    value={formData.layout_type}
-                    onChange={(e) => setFormData({ ...formData, layout_type: e.target.value as any })}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
-                  >
-                    <option value="solo">Solo (Imagem única)</option>
-                    <option value="grid-2">Grid 2 Colunas</option>
-                    <option value="grid-3">Grid 3 Colunas</option>
-                    <option value="grid-5">Grid 5 Colunas</option>
-                  </select>
-                  {editingImage.grid_group_id && (
-                    <div className="mt-2 p-3 bg-yellow-500/20 border-2 border-yellow-500 rounded">
-                      <p className="text-xs text-yellow-700 dark:text-yellow-300 font-semibold mb-1">
-                        ⚠️ Esta imagem pertence a um grid
+                  {editingGridImages.length > 0 ? (
+                    <div>
+                      <select
+                        value={formData.layout_type}
+                        onChange={(e) => setFormData({ ...formData, layout_type: e.target.value as any })}
+                        className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
+                      >
+                        <option value="grid-2">Grid 2 Colunas</option>
+                        <option value="grid-3">Grid 3 Colunas</option>
+                        <option value="grid-5">Grid 5 Colunas</option>
+                      </select>
+                      <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
+                        Alterar o layout do grid afetará todas as {editingGridImages.length} imagens
                       </p>
-                      <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                        {formData.layout_type !== editingImage.layout_type && formData.layout_type !== 'solo' && !formData.layout_type.startsWith('grid-') 
-                          ? 'Ao mudar o layout, a imagem será desvinculada do grid e ficará como solo.'
-                          : formData.layout_type === 'solo' || !formData.layout_type.startsWith('grid-')
-                          ? 'Ao mudar para solo ou outro layout, a imagem será desvinculada do grid automaticamente.'
-                          : 'Mudar o layout desvinculará esta imagem do grid atual.'}
+                      
+                      {(formData.layout_type === 'grid-2') && (
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
+                            Lado Dominante (Apenas Grid 2 Colunas)
+                          </label>
+                          <select
+                            value={formData.grid_dominant_side}
+                            onChange={(e) => setFormData({ ...formData, grid_dominant_side: e.target.value as 'none' | 'left' | 'right' })}
+                            className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
+                          >
+                            <option value="none">Nenhum (largura igual - 50% cada)</option>
+                            <option value="left">Esquerda Dominante (esquerda maior)</option>
+                            <option value="right">Direita Dominante (direita maior)</option>
+                          </select>
+                          <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
+                            Define qual lado do grid de 2 colunas terá maior largura
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <select
+                        value={formData.layout_type}
+                        onChange={(e) => setFormData({ ...formData, layout_type: e.target.value as any })}
+                        className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
+                      >
+                        <option value="solo">Solo (Imagem única)</option>
+                        <option value="grid-2">Grid 2 Colunas</option>
+                        <option value="grid-3">Grid 3 Colunas</option>
+                        <option value="grid-5">Grid 5 Colunas</option>
+                      </select>
+                      {editingImage.grid_group_id && (
+                        <div className="mt-2 p-3 bg-yellow-500/20 border-2 border-yellow-500 rounded">
+                          <p className="text-xs text-yellow-700 dark:text-yellow-300 font-semibold mb-1">
+                            ⚠️ Esta imagem pertence a um grid
+                          </p>
+                          <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                            Ao mudar o layout, a imagem será desvinculada do grid e ficará como solo.
+                          </p>
+                        </div>
+                      )}
+                      <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
+                        Define como a imagem aparece: sozinha ou em grid com outras
                       </p>
+                      
+                      {formData.layout_type === 'grid-2' && (
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
+                            Lado Dominante (Apenas Grid 2 Colunas)
+                          </label>
+                          <select
+                            value={formData.grid_dominant_side}
+                            onChange={(e) => setFormData({ ...formData, grid_dominant_side: e.target.value as 'none' | 'left' | 'right' })}
+                            className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
+                          >
+                            <option value="none">Nenhum (largura igual - 50% cada)</option>
+                            <option value="left">Esquerda Dominante (esquerda maior)</option>
+                            <option value="right">Direita Dominante (direita maior)</option>
+                          </select>
+                          <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
+                            Define qual lado do grid de 2 colunas terá maior largura
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
-                  <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
-                    Define como a imagem aparece: sozinha ou em grid com outras
-                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
@@ -889,7 +1163,7 @@ export default function ProjectImagesPage() {
                   <select
                     value={formData.aspect_ratio}
                     onChange={(e) => setFormData({ ...formData, aspect_ratio: e.target.value as any })}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   >
                     <option value="auto">Auto (automático)</option>
                     <option value="square">Square (1:1)</option>
@@ -910,7 +1184,7 @@ export default function ProjectImagesPage() {
                   <select
                     value={formData.object_fit}
                     onChange={(e) => setFormData({ ...formData, object_fit: e.target.value as any })}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
+                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
                   >
                     <option value="cover">Cover (preencher)</option>
                     <option value="contain">Contain (conter)</option>
@@ -918,6 +1192,40 @@ export default function ProjectImagesPage() {
                   <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
                     Cover: preenche o espaço | Contain: mantém proporção completa
                   </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
+                      Padding Lateral (px) <span className="text-xs text-primary-black/50 dark:text-primary-white/50">(opcional)</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.padding_horizontal ?? ''}
+                      onChange={(e) => setFormData({ ...formData, padding_horizontal: e.target.value ? parseInt(e.target.value) : null })}
+                      className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
+                      placeholder="Ex: 20"
+                    />
+                    <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
+                      Espaçamento nas laterais (esquerda e direita)
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
+                      Padding Vertical (px) <span className="text-xs text-primary-black/50 dark:text-primary-white/50">(opcional)</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.padding_vertical ?? ''}
+                      onChange={(e) => setFormData({ ...formData, padding_vertical: e.target.value ? parseInt(e.target.value) : null })}
+                      className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent dark:bg-primary-black text-primary-black dark:text-primary-white [&>option]:bg-primary-white dark:[&>option]:bg-primary-black [&>option]:text-primary-black dark:[&>option]:text-primary-white"
+                      placeholder="Ex: 20"
+                    />
+                    <p className="text-xs text-primary-black/50 dark:text-primary-white/50 mt-1">
+                      Espaçamento em cima e embaixo
+                    </p>
+                  </div>
                 </div>
               </div>
 

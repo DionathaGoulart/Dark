@@ -261,6 +261,15 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     return gridMap[gridColumns] || 'grid grid-cols-3'
   }
 
+  const getGridStyle = (): React.CSSProperties => {
+    // Para grids (não solo), usar grid-auto-rows para garantir mesma altura
+    // Isso força todas as células da mesma linha a terem a mesma altura
+    if (mode === 'grid' && gridColumns !== 2 && dominantSide === 'none') {
+      return { gridAutoRows: '1fr' }
+    }
+    return {}
+  }
+
   const getDominanceClasses = (
     index: number,
     isInPair: boolean = false
@@ -300,7 +309,19 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
       return 'auto'
     }
 
-    return getAdaptiveAspectRatio(imageId)
+    const aspectRatio = getAdaptiveAspectRatio(imageId)
+    
+    // Para grids (não solo), se o aspect ratio for 'auto', usar o fallback para garantir mesma altura
+    if (mode === 'grid' && aspectRatio === 'auto' && fallbackAspectRatio !== 'auto') {
+      return fallbackAspectRatio
+    }
+    
+    // Se ainda for 'auto' e estiver em grid, usar 'square' como padrão para garantir mesma altura
+    if (mode === 'grid' && aspectRatio === 'auto') {
+      return 'square'
+    }
+
+    return aspectRatio
   }
 
   const getCenteringClasses = (
@@ -350,9 +371,13 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     )
 
     // Container classes ajustadas para item não dominante
+    // Para grids, garantir que todas as imagens tenham a mesma altura
+    const isGridMode = mode === 'grid' && gridColumns !== 2 && !isDominantGrid
     const containerClasses = isDominantGrid
       ? 'w-full h-auto' // Deixa a altura se ajustar automaticamente
-      : `${aspectClasses} ${centeringClasses}`
+      : isGridMode
+        ? `w-full h-full ${centeringClasses}` // Grid: usar altura 100% para preencher a célula do grid
+        : `${aspectClasses} ${centeringClasses}` // Solo: usar aspect ratio normal
 
     const imageClasses =
       isDominantGrid &&
@@ -379,12 +404,13 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
               onLoad={handleImageLoad}
               onError={handleImageError}
               isSquare={false}
-              objectFit={adaptiveObjectFit as any}
+              objectFit={isGridMode ? 'cover' : (adaptiveObjectFit as any)} // Forçar cover em grids para cortar excesso
               showHoverEffect={false}
               enableHoverScale={false}
               showTitle={false}
               className={imageClasses}
               disableShadow
+              priority={index < 6} // Primeiras 6 imagens são prioritárias
             />
           </div>
         </div>
@@ -445,7 +471,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
           {renderDominantGrid()}
         </div>
       ) : (
-        <div className={`${getGridClass()} ${getGapClass(gap)}`}>
+        <div className={`${getGridClass()} ${getGapClass(gap)}`} style={getGridStyle()}>
           {validImages.map((image, index) => renderImageCard(image, index))}
         </div>
       )}

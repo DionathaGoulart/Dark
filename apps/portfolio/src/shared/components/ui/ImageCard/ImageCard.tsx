@@ -28,7 +28,7 @@ const OBJECT_FIT_CLASSES = {
  * Componente ImageCard com efeitos de hover, animações de escala e object-fit customizável
  * Possui overlay de título condicional, tratamento de erros e design responsivo
  */
-export const ImageCard: React.FC<ImageCardPropsExtended> = ({
+export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }> = ({
   image,
   onClick,
   onLoad,
@@ -39,7 +39,8 @@ export const ImageCard: React.FC<ImageCardPropsExtended> = ({
   enableHoverScale = true,
   objectFit = 'cover',
   showTitle = true,
-  disableShadow = false
+  disableShadow = false,
+  priority = false
 }) => {
   // ================================
   // ESTADO
@@ -64,8 +65,8 @@ export const ImageCard: React.FC<ImageCardPropsExtended> = ({
       : 'shadow-lg'
 
   const imageClasses = showHoverEffect
-    ? `w-full h-full ${objectFitClass} group-hover:brightness-75 transition-all duration-300`
-    : `w-full h-full ${objectFitClass}`
+    ? `${isSquare ? 'w-full h-full' : 'w-full h-auto'} ${objectFitClass} group-hover:brightness-75 transition-all duration-300`
+    : `${isSquare ? 'w-full h-full' : 'w-full h-auto'} ${objectFitClass}`
 
   // ================================
   // MANIPULADORES DE EVENTOS
@@ -122,7 +123,7 @@ export const ImageCard: React.FC<ImageCardPropsExtended> = ({
   // ================================
 
   return (
-    <div className={`${containerClasses} ${className}`} onClick={handleClick}>
+    <div className={`${containerClasses} ${className} ${isSquare ? 'aspect-square' : 'w-full'}`} onClick={handleClick}>
       <div
         className={`
           relative overflow-hidden ${shadowClasses}
@@ -134,7 +135,9 @@ export const ImageCard: React.FC<ImageCardPropsExtended> = ({
           alt={image.alt || 'Image'}
           onLoad={handleLoad}
           onError={handleError}
-          className={imageClasses}
+          className={imageClasses.replace('h-auto', 'h-full')}
+          priority={priority}
+          sizes={isSquare ? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' : '(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px'}
         />
 
         {renderHoverOverlay()}

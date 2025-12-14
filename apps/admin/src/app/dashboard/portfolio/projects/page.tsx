@@ -272,7 +272,7 @@ export default function ProjectsManagementPage() {
               Gerenciar Projetos
             </h1>
             <p className="text-primary-black/70 dark:text-primary-white/70">
-              Crie, edite e remova projetos (capa, título, layout)
+              Crie, edite e remova projetos (capa, título, descrição)
             </p>
           </div>
           <button
@@ -310,9 +310,6 @@ export default function ProjectsManagementPage() {
                     </span>
                     <span className={`px-2 py-1 text-xs rounded ${project.is_active ? 'bg-green-500' : 'bg-gray-500'} text-white`}>
                       {project.is_active ? 'Ativo' : 'Inativo'}
-                    </span>
-                    <span className="px-2 py-1 bg-black/70 text-white text-xs rounded">
-                      {project.layout_type}
                     </span>
                   </div>
                 </div>
@@ -462,21 +459,6 @@ export default function ProjectsManagementPage() {
                       placeholder="Project description..."
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
-                    Layout *
-                  </label>
-                  <select
-                    value={formData.layout_type}
-                    onChange={(e) => setFormData({ ...formData, layout_type: e.target.value as 'grid' | 'masonry' | 'solo' })}
-                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
-                  >
-                    <option value="grid">Grid</option>
-                    <option value="masonry">Masonry</option>
-                    <option value="solo">Solo</option>
-                  </select>
                 </div>
 
                 <div>

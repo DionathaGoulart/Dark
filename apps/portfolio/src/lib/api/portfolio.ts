@@ -88,6 +88,9 @@ export interface ProjectImage {
   aspect_ratio?: 'square' | 'wide' | 'portrait' | 'card' | 'cinema' | 'tall' | 'auto'
   object_fit?: 'cover' | 'contain'
   grid_group_id?: string
+  padding_horizontal?: number | null
+  padding_vertical?: number | null
+  grid_dominant_side?: 'none' | 'left' | 'right'
 }
 
 export interface StoreCard {
