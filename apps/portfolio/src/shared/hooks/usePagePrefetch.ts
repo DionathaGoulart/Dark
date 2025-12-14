@@ -77,6 +77,21 @@ export const usePagePrefetch = ({
       }
     }
 
+    // Verifica se o documento está totalmente carregado
+    const checkPageLoaded = () => {
+      if (document.readyState === 'complete') {
+        // Aguardar um pouco mais para garantir que imagens também carregaram
+        prefetchTimeoutRef.current = setTimeout(() => {
+          startPrefetch()
+        }, delay)
+        return true
+      }
+      return false
+    }
+
+    // Handler para evento de carregamento
+    let handleLoad: (() => void) | null = null
+
     // Se está usando controle externo (isReady), aguardar ele
     if (!waitForFullLoad) {
       if (isReady) {
@@ -84,37 +99,26 @@ export const usePagePrefetch = ({
           startPrefetch()
         }, delay)
       }
-      return
-    }
-
-    // Se precisa esperar carregamento completo e está pronto
-    if (waitForFullLoad && isReady) {
-      // Verifica se o documento está totalmente carregado
-      const checkPageLoaded = () => {
-        if (document.readyState === 'complete') {
-          // Aguardar um pouco mais para garantir que imagens também carregaram
-          prefetchTimeoutRef.current = setTimeout(() => {
-            startPrefetch()
-          }, delay)
-          return true
-        }
-        return false
-      }
-
+    } else if (waitForFullLoad && isReady) {
+      // Se precisa esperar carregamento completo e está pronto
       // Se já está carregado, iniciar prefetch
       if (checkPageLoaded()) {
-        return
+        // Cleanup apenas do timeout
+        return () => {
+          if (prefetchTimeoutRef.current) {
+            clearTimeout(prefetchTimeoutRef.current)
+          }
+        }
       }
 
       // Aguardar evento de carregamento
-      const handleLoad = () => {
+      handleLoad = () => {
         if (checkPageLoaded()) {
-          window.removeEventListener('load', handleLoad)
+          window.removeEventListener('load', handleLoad!)
         }
       }
 
       window.addEventListener('load', handleLoad)
-      return
     }
 
     // Cleanup
@@ -122,7 +126,9 @@ export const usePagePrefetch = ({
       if (prefetchTimeoutRef.current) {
         clearTimeout(prefetchTimeoutRef.current)
       }
-      window.removeEventListener('load', handleLoad)
+      if (handleLoad) {
+        window.removeEventListener('load', handleLoad)
+      }
     }
   }, [routes, delay, batchDelay, waitForFullLoad, isReady, router])
 }

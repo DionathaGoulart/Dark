@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -41,23 +41,7 @@ export default function ProjectsManagementPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
-      if (error || !user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(user)
-      loadProjects()
-    }
-
-    getUser()
-  }, [router, supabase])
-
-  const loadProjects = async () => {
+  const loadProjects = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('portfolio_projects')
@@ -71,7 +55,7 @@ export default function ProjectsManagementPage() {
       console.error('Erro ao carregar projetos:', error)
       setLoading(false)
     }
-  }
+  }, [supabase])
 
   const uploadFile = async (file: File): Promise<string | null> => {
     try {
@@ -192,13 +176,12 @@ export default function ProjectsManagementPage() {
         slug: formData.slug,
         title_pt: formData.title_pt,
         title_en: formData.title_en,
-        description_pt: formData.description_pt || null,
-        description_en: formData.description_en || null,
+        description_pt: formData.description_pt || undefined,
+        description_en: formData.description_en || undefined,
         cover_image_url: formData.cover_image_url,
         layout_type: formData.layout_type,
         is_active: formData.is_active,
-        order_index: formData.order_index,
-        updated_at: new Date().toISOString()
+        order_index: formData.order_index
       }
 
       if (editingProject?.id) {

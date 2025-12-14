@@ -101,6 +101,7 @@ export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean; size
     else if (isThumbnailLoaded && imageSrc !== httpsUrl) {
       setImageSrc(httpsUrl)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src, hasValidThumbnail, isThumbnailLoaded])
 
   // Intersection Observer para lazy loading eficiente com rootMargin otimizado

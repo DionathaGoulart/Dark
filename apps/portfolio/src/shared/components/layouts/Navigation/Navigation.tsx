@@ -140,10 +140,20 @@ const MobileOverlay: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 }) => {
   if (!isOpen) return null
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape' || e.key === 'Enter') {
+      onClose()
+    }
+  }
+
   return (
     <div
       className="md:hidden fixed inset-0 z-40 bg-primary-black bg-opacity-50"
       onClick={onClose}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label="Fechar menu"
     />
   )
 }

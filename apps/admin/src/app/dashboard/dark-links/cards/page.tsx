@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -34,6 +34,22 @@ export default function CardsManagementPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  const loadCards = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('links_content')
+        .select('*')
+        .order('order_index', { ascending: true })
+
+      if (error) throw error
+      setCards(data || [])
+      setLoading(false)
+    } catch (error) {
+      console.error('Erro ao carregar cards:', error)
+      setLoading(false)
+    }
+  }, [supabase])
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
@@ -48,23 +64,7 @@ export default function CardsManagementPage() {
     }
 
     getUser()
-  }, [router, supabase])
-
-  const loadCards = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('links_content')
-        .select('*')
-        .order('order_index', { ascending: true })
-
-      if (error) throw error
-      setCards(data || [])
-      setLoading(false)
-    } catch (error) {
-      console.error('Erro ao carregar cards:', error)
-      setLoading(false)
-    }
-  }
+  }, [router, supabase, loadCards])
 
   const openModal = (card?: Card) => {
     if (card) {

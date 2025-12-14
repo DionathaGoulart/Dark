@@ -464,7 +464,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
   // Preload de imagens prioritárias (primeiras 6)
   useEffect(() => {
     if (images.length > 0) {
-      const priorityImages = images.slice(0, 6).map(img => img.image_url)
+      const priorityImages = images.slice(0, 6).map(img => img.url)
       priorityImages.forEach(url => {
         const link = document.createElement('link')
         link.rel = 'preload'

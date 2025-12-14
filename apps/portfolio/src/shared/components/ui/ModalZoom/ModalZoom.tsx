@@ -56,6 +56,12 @@ export const ModalZoom: React.FC<ModalZoomProps> = ({ image, onClose }) => {
   // MANIPULADORES DE EVENTOS
   // ================================
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose()
+    }
+  }
+
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation() // Impede que o clique na imagem feche o modal
   }
@@ -121,9 +127,15 @@ export const ModalZoom: React.FC<ModalZoomProps> = ({ image, onClose }) => {
   // ================================
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       className="fixed inset-0 bg-primary-black/90 flex items-center justify-center z-50 p-4 cursor-pointer"
       onClick={onClose}
+      onKeyDown={handleKeyDown}
+      role="dialog"
+      tabIndex={-1}
+      aria-label="Visualização de imagem"
+      aria-modal="true"
     >
       <style dangerouslySetInnerHTML={{ __html: KEYFRAME_STYLES }} />
 
@@ -131,16 +143,22 @@ export const ModalZoom: React.FC<ModalZoomProps> = ({ image, onClose }) => {
 
       {!isLoading && hasError && renderErrorState()}
 
-      <img
-        src={imageUrl}
-        alt={image.alt || ''}
-        className={`max-w-full max-h-full object-contain transition-opacity duration-300 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        }`}
+      <button
+        type="button"
         onClick={handleImageClick}
-        onLoad={handleLoad}
-        onError={handleError}
-      />
+        className="focus:outline-none focus:ring-2 focus:ring-primary-white/50"
+        aria-label={image.alt || 'Imagem ampliada'}
+      >
+        <img
+          src={imageUrl}
+          alt={image.alt || ''}
+          className={`max-w-full max-h-full object-contain transition-opacity duration-300 ${
+            isLoading ? 'opacity-0' : 'opacity-100'
+          }`}
+          onLoad={handleLoad}
+          onError={handleError}
+        />
+      </button>
 
       {renderCloseButton()}
     </div>

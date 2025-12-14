@@ -74,6 +74,13 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
 
   const handleClick = () => onClick?.(image)
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleClick()
+    }
+  }
+
   const handleLoad = () => onLoad?.(image)
 
   const handleError = () => {
@@ -122,8 +129,47 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
   // RENDERIZAÇÃO PRINCIPAL
   // ================================
 
+  const ariaLabel = onClick
+    ? typeof image.title === 'string'
+      ? image.title
+      : 'Ver imagem'
+    : undefined
+
+  // Se não tiver onClick, não renderiza handlers de eventos
+  if (!onClick) {
+    return (
+      <div className={`${containerClasses} ${className} ${isSquare ? 'aspect-square' : 'w-full'}`}>
+        <div
+          className={`
+            relative overflow-hidden ${shadowClasses}
+            bg-transparent dark:bg-transparent w-full h-full
+          `}
+        >
+          <ImageLoader
+            src={image.urls?.medium || image.urls?.large || image.url}
+            alt={image.alt || ''}
+            className={imageClasses}
+            priority={priority}
+            onLoad={handleLoad}
+            onError={handleError}
+            thumbnailUrl={image.urls?.thumbnail}
+          />
+          {renderHoverOverlay()}
+          {renderTitleOverlay()}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className={`${containerClasses} ${className} ${isSquare ? 'aspect-square' : 'w-full'}`} onClick={handleClick}>
+    <div
+      className={`${containerClasses} ${className} ${isSquare ? 'aspect-square' : 'w-full'}`}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+    >
       <div
         className={`
           relative overflow-hidden ${shadowClasses}

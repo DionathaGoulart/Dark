@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
@@ -30,23 +30,7 @@ export default function HomeManagementPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
-      if (error || !user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(user)
-      loadImages()
-    }
-
-    getUser()
-  }, [router, supabase])
-
-  const loadImages = async () => {
+  const loadImages = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('portfolio_home_images')
@@ -60,7 +44,7 @@ export default function HomeManagementPage() {
       console.error('Erro ao carregar imagens:', error)
       setLoading(false)
     }
-  }
+  }, [supabase])
 
   const uploadFile = async (file: File): Promise<string | null> => {
     try {

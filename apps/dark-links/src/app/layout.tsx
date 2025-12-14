@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { unstable_noStore as noStore } from 'next/cache'
 import { I18nProvider } from '@/core/providers/I18nProvider'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { MainLayout } from '@/shared/components/layouts/MainLayout'
@@ -14,6 +15,7 @@ const inter = Inter({
 })
 
 export async function generateMetadata(): Promise<Metadata> {
+  noStore()
   const seoData = await getSeoData('pt')
   
   const title = seoData?.title_pt || 'Dark Links'
@@ -74,6 +76,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  noStore()
   const seoData = await getSeoData('pt')
   const settings = await getSettings()
   const gaMeasurementId = seoData?.ga_measurement_id || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID

@@ -65,6 +65,7 @@ export interface HeaderConfig extends SocialUrls {
   logoAlt?: string
   showNavigation?: boolean
   customNav?: NavItem[]
+  navigationItems?: NavItem[] | NavigationItemFromDB[]
 }
 
 /** Props do componente LayoutHeader */
@@ -104,6 +105,16 @@ export interface MainLayoutFooterConfig {
   show?: boolean
 }
 
+/** Item de navegação do banco de dados */
+export interface NavigationItemFromDB {
+  id: string
+  label_pt: string
+  label_en: string
+  href: string
+  order_index: number
+  is_active: boolean
+}
+
 /** Props do componente MainLayout */
 export interface MainLayoutProps {
   children: React.ReactNode
@@ -114,7 +125,7 @@ export interface MainLayoutProps {
   instagramUrl?: string
   youtubeUrl?: string
   footerText?: string | { pt?: string; en?: string }
-  navigationItems?: NavItem[]
+  navigationItems?: NavItem[] | NavigationItemFromDB[]
 }
 
 // ================================
