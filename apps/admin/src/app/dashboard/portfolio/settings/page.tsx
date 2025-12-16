@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Save, Image as ImageIcon, Link as LinkIcon, Upload, X } from 'lucide-react'
 
@@ -34,7 +34,6 @@ export default function PortfolioSettingsPage() {
   const iconFileInputRef = useRef<HTMLInputElement>(null)
   const logoFileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   const loadSettings = useCallback(async () => {
     try {
@@ -85,7 +84,7 @@ export default function PortfolioSettingsPage() {
       console.error('Erro ao carregar configurações:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -101,7 +100,7 @@ export default function PortfolioSettingsPage() {
     }
 
     getUser()
-  }, [router, supabase, loadSettings])
+  }, [router, loadSettings])
 
   const uploadFile = async (file: File, type: 'icon' | 'logo'): Promise<string | null> => {
     try {

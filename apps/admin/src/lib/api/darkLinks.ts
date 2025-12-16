@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 
 // ================================
 // Types
@@ -54,7 +54,7 @@ export interface LinkCard {
  */
 export async function getSeoData(locale: 'pt' | 'en' = 'pt'): Promise<SeoData | null> {
   try {
-    const supabase = createClient()
+  
     const { data, error } = await supabase
       .from('dark_links_seo')
       .select('*')
@@ -77,7 +77,7 @@ export async function getSeoData(locale: 'pt' | 'en' = 'pt'): Promise<SeoData | 
  */
 export async function getSettings(): Promise<SettingsData | null> {
   try {
-    const supabase = createClient()
+  
     const { data, error } = await supabase
       .from('dark_links_settings')
       .select('*')
@@ -100,7 +100,7 @@ export async function getSettings(): Promise<SettingsData | null> {
  */
 export async function getLinkCards(): Promise<LinkCard[]> {
   try {
-    const supabase = createClient()
+  
     const { data, error } = await supabase
       .from('links_content')
       .select('*')

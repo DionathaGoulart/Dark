@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Plus, Edit, Trash2, Navigation as NavIcon, X, Save } from 'lucide-react'
 
@@ -29,7 +29,6 @@ export default function NavigationManagementPage() {
     is_active: true
   })
   const router = useRouter()
-  const supabase = createClient()
 
   const loadNavItems = useCallback(async () => {
     try {
@@ -45,7 +44,7 @@ export default function NavigationManagementPage() {
       console.error('Erro ao carregar itens de navegação:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -61,7 +60,7 @@ export default function NavigationManagementPage() {
     }
 
     getUser()
-  }, [router, supabase, loadNavItems])
+  }, [router, loadNavItems])
 
   const openModal = (item?: NavItem) => {
     if (item) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Plus, Edit, Trash2, FolderKanban, X, Save, Upload, Image as ImageIcon } from 'lucide-react'
 
@@ -39,7 +39,6 @@ export default function ProjectsManagementPage() {
   })
   const coverFileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   const loadProjects = useCallback(async () => {
     try {
@@ -55,7 +54,11 @@ export default function ProjectsManagementPage() {
       console.error('Erro ao carregar projetos:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
+
+  useEffect(() => {
+    loadProjects()
+  }, [loadProjects])
 
   const uploadFile = async (file: File): Promise<string | null> => {
     try {

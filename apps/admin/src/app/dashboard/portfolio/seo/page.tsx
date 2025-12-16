@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Save, Globe } from 'lucide-react'
 
@@ -49,7 +49,6 @@ export default function PortfolioSeoPage() {
     robots_txt: 'index, follow'
   })
   const router = useRouter()
-  const supabase = createClient()
 
   const loadSeoData = useCallback(async () => {
     try {
@@ -90,7 +89,7 @@ export default function PortfolioSeoPage() {
       console.error('Erro ao carregar dados de SEO:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -106,7 +105,7 @@ export default function PortfolioSeoPage() {
     }
 
     getUser()
-  }, [router, supabase, loadSeoData])
+  }, [router, loadSeoData])
 
   const handleSave = async () => {
     setSaving(true)

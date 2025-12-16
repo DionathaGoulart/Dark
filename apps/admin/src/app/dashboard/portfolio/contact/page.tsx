@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Save, Mail } from 'lucide-react'
 
@@ -35,7 +35,6 @@ export default function ContactPage() {
     contact_email: ''
   })
   const router = useRouter()
-  const supabase = createClient()
 
   const loadPage = useCallback(async () => {
     try {
@@ -61,7 +60,7 @@ export default function ContactPage() {
     } catch (error) {
       console.error('Erro ao carregar página:', error)
     }
-  }, [supabase])
+  }, [])
 
   const loadSettings = useCallback(async () => {
     try {
@@ -91,7 +90,7 @@ export default function ContactPage() {
       console.error('Erro ao carregar configurações:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -108,7 +107,7 @@ export default function ContactPage() {
     }
 
     getUser()
-  }, [router, supabase, loadPage, loadSettings])
+  }, [router, loadPage, loadSettings])
 
   const handleSave = async () => {
     if (!pageData.title_pt || !pageData.title_en) {
