@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Plus, Trash2, Home, Upload, X, Save, ArrowUp, ArrowDown, Edit } from 'lucide-react'
 
@@ -28,7 +28,6 @@ export default function HomeManagementPage() {
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   const loadImages = useCallback(async () => {
     try {
@@ -44,7 +43,11 @@ export default function HomeManagementPage() {
       console.error('Erro ao carregar imagens:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
+
+  useEffect(() => {
+    loadImages()
+  }, [loadImages])
 
   const uploadFile = async (file: File): Promise<string | null> => {
     try {

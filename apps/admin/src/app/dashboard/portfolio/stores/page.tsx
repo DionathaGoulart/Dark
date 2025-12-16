@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Save, Store, Plus, Edit, Trash2, ArrowUp, ArrowDown, X, Link as LinkIcon } from 'lucide-react'
 
@@ -46,7 +46,6 @@ export default function StoresPage() {
     is_active: true
   })
   const router = useRouter()
-  const supabase = createClient()
 
   const loadCards = useCallback(async () => {
     try {
@@ -60,7 +59,7 @@ export default function StoresPage() {
     } catch (error) {
       console.error('Erro ao carregar cards:', error)
     }
-  }, [supabase])
+  }, [])
 
   const loadPage = useCallback(async () => {
     try {
@@ -86,7 +85,7 @@ export default function StoresPage() {
       console.error('Erro ao carregar página:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -103,7 +102,7 @@ export default function StoresPage() {
     }
 
     getUser()
-  }, [router, supabase, loadPage, loadCards])
+  }, [router, loadPage, loadCards])
 
   const handleSave = async () => {
     if (!pageData.title_pt || !pageData.title_en) {

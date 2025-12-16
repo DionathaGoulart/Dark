@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Plus, Edit, Trash2, FileText, X, Save } from 'lucide-react'
 
@@ -33,7 +33,6 @@ export default function PagesManagementPage() {
     order_index: 0
   })
   const router = useRouter()
-  const supabase = createClient()
 
   const loadPages = useCallback(async () => {
     try {
@@ -49,7 +48,7 @@ export default function PagesManagementPage() {
       console.error('Erro ao carregar páginas:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -65,7 +64,7 @@ export default function PagesManagementPage() {
     }
 
     getUser()
-  }, [router, supabase, loadPages])
+  }, [router, loadPages])
 
   const openModal = (page?: Page) => {
     if (page) {

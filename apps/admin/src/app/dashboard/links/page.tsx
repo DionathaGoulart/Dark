@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Plus, Edit, Trash2, Link as LinkIcon } from 'lucide-react'
 
@@ -11,7 +11,6 @@ export default function LinksManagementPage() {
   const [loading, setLoading] = useState(true)
   const [links, setLinks] = useState<any[]>([])
   const router = useRouter()
-  const supabase = createClient()
 
   const loadLinks = useCallback(async () => {
     try {
@@ -27,7 +26,7 @@ export default function LinksManagementPage() {
       console.error('Erro ao carregar links:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -43,7 +42,7 @@ export default function LinksManagementPage() {
     }
 
     getUser()
-  }, [router, supabase, loadLinks])
+  }, [router, loadLinks])
 
   if (loading) {
     return (

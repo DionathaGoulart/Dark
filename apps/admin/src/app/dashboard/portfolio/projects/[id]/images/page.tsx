@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Plus, Trash2, Image as ImageIcon, Upload, X, ArrowUp, ArrowDown, Edit, Save } from 'lucide-react'
 
@@ -52,7 +52,6 @@ export default function ProjectImagesPage() {
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   const loadProject = useCallback(async () => {
     try {
@@ -67,7 +66,7 @@ export default function ProjectImagesPage() {
     } catch (error) {
       console.error('Erro ao carregar projeto:', error)
     }
-  }, [supabase, projectId])
+  }, [projectId])
 
   const loadImages = useCallback(async () => {
     try {
@@ -84,7 +83,21 @@ export default function ProjectImagesPage() {
       console.error('Erro ao carregar imagens:', error)
       setLoading(false)
     }
-  }, [supabase, projectId])
+  }, [projectId])
+
+  useEffect(() => {
+    const getUserAndData = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error || !user) {
+        router.push('/login')
+        return
+      }
+      setUser(user)
+      loadProject()
+      loadImages()
+    }
+    getUserAndData()
+  }, [router, loadProject, loadImages])
 
   const uploadFile = async (file: File): Promise<string | null> => {
     try {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Save, FileText } from 'lucide-react'
 
@@ -27,7 +27,6 @@ export default function AboutPage() {
     content_en: ''
   })
   const router = useRouter()
-  const supabase = createClient()
 
   const loadPage = useCallback(async () => {
     try {
@@ -43,6 +42,7 @@ export default function AboutPage() {
 
       if (data) {
         setPageData({
+          id: data.id,
           slug: data.slug || 'about',
           title_pt: data.title_pt || '',
           title_en: data.title_en || '',
@@ -55,7 +55,11 @@ export default function AboutPage() {
       console.error('Erro ao carregar página:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
+
+  useEffect(() => {
+    loadPage();
+  }, [loadPage]);
 
   const handleSave = async () => {
     if (!pageData.title_pt || !pageData.title_en) {

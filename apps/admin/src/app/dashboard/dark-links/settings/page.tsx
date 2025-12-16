@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Save, Image as ImageIcon, Link as LinkIcon, User, Upload, X } from 'lucide-react'
 
@@ -37,7 +37,6 @@ export default function SettingsManagementPage() {
   const iconFileInputRef = useRef<HTMLInputElement>(null)
   const profileFileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   const loadSettings = useCallback(async () => {
     try {
@@ -100,7 +99,7 @@ export default function SettingsManagementPage() {
       console.error('Erro ao carregar configurações:', error)
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -116,7 +115,7 @@ export default function SettingsManagementPage() {
     }
 
     getUser()
-  }, [router, supabase, loadSettings])
+  }, [router, loadSettings])
 
   const uploadFile = async (file: File, type: 'icon' | 'profile'): Promise<string | null> => {
     try {
