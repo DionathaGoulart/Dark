@@ -1,2 +1,2 @@
-export { NavigationLoader } from './NavigationLoader'
+export { NavigationLoader, startNavigationLoading } from './NavigationLoader'
 

@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/features/analytics'
 import {
   MasonryGrid,
-  useDocumentTitle
+  useDocumentTitle,
+  startNavigationLoading
 } from '@/shared'
 import { useI18n } from '@/core/providers'
 import {
@@ -82,8 +83,10 @@ const useProjectHandlers = (
     })
 
     if (image.linkTo) {
+      startNavigationLoading()
       router.push(image.linkTo)
     } else {
+      startNavigationLoading()
       router.push(`/projects/${image.id}`)
       console.warn(`Project ${image.id} missing linkTo definition`)
     }
