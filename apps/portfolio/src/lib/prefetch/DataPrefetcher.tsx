@@ -30,7 +30,7 @@ const saveToStorage = (key: string, data: any) => {
   } catch (e) {}
 }
 
-export const loadFromStorage = <T>(key: string): T | null => {
+export const loadFromStorage = <T,>(key: string): T | null => {
   if (typeof window === 'undefined') return null
   try {
     const data = sessionStorage.getItem(key)
