@@ -2,7 +2,7 @@ import { ProjectPage } from '@/views/ProjectPage'
 import { getProjectBySlug, getProjectImages } from '@/lib/api/server'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export default async function FacesOfHorrorPage() {
   const project = await getProjectBySlug('facesofhorror')

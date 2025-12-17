@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { ptTranslations } from '@/shared/translations/pt'
 import { enTranslations } from '@/shared/translations/en'
 import { Language, Translation } from '@/types'
@@ -110,7 +110,18 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined)
  * Detecta automaticamente o idioma do navegador e persiste preferência do usuário
  */
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(getInitialLanguage)
+  // Sempre começa com 'pt' para evitar hydration mismatch
+  const [language, setLanguageState] = useState<Language>('pt')
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  // Após hydration, carrega idioma salvo ou detecta do navegador
+  useEffect(() => {
+    const savedLanguage = getStoredLanguage() || detectBrowserLanguage()
+    if (savedLanguage !== 'pt') {
+      setLanguageState(savedLanguage)
+    }
+    setIsHydrated(true)
+  }, [])
 
   // ================================
   // MANIPULADORES

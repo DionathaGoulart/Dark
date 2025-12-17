@@ -11,6 +11,7 @@ import {
 import { useI18n } from '@/core/providers'
 import type { Project, ProjectImage } from '@/lib/api/portfolio'
 import { ImageItem } from '@/types'
+import { useProjectImages } from '@/lib/prefetch'
 
 // ================================
 // INTERFACES & TYPES
@@ -397,12 +398,16 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
   const { language } = useI18n()
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null)
 
+  // Usa cache se disponível, senão usa props do servidor
+  const { images: cachedImages } = useProjectImages(project.id)
+  const currentImages = cachedImages.length > 0 ? cachedImages : projectImages
+
   // Filtrar apenas imagens ativas e ordenar
   const activeImages = useMemo(() => {
-    return projectImages
+    return currentImages
       .filter(img => img.is_active)
       .sort((a, b) => a.order_index - b.order_index)
-  }, [projectImages])
+  }, [currentImages])
 
   // Converter ProjectImage para ImageItem diretamente
   const images = useMemo(() => {

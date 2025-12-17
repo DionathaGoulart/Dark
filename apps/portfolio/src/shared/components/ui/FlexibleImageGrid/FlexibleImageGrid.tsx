@@ -162,6 +162,9 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
   const [imageOrientations, setImageOrientations] = useState<
     Record<string, string>
   >({})
+  const [imageDimensions, setImageDimensions] = useState<
+    Record<string, { width: number; height: number }>
+  >({})
 
   // ================================
   // EFFECTS
@@ -170,10 +173,9 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
   useEffect(() => {
     setValidImages(images)
 
-    if (adaptiveMode !== 'auto') return
-
     const loadImageDimensions = async () => {
       const orientations: Record<string, string> = {}
+      const dimensions: Record<string, { width: number; height: number }> = {}
 
       for (const image of images) {
         try {
@@ -187,20 +189,26 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
                 img.naturalHeight
               )
               orientations[image.id] = orientation
+              dimensions[image.id] = {
+                width: img.naturalWidth,
+                height: img.naturalHeight
+              }
               resolve(img)
             }
             img.onerror = reject
           })
         } catch {
           orientations[image.id] = 'square'
+          dimensions[image.id] = { width: 100, height: 100 }
         }
       }
 
       setImageOrientations(orientations)
+      setImageDimensions(dimensions)
     }
 
     loadImageDimensions()
-  }, [images, adaptiveMode])
+  }, [images])
 
   // ================================
   // MANIPULADORES
@@ -261,12 +269,40 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     return gridMap[gridColumns] || 'grid grid-cols-3'
   }
 
-  const getGridStyle = (): React.CSSProperties => {
-    // Para grids (não solo), usar grid-auto-rows para garantir mesma altura
-    // Isso força todas as células da mesma linha a terem a mesma altura
-    if (mode === 'grid' && gridColumns !== 2 && dominantSide === 'none') {
-      return { gridAutoRows: '1fr' }
+  /**
+   * Calcula a altura mínima para uma linha do grid baseada nas dimensões das imagens
+   * Isso garante que todas as imagens na linha tenham a mesma altura (a menor entre elas)
+   */
+  const getRowHeight = (startIndex: number): number | null => {
+    if (mode !== 'grid' || gridColumns === 2 || dominantSide !== 'none') {
+      return null
     }
+
+    // Pega as imagens desta linha
+    const rowImages = validImages.slice(startIndex, startIndex + gridColumns)
+    
+    if (rowImages.length === 0) return null
+
+    // Calcula a altura proporcional de cada imagem se todas tiverem a mesma largura
+    // A largura de cada célula é 100% / gridColumns
+    const heights: number[] = []
+    
+    for (const img of rowImages) {
+      const dims = imageDimensions[img.id]
+      if (dims && dims.width > 0) {
+        // Proporção: se a largura for 1 unidade, qual seria a altura?
+        const aspectRatio = dims.height / dims.width
+        heights.push(aspectRatio)
+      }
+    }
+
+    if (heights.length === 0) return null
+
+    // Retorna a menor altura proporcional (a imagem mais "larga" / menos alta)
+    return Math.min(...heights)
+  }
+
+  const getGridStyle = (): React.CSSProperties => {
     return {}
   }
 
@@ -314,11 +350,6 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     // Para grids (não solo), se o aspect ratio for 'auto', usar o fallback para garantir mesma altura
     if (mode === 'grid' && aspectRatio === 'auto' && fallbackAspectRatio !== 'auto') {
       return fallbackAspectRatio
-    }
-    
-    // Se ainda for 'auto' e estiver em grid, usar 'square' como padrão para garantir mesma altura
-    if (mode === 'grid' && aspectRatio === 'auto') {
-      return 'square'
     }
 
     return aspectRatio
@@ -378,7 +409,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
         ? 'w-full h-full flex items-center justify-center' // Não dominante: altura completa com fundo branco
         : 'w-full h-auto' // Dominante: deixa a altura se ajustar automaticamente
       : isGridMode
-        ? `w-full h-full ${centeringClasses}` // Grid: usar altura 100% para preencher a célula do grid
+        ? `w-full h-full ${centeringClasses}` // Grid: usar altura 100% para preencher a célula
         : `${aspectClasses} ${centeringClasses}` // Solo: usar aspect ratio normal
 
     const imageClasses =
@@ -456,6 +487,87 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     return pairs
   }
 
+  /**
+   * Renderiza o grid por linhas, onde cada linha tem altura baseada na menor imagem
+   */
+  const renderGridRows = () => {
+    const rows = []
+    
+    for (let i = 0; i < validImages.length; i += gridColumns) {
+      const rowImages = validImages.slice(i, i + gridColumns)
+      const rowHeight = getRowHeight(i)
+      
+      // Calcula o aspect ratio da linha baseado na menor altura proporcional
+      // Se não tiver dimensões ainda, usa um valor padrão
+      const rowAspectRatio = rowHeight || 1
+      
+      rows.push(
+        <div 
+          key={`row-${i}`} 
+          className={`grid ${getGridClass().replace('grid ', '')} ${getGapClass(gap)}`}
+          style={{ 
+            // Cada célula terá a mesma altura baseada no aspect ratio da menor imagem
+            gridTemplateColumns: `repeat(${gridColumns}, 1fr)`
+          }}
+        >
+          {rowImages.map((image, idx) => {
+            const globalIndex = i + idx
+            const dims = imageDimensions[image.id]
+            
+            return (
+              <div 
+                key={image.id} 
+                className="relative overflow-hidden"
+                style={{
+                  // Altura proporcional baseada na menor imagem da linha
+                  paddingBottom: `${rowAspectRatio * 100}%`
+                }}
+              >
+                <div className="absolute inset-0">
+                  {renderImageCardForRow(image, globalIndex)}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )
+    }
+    
+    return rows
+  }
+
+  /**
+   * Renderiza um card de imagem para o grid por linhas (versão simplificada)
+   */
+  const renderImageCardForRow = (image: ImageItem, index: number) => {
+    const backgroundStyle = backgroundColor ? { backgroundColor } : {}
+
+    return (
+      <div
+        className="w-full h-full overflow-hidden"
+        style={{
+          backfaceVisibility: 'hidden',
+          ...backgroundStyle
+        }}
+      >
+        <ImageCard
+          image={image}
+          onClick={onImageClick}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          isSquare={false}
+          objectFit="cover"
+          showHoverEffect={false}
+          enableHoverScale={false}
+          showTitle={false}
+          className="w-full h-full"
+          disableShadow
+          priority={index < 6}
+        />
+      </div>
+    )
+  }
+
   // ================================
   // RENDERIZAÇÃO
   // ================================
@@ -487,6 +599,11 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
       {isDominantMode ? (
         <div className={`${getGridClass()} ${getGapClass(gap)}`}>
           {renderDominantGrid()}
+        </div>
+      ) : mode === 'grid' && gridColumns >= 2 && dominantSide === 'none' ? (
+        // Para grids de 2+ colunas, renderizar por linhas para garantir mesma altura
+        <div className={`flex flex-col ${getGapClass(gap)}`}>
+          {renderGridRows()}
         </div>
       ) : (
         <div className={`${getGridClass()} ${getGapClass(gap)}`} style={getGridStyle()}>

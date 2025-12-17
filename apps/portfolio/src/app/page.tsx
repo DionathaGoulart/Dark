@@ -1,7 +1,8 @@
 import { HomePage } from '@/views/Home'
 import { getHomeImages } from '@/lib/api/server'
 
-export const dynamic = 'force-dynamic'
+// Cache por 60 segundos, revalida em background
+export const revalidate = 60
 
 export default async function Home() {
   const homeImages = await getHomeImages()

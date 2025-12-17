@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
-import { LayoutFooter, LayoutHeader, ScrollToTopButton } from '@/shared'
+import React, { Suspense } from 'react'
+import { LayoutFooter, LayoutHeader, ScrollToTopButton, NavigationLoader } from '@/shared'
 import { MainLayoutProps } from '@/types'
 
 // ================================
@@ -54,6 +54,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 
   return (
     <div className={containerClasses}>
+      <Suspense fallback={null}>
+        <NavigationLoader />
+      </Suspense>
       <LayoutHeader
         logoSrc={logoSrc}
         instagramUrl={instagramUrl || DEFAULT_SOCIAL_URLS.instagram}
