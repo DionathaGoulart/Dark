@@ -1,8 +1,0 @@
-export { Arac } from './Arac'
-export { Creepy } from './Creepy'
-export { FacesOfHorror } from './FacesOfHorror'
-export { Fantasy } from './Fantasy'
-export { Halloween } from './Halloween'
-export { Horror } from './Horror'
-export { Joaninho } from './Joaninho'
-export { Macabre } from './Macabre'
