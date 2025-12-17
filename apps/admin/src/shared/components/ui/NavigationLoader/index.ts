@@ -1,4 +1,2 @@
-export { ThemeToggle } from './ThemeToggle'
 export { NavigationLoader } from './NavigationLoader'
-
 
