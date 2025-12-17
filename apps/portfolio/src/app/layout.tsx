@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { unstable_noStore as noStore } from 'next/cache'
 import { I18nProvider } from '@/core/providers/I18nProvider'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { MainLayout } from '@/shared/components/layouts/MainLayout'
 import { AnalyticsInitializer } from '@/components/AnalyticsInitializer'
+import { DataPrefetcher, RoutePrefetcher } from '@/lib/prefetch'
 import { validateEnvironment } from '@/shared/utils/envValidation'
 import { getPortfolioSeoData, getPortfolioSettings, getNavigationItems } from '@/lib/api/server'
 import '@/styles/global.css'
@@ -14,6 +14,9 @@ if (typeof window === 'undefined') {
   validateEnvironment()
 }
 
+// Cache do layout por 60 segundos
+export const revalidate = 60
+
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
@@ -21,7 +24,6 @@ const inter = Inter({
 })
 
 export async function generateMetadata(): Promise<Metadata> {
-  noStore()
   const seoData = await getPortfolioSeoData('pt')
   const settingsData = await getPortfolioSettings()
 
@@ -88,7 +90,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  noStore()
   const seoData = await getPortfolioSeoData('pt')
   const settingsData = await getPortfolioSettings()
   const navigationItems = await getNavigationItems()
@@ -100,6 +101,8 @@ export default async function RootLayout({
         <I18nProvider>
           <ThemeProvider>
             <AnalyticsInitializer gaMeasurementId={gaMeasurementId} />
+            <DataPrefetcher />
+            <RoutePrefetcher />
             <MainLayout
               logoSrc={settingsData?.logo_url}
               instagramUrl={settingsData?.instagram_url}

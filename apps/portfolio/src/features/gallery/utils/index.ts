@@ -1,2 +1,1 @@
-export * from './imageUtils'
-export * from './cloudinaryUtils'
+export { generateOptimizedUrls } from './cloudinaryUtils'

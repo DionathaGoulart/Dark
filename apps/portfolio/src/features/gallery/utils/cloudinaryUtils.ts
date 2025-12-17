@@ -6,21 +6,40 @@ import { OptimizedUrls } from '../types'
 
 /**
  * Gera URLs otimizadas para diferentes tamanhos
- * Nota: Supabase Storage não suporta transformações via query params
- * Esta função mantém a estrutura para futuras melhorias (ex: usar serviço de transformação)
- * Por enquanto, todas as URLs são iguais, mas o sistema de carregamento progressivo
- * otimiza o carregamento usando lazy loading e priorização inteligente
+ * Como estamos usando Supabase Storage sem transformações, todas as URLs são iguais (original)
+ * O navegador fará o downscale automaticamente quando necessário, mantendo alta qualidade
+ * 
+ * Esta estrutura permite futuras melhorias (ex: gerar múltiplas versões no upload)
  */
 export const generateOptimizedUrls = (originalUrl: string): OptimizedUrls => {
-  // Por enquanto, todas as URLs são iguais
-  // Futuramente pode-se integrar com serviço de transformação de imagens
-  // ou usar Supabase Image Transformations (se disponível)
+  // Por enquanto, todas as URLs são iguais (original)
+  // O navegador fará o downscale automaticamente, mantendo máxima qualidade
+  // Futuramente pode-se implementar geração de múltiplas versões no upload
+  const url = originalUrl
+  
   return {
-    thumbnail: originalUrl, // Para lazy loading inicial
-    medium: originalUrl,    // Para visualização padrão
-    large: originalUrl,     // Para telas maiores
-    original: originalUrl   // Para zoom/full size
+    thumbnail: url,  // Para lazy loading inicial
+    medium: url,     // Para visualização padrão
+    large: url,      // Para telas maiores
+    original: url    // Para zoom/full size (máxima qualidade)
   }
+}
+
+/**
+ * Gera srcset string para uso em elementos <img> com atributo srcset
+ * 
+ * NOTA: Como todas as URLs são iguais (original), o srcset não é necessário.
+ * Retornamos undefined para evitar problemas de renderização no Chrome.
+ * O navegador usará apenas o atributo src, que já tem a URL original com máxima qualidade.
+ * 
+ * @param urls - Objeto OptimizedUrls
+ * @returns undefined (não usa srcset para evitar problemas no Chrome)
+ */
+export const generateSrcSet = (urls: OptimizedUrls): string | undefined => {
+  // Como todas as URLs são iguais (original), não precisamos de srcset
+  // Isso evita problemas de renderização no Chrome
+  // O navegador usará apenas o src, que já tem máxima qualidade
+  return undefined
 }
 
 /**
