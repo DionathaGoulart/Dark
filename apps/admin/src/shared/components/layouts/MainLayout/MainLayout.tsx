@@ -1,7 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { LayoutHeader } from '@/shared/components/layouts/Header'
+import { NavigationLoader } from '@/shared/components/ui'
 
 // ================================
 // INTERFACES E TIPOS
@@ -41,6 +42,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 
   return (
     <div className={containerClasses}>
+      <Suspense fallback={null}>
+        <NavigationLoader />
+      </Suspense>
       <LayoutHeader />
 
       <main className="flex-1 bg-primary-white dark:bg-primary-black text-primary-black dark:text-primary-white transition-all duration-300 p-4 sm:p-6 lg:p-8">
