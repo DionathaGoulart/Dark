@@ -98,7 +98,7 @@ const createGridSections = (
       if (!groups.has(projectImg.grid_group_id)) {
         groups.set(projectImg.grid_group_id, { images: [], projectImages: [], indices: [] })
       }
-      
+
       const group = groups.get(projectImg.grid_group_id)!
       group.images.push(images[index])
       group.projectImages.push(projectImg)
@@ -121,7 +121,7 @@ const createGridSections = (
     const dominantSide = firstImageWithLayout.grid_dominant_side || 'none'
     const paddingHorizontal = firstImageWithLayout.padding_horizontal
     const paddingVertical = firstImageWithLayout.padding_vertical
-    
+
     // Criar estilo de padding se houver (usando margin negativo para não expandir o container)
     const paddingStyle: React.CSSProperties = {}
     if (paddingHorizontal !== null && paddingHorizontal !== undefined && paddingHorizontal > 0) {
@@ -160,7 +160,7 @@ const createGridSections = (
             loadingComponent: (
               <div className="grid grid-cols-2 gap-1">
                 {Array.from({ length: 2 }, (_, j) => (
-                  <div key={j} className={`${getAspectRatioClass(aspectRatio)} bg-gray-200 dark:bg-gray-800 animate-pulse`} />
+                  <div key={j} className={`${getAspectRatioClass(aspectRatio)} bg-neutral-200 dark:bg-neutral-800 animate-pulse`} />
                 ))}
               </div>
             ),
@@ -185,7 +185,7 @@ const createGridSections = (
             imageIndices: [group.indices[i]],
             context: 'solo',
             loadingComponent: (
-              <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-gray-200 dark:bg-gray-800 animate-pulse`} />
+              <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-neutral-200 dark:bg-neutral-800 animate-pulse`} />
             ),
             containerClass: 'mb-12'
           })
@@ -215,7 +215,7 @@ const createGridSections = (
             loadingComponent: (
               <div className="grid grid-cols-3 gap-1">
                 {Array.from({ length: 3 }, (_, j) => (
-                  <div key={j} className={`${getAspectRatioClass(aspectRatio)} bg-gray-200 dark:bg-gray-800 animate-pulse`} />
+                  <div key={j} className={`${getAspectRatioClass(aspectRatio)} bg-neutral-200 dark:bg-neutral-800 animate-pulse`} />
                 ))}
               </div>
             ),
@@ -242,7 +242,7 @@ const createGridSections = (
               imageIndices: [group.indices[i + idx]],
               context: 'solo',
               loadingComponent: (
-                <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-gray-200 dark:bg-gray-800 animate-pulse`} />
+                <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-neutral-200 dark:bg-neutral-800 animate-pulse`} />
               ),
               containerClass: 'mb-12'
             })
@@ -273,7 +273,7 @@ const createGridSections = (
             loadingComponent: (
               <div className="grid grid-cols-5 gap-1">
                 {Array.from({ length: 5 }, (_, j) => (
-                  <div key={j} className={`${getAspectRatioClass(aspectRatio)} bg-gray-200 dark:bg-gray-800 animate-pulse`} />
+                  <div key={j} className={`${getAspectRatioClass(aspectRatio)} bg-neutral-200 dark:bg-neutral-800 animate-pulse`} />
                 ))}
               </div>
             ),
@@ -300,7 +300,7 @@ const createGridSections = (
               imageIndices: [group.indices[i + idx]],
               context: 'solo',
               loadingComponent: (
-                <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-gray-200 dark:bg-gray-800 animate-pulse`} />
+                <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-neutral-200 dark:bg-neutral-800 animate-pulse`} />
               ),
               containerClass: 'mb-12'
             })
@@ -327,7 +327,7 @@ const createGridSections = (
           imageIndices: [group.indices[idx]],
           context: 'solo',
           loadingComponent: (
-            <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-gray-200 dark:bg-gray-800 animate-pulse`} />
+            <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-neutral-200 dark:bg-neutral-800 animate-pulse`} />
           ),
           containerClass: 'mb-12'
         })
@@ -343,7 +343,7 @@ const createGridSections = (
       const objectFit = projectImage.object_fit || 'cover'
       const paddingHorizontal = projectImage.padding_horizontal
       const paddingVertical = projectImage.padding_vertical
-      
+
       // Criar estilo de padding se houver (usando margin negativo para não expandir o container)
       const paddingStyle: React.CSSProperties = {}
       if (paddingHorizontal !== null && paddingHorizontal !== undefined && paddingHorizontal > 0) {
@@ -374,7 +374,7 @@ const createGridSections = (
         imageIndices: [index],
         context: 'solo',
         loadingComponent: (
-          <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-gray-200 dark:bg-gray-800 animate-pulse`} />
+          <div className={`max-w-2xl mx-auto ${getAspectRatioClass(aspectRatio)} bg-neutral-200 dark:bg-neutral-800 animate-pulse`} />
         ),
         containerClass: 'mb-12'
       })
@@ -412,10 +412,10 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
   // Converter ProjectImage para ImageItem diretamente
   const images = useMemo(() => {
     return activeImages.map((img, idx) => {
-      const altText = language === 'pt' 
+      const altText = language === 'pt'
         ? (img.alt_text_pt || img.alt_text_en || '')
         : (img.alt_text_en || img.alt_text_pt || '')
-      
+
       return {
         id: img.id,
         url: img.image_url,
@@ -426,7 +426,12 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
           large: img.image_url
         },
         title: altText,
-        alt: altText
+        alt: altText,
+        aspectRatio: img.aspect_ratio || 'auto',
+        // Derivar orientação baseada no aspect_ratio se não houver um campo explícito
+        orientation: img.aspect_ratio === 'wide' || img.aspect_ratio === 'cinema' ? 'landscape' :
+          img.aspect_ratio === 'tall' || img.aspect_ratio === 'portrait' ? 'portrait' :
+            img.aspect_ratio === 'square' ? 'square' : undefined
       } as ImageItem
     })
   }, [activeImages, language])
@@ -447,7 +452,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
   // Criar seções de grid baseado no layout_type
   const gridSections = useMemo(() => {
     if (images.length === 0) return []
-    
+
     return createGridSections(
       images,
       activeImages,
@@ -525,7 +530,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
           {loading && (
             <div className="grid grid-cols-3 gap-1">
               {Array.from({ length: 6 }, (_, i) => (
-                <div key={i} className="aspect-square bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                <div key={i} className="aspect-square bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
               ))}
             </div>
           )}
