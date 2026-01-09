@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { loadFromStorage, STORAGE_KEYS } from './DataPrefetcher'
+import { loadFromStorage, STORAGE_KEYS } from './storage'
 import { createClient } from '@/lib/supabase/client'
 
 /**

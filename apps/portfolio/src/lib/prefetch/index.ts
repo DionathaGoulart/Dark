@@ -1,4 +1,5 @@
-export { DataPrefetcher, loadFromStorage, STORAGE_KEYS } from './DataPrefetcher'
+export { DataPrefetcher } from './DataPrefetcher'
+export { loadFromStorage, STORAGE_KEYS } from './storage'
 export { useHomeImages, useProjects, useStoreCards } from './useCachedData'
 export { useProjectData, useProjectImages } from './useProjectData'
 export { RoutePrefetcher } from './RoutePrefetcher'
