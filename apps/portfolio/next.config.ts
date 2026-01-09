@@ -2,11 +2,11 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  
+
   // Compressão e otimização
   compress: true,
   poweredByHeader: false,
-  
+
   images: {
     remotePatterns: [
       {
@@ -24,8 +24,9 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     // Minimiza tamanho de imagens
     minimumCacheTTL: 31536000, // 1 ano
+    qualities: [25, 50, 75, 85, 90],
   },
-  
+
   experimental: {
     // Tree-shaking otimizado para pacotes grandes
     optimizePackageImports: ['lucide-react'],
