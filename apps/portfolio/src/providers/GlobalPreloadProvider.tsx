@@ -26,7 +26,7 @@ export const PreloadProvider: React.FC<{ children: React.ReactNode }> = ({ child
         // Pequeno delay para garantir que a barra de progresso chegue a 100% visualmente
         setTimeout(() => {
             setIsLoading(false)
-        }, 500)
+        }, 100)
     }
 
     return (

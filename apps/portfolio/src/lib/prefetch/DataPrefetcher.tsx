@@ -98,42 +98,40 @@ export const DataPrefetcher: React.FC = () => {
           setProgress(20 + (loadedCount / totalCritical) * 20)
         }))
 
-        // 3. Fetch data e imagens dos projetos (80%)
-        const totalProjects = projects.length
-        let projectsProcessed = 0
-
-        for (const project of projects) {
-          const key = `${STORAGE_KEYS.PROJECT_IMAGES_PREFIX}${project.id}`
-          let images = loadFromStorage<any[]>(key)
-
-          if (!images) {
-            images = await fetchProjectImages(project.id)
-            saveToStorage(key, images)
-            saveToStorage(`${STORAGE_KEYS.PROJECT_DATA_PREFIX}${project.slug}`, project)
-          }
-
-          // Preload capa do projeto e primeiras 2 imagens
-          if (images && images.length > 0) {
-            const allImages = [
-              project.cover_image_url,
-              ...images.map((img: any) => img.image_url)
-            ].filter(Boolean)
-
-            // Remove duplicatas
-            const uniqueImages = Array.from(new Set(allImages))
-
-            await Promise.all(uniqueImages.map(url => preloadImage(url)))
-          } else if (project.cover_image_url) {
-            await preloadImage(project.cover_image_url)
-          }
-
-          projectsProcessed++
-          // Atualiza progresso de 40% a 90%
-          setProgress(40 + (projectsProcessed / totalProjects) * 50)
-        }
+        // 3. Finaliza loading principal (100%)
+        setProgress(100)
 
         sessionStorage.setItem(STORAGE_KEYS.PREFETCH_TIMESTAMP, Date.now().toString())
         finishLoading()
+
+        // 4. Background Prefetch: Fetch data e imagens dos projetos
+        // Isso roda em background sem bloquear a UI
+        const backgroundPrefetch = async () => {
+          for (const project of projects) {
+            try {
+              const key = `${STORAGE_KEYS.PROJECT_IMAGES_PREFIX}${project.id}`
+              let images = loadFromStorage<any[]>(key)
+
+              if (!images) {
+                images = await fetchProjectImages(project.id)
+                saveToStorage(key, images)
+                saveToStorage(`${STORAGE_KEYS.PROJECT_DATA_PREFIX}${project.slug}`, project)
+              }
+
+              // Preload capa do projeto (opcional, mas bom pra cache)
+              if (project.cover_image_url) {
+                await preloadImage(project.cover_image_url)
+              }
+            } catch (err) {
+              console.warn(`Background prefetch error for project ${project.id}:`, err)
+            }
+          }
+        }
+
+        // Delay pequeno para não competir com renderização inicial
+        setTimeout(() => {
+          backgroundPrefetch()
+        }, 1000)
 
       } catch (e) {
         console.error('Prefetch error:', e)
