@@ -2,43 +2,14 @@
 
 import { useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-
-export const STORAGE_KEYS = {
-  HOME_IMAGES: 'portfolio_home_images',
-  PROJECTS: 'portfolio_projects',
-  PROJECT_IMAGES_PREFIX: 'portfolio_project_images_',
-  PROJECT_DATA_PREFIX: 'portfolio_project_data_',
-  STORE_CARDS: 'portfolio_store_cards',
-  ABOUT_PAGE: 'portfolio_about_page',
-  CONTACT_PAGE: 'portfolio_contact_page',
-  PREFETCH_DONE: 'portfolio_prefetch_done',
-  PREFETCH_TIMESTAMP: 'portfolio_prefetch_timestamp'
-} as const
-
-const CACHE_TTL = 5 * 60 * 1000
-
-const isCacheValid = (): boolean => {
-  if (typeof window === 'undefined') return false
-  const timestamp = sessionStorage.getItem(STORAGE_KEYS.PREFETCH_TIMESTAMP)
-  if (!timestamp) return false
-  return Date.now() - parseInt(timestamp, 10) < CACHE_TTL
-}
-
-const saveToStorage = (key: string, data: any) => {
-  try {
-    sessionStorage.setItem(key, JSON.stringify(data))
-  } catch (e) {}
-}
-
-export const loadFromStorage = <T,>(key: string): T | null => {
-  if (typeof window === 'undefined') return null
-  try {
-    const data = sessionStorage.getItem(key)
-    return data ? JSON.parse(data) : null
-  } catch {
-    return null
-  }
-}
+import { usePreload } from '@/providers/GlobalPreloadProvider'
+import { preloadImage } from './imageCache'
+import {
+  STORAGE_KEYS,
+  isCacheValid,
+  saveToStorage,
+  loadFromStorage
+} from './storage'
 
 const fetchHomeImages = async () => {
   const supabase = createClient()
@@ -83,14 +54,22 @@ const fetchProjectImages = async (projectId: string) => {
 
 export const DataPrefetcher: React.FC = () => {
   const started = useRef(false)
+  const { startLoading, finishLoading, setProgress } = usePreload()
 
   useEffect(() => {
-    if (started.current || isCacheValid()) return
+    if (started.current) return
     started.current = true
+
+    if (isCacheValid()) {
+      finishLoading()
+      return
+    }
+
+    startLoading()
 
     const prefetch = async () => {
       try {
-        // Fetch dados principais em paralelo
+        // 1. Fetch dados principais (20%)
         const [homeImages, projects, storeCards] = await Promise.all([
           fetchHomeImages(),
           fetchProjects(),
@@ -101,19 +80,64 @@ export const DataPrefetcher: React.FC = () => {
         saveToStorage(STORAGE_KEYS.PROJECTS, projects)
         saveToStorage(STORAGE_KEYS.STORE_CARDS, storeCards)
 
-        // Fetch imagens dos projetos em background
+        setProgress(20)
+
+        // 2. Preload imagens principais (Home + Store) (40%)
+        const criticalImages = [
+          ...homeImages.map(img => img.image_url),
+          ...storeCards.map(card => card.image_url)
+        ]
+
+        let loadedCount = 0
+        const totalCritical = criticalImages.length
+
+        await Promise.all(criticalImages.map(async (url) => {
+          await preloadImage(url)
+          loadedCount++
+          // Atualiza progresso de 20% a 40%
+          setProgress(20 + (loadedCount / totalCritical) * 20)
+        }))
+
+        // 3. Fetch data e imagens dos projetos (80%)
+        const totalProjects = projects.length
+        let projectsProcessed = 0
+
         for (const project of projects) {
           const key = `${STORAGE_KEYS.PROJECT_IMAGES_PREFIX}${project.id}`
-          if (!loadFromStorage(key)) {
-            const images = await fetchProjectImages(project.id)
+          let images = loadFromStorage<any[]>(key)
+
+          if (!images) {
+            images = await fetchProjectImages(project.id)
             saveToStorage(key, images)
             saveToStorage(`${STORAGE_KEYS.PROJECT_DATA_PREFIX}${project.slug}`, project)
           }
+
+          // Preload capa do projeto e primeiras 2 imagens
+          if (images && images.length > 0) {
+            const allImages = [
+              project.cover_image_url,
+              ...images.map((img: any) => img.image_url)
+            ].filter(Boolean)
+
+            // Remove duplicatas
+            const uniqueImages = Array.from(new Set(allImages))
+
+            await Promise.all(uniqueImages.map(url => preloadImage(url)))
+          } else if (project.cover_image_url) {
+            await preloadImage(project.cover_image_url)
+          }
+
+          projectsProcessed++
+          // Atualiza progresso de 40% a 90%
+          setProgress(40 + (projectsProcessed / totalProjects) * 50)
         }
 
         sessionStorage.setItem(STORAGE_KEYS.PREFETCH_TIMESTAMP, Date.now().toString())
+        finishLoading()
+
       } catch (e) {
         console.error('Prefetch error:', e)
+        finishLoading() // Garante que o loading saia mesmo com erro
       }
     }
 
