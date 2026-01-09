@@ -18,7 +18,7 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({ loadingImage }) => {
             // Delay para remover o componente do DOM após a animação de fade
             const timer = setTimeout(() => {
                 setIsVisible(false)
-            }, 500) // Tempo da transição CSS
+            }, 300) // Tempo da transição CSS
             return () => clearTimeout(timer)
         }
     }, [isLoading])
