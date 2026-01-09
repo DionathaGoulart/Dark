@@ -4,12 +4,13 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
-import { ArrowLeft, Save, Image as ImageIcon, Link as LinkIcon, Upload, X } from 'lucide-react'
+import { ArrowLeft, Save, Image as ImageIcon, Link as LinkIcon, Upload, X, Loader } from 'lucide-react'
 
 interface SettingsData {
   id?: string
   site_icon_url: string
   logo_url: string
+  loading_image_url: string
   instagram_url: string
   youtube_url: string
   footer_text?: string // Mantido para compatibilidade
@@ -23,9 +24,11 @@ export default function PortfolioSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [uploadingIcon, setUploadingIcon] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [uploadingLoading, setUploadingLoading] = useState(false)
   const [settingsData, setSettingsData] = useState<SettingsData>({
     site_icon_url: '',
     logo_url: '',
+    loading_image_url: '',
     instagram_url: '',
     youtube_url: '',
     footer_text_pt: '',
@@ -33,6 +36,7 @@ export default function PortfolioSettingsPage() {
   })
   const iconFileInputRef = useRef<HTMLInputElement>(null)
   const logoFileInputRef = useRef<HTMLInputElement>(null)
+  const loadingFileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
   const loadSettings = useCallback(async () => {
@@ -64,6 +68,7 @@ export default function PortfolioSettingsPage() {
           id: data.id,
           site_icon_url: data.site_icon_url || '',
           logo_url: data.logo_url || '',
+          loading_image_url: data.loading_image_url || '',
           instagram_url: data.instagram_url || defaultValues.instagram_url,
           youtube_url: data.youtube_url || defaultValues.youtube_url,
           footer_text_pt: footerTextPt,
@@ -73,6 +78,7 @@ export default function PortfolioSettingsPage() {
         setSettingsData({
           site_icon_url: '',
           logo_url: '',
+          loading_image_url: '',
           instagram_url: 'https://www.instagram.com/darkning.art',
           youtube_url: 'https://www.youtube.com/@darkning_art',
           footer_text_pt: '© 2025 Todos os direitos reservados.',
@@ -89,7 +95,7 @@ export default function PortfolioSettingsPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
@@ -102,9 +108,9 @@ export default function PortfolioSettingsPage() {
     getUser()
   }, [router, loadSettings])
 
-  const uploadFile = async (file: File, type: 'icon' | 'logo'): Promise<string | null> => {
+  const uploadFile = async (file: File, type: 'icon' | 'logo' | 'loading'): Promise<string | null> => {
     try {
-      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/x-icon']
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/x-icon']
       if (!validImageTypes.includes(file.type)) {
         alert('Tipo de arquivo inválido. Use imagens (JPG, PNG, GIF, WEBP, SVG, ICO)')
         return null
@@ -144,14 +150,16 @@ export default function PortfolioSettingsPage() {
     }
   }
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>, type: 'icon' | 'logo') => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>, type: 'icon' | 'logo' | 'loading') => {
     const file = e.target.files?.[0]
     if (!file) return
 
     if (type === 'icon') {
       setUploadingIcon(true)
-    } else {
+    } else if (type === 'logo') {
       setUploadingLogo(true)
+    } else {
+      setUploadingLoading(true)
     }
 
     try {
@@ -159,8 +167,10 @@ export default function PortfolioSettingsPage() {
       if (url) {
         if (type === 'icon') {
           setSettingsData({ ...settingsData, site_icon_url: url })
-        } else {
+        } else if (type === 'logo') {
           setSettingsData({ ...settingsData, logo_url: url })
+        } else {
+          setSettingsData({ ...settingsData, loading_image_url: url })
         }
         alert('Arquivo enviado com sucesso! Clique em "Salvar" para confirmar.')
       }
@@ -169,18 +179,22 @@ export default function PortfolioSettingsPage() {
     } finally {
       if (type === 'icon') {
         setUploadingIcon(false)
-      } else {
+      } else if (type === 'logo') {
         setUploadingLogo(false)
+      } else {
+        setUploadingLoading(false)
       }
       e.target.value = ''
     }
   }
 
-  const handleRemoveImage = (type: 'icon' | 'logo') => {
+  const handleRemoveImage = (type: 'icon' | 'logo' | 'loading') => {
     if (type === 'icon') {
       setSettingsData({ ...settingsData, site_icon_url: '' })
-    } else {
+    } else if (type === 'logo') {
       setSettingsData({ ...settingsData, logo_url: '' })
+    } else {
+      setSettingsData({ ...settingsData, loading_image_url: '' })
     }
   }
 
@@ -222,6 +236,7 @@ export default function PortfolioSettingsPage() {
         id: result.id,
         site_icon_url: result.site_icon_url || '',
         logo_url: result.logo_url || '',
+        loading_image_url: result.loading_image_url || '',
         instagram_url: result.instagram_url || '',
         youtube_url: result.youtube_url || '',
         footer_text_pt: footerTextPt,
@@ -285,7 +300,7 @@ export default function PortfolioSettingsPage() {
                 Imagens
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Favicon */}
               <div>
                 <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
@@ -410,6 +425,70 @@ export default function PortfolioSettingsPage() {
                     onChange={(e) => setSettingsData({ ...settingsData, logo_url: e.target.value })}
                     className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white text-sm"
                     placeholder="https://example.com/logo.png"
+                  />
+                </div>
+              </div>
+
+              {/* Loading Component */}
+              <div>
+                <label className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2">
+                  Imagem de Carregamento (Loading)
+                </label>
+                <input
+                  ref={loadingFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileSelect(e, 'loading')}
+                  className="hidden"
+                />
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => loadingFileInputRef.current?.click()}
+                    disabled={uploadingLoading}
+                    className="w-full px-4 py-2 border-2 border-dashed border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white hover:bg-primary-black dark:hover:bg-primary-white hover:text-primary-white dark:hover:text-primary-black transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {uploadingLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Loader size={20} />
+                        {settingsData.loading_image_url ? 'Trocar GIF/Imagem' : 'Enviar GIF/Imagem'}
+                      </>
+                    )}
+                  </button>
+                  {settingsData.loading_image_url && (
+                    <div className="relative inline-block bg-black/10 dark:bg-white/10 p-2 rounded">
+                      <img
+                        src={settingsData.loading_image_url}
+                        alt="Preview Loading"
+                        className="w-32 h-32 object-contain rounded"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage('loading')}
+                        className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        title="Remover imagem"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                  <div className="text-xs text-primary-black/70 dark:text-primary-white/70">
+                    Ou cole uma URL:
+                  </div>
+                  <input
+                    type="url"
+                    value={settingsData.loading_image_url || ''}
+                    onChange={(e) => setSettingsData({ ...settingsData, loading_image_url: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white text-sm"
+                    placeholder="https://example.com/loader.gif"
                   />
                 </div>
               </div>

@@ -32,6 +32,7 @@ export interface PortfolioSettingsData {
   footer_text_pt?: string
   footer_text_en?: string
   contact_email?: string
+  loading_image_url?: string
 }
 
 export interface NavigationItem {
