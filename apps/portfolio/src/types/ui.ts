@@ -36,6 +36,10 @@ export interface ImageItem {
   height?: number
   /** URL do link de navegação */
   linkTo?: string
+  /** Proporção da imagem (opcional) */
+  aspectRatio?: string
+  /** Orientação da imagem (opcional) */
+  orientation?: string
 }
 
 /** Props para componentes individuais de cartão de imagem */

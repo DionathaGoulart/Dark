@@ -127,9 +127,9 @@ export async function getHomeImages(): Promise<HomeImage[]> {
     }
 
     const images = data || []
-    
+
     // Remover duplicatas baseado no ID
-    const uniqueImages = images.filter((img, index, self) => 
+    const uniqueImages = images.filter((img, index, self) =>
       index === self.findIndex((i) => i.id === img.id)
     )
 
@@ -148,7 +148,7 @@ export async function getProjects(): Promise<Project[]> {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_projects')
-      .select('*')
+      .select('id, slug, title_pt, title_en, cover_image_url, order_index, layout_type, is_active')
       .eq('is_active', true)
       .order('order_index', { ascending: true })
 
@@ -197,7 +197,7 @@ export async function getProjectImages(projectId: string): Promise<ProjectImage[
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('portfolio_project_images')
-      .select('*')
+      .select('id, project_id, image_url, alt_text_pt, alt_text_en, order_index, is_active, layout_type, aspect_ratio, object_fit, grid_group_id, padding_horizontal, padding_vertical, grid_dominant_side')
       .eq('project_id', projectId)
       .eq('is_active', true)
       .order('order_index', { ascending: true })
