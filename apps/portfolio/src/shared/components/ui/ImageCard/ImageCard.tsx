@@ -2,7 +2,7 @@
 
 /* eslint-disable react/prop-types */
 import React, { useState, memo } from 'react'
-import { ImageLoader } from '@/shared'
+import Image from 'next/image'
 import { ImageCardPropsExtended } from '@/types'
 
 const OBJECT_FIT_CLASSES = {
@@ -27,40 +27,51 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
   priority = false
 }) => {
   const [isVisible, setIsVisible] = useState(true)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   if (!isVisible) return null
 
-  const objectFitClass = OBJECT_FIT_CLASSES[objectFit]
-  const imageClasses = `${isSquare ? 'w-full h-full' : 'w-full h-auto'} ${objectFitClass}`
+  const objectFitClass = OBJECT_FIT_CLASSES[objectFit] || 'object-cover'
+  const hasAspectClass = className.includes('aspect-')
+  const containerClasses = `${isSquare ? 'aspect-square' : hasAspectClass ? '' : 'aspect-[4/5]'} ${className}`.trim()
 
   const handleClick = () => onClick?.(image)
   const handleError = () => { setIsVisible(false); onError?.(image) }
+  const handleLoad = () => { setIsLoaded(true); onLoad?.(image) }
 
   return (
     <div
-      className={`group ${onClick ? 'cursor-pointer' : ''} ${className} ${isSquare ? 'aspect-square' : 'w-full'}`}
+      className={`group relative overflow-hidden w-full h-full ${onClick ? 'cursor-pointer' : ''} ${containerClasses}`}
       onClick={onClick ? handleClick : undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => (e.key === 'Enter' || e.key === ' ') && handleClick() : undefined}
       style={showHoverEffect ? { transform: 'translateZ(0)' } : undefined}
     >
-      <div 
-        className={`relative overflow-hidden ${disableShadow ? '' : 'shadow-lg'} w-full h-full ${showHoverEffect ? 'group-hover:shadow-xl' : ''}`}
+      <div
+        className={`relative w-full h-full ${disableShadow ? '' : 'shadow-lg'} ${showHoverEffect ? 'group-hover:shadow-xl' : ''}`}
         style={showHoverEffect ? { transition: 'box-shadow 200ms' } : undefined}
       >
-        <img
+        <Image
           src={image.url}
           alt={image.alt || ''}
-          className={`${imageClasses} ${showHoverEffect ? 'group-hover:scale-105 group-hover:brightness-90' : ''}`}
-          style={showHoverEffect ? { transition: 'transform 200ms, filter 200ms', willChange: 'transform' } : undefined}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
-          onLoad={() => onLoad?.(image)}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+          className={`${objectFitClass} ${showHoverEffect ? 'group-hover:scale-105 group-hover:brightness-90' : ''} transition-all duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+          style={showHoverEffect ? { transition: 'transform 200ms, filter 200ms, opacity 300ms', willChange: 'transform' } : undefined}
+          priority={priority}
+          onLoad={handleLoad}
           onError={handleError}
+          quality={85}
         />
+
+        {/* Skeleton de carregamento */}
+        {!isLoaded && (
+          <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
+        )}
+
         {showHoverEffect && image.title && showTitle && (
-          <div 
+          <div
             className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 opacity-0 group-hover:opacity-100"
             style={{ transition: 'opacity 200ms' }}
           >
