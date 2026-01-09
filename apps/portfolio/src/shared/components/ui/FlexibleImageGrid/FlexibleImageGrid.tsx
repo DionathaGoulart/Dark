@@ -29,21 +29,21 @@ export interface AdaptiveImageGridProps {
   gridColumns?: 2 | 3 | 4 | 5
   adaptiveMode?: 'auto' | 'manual'
   fallbackAspectRatio?:
-    | 'auto'
-    | 'square'
-    | 'portrait'
-    | 'landscape'
-    | 'wide'
-    | 'ultrawide'
-    | 'tall'
-    | 'photo'
-    | 'golden'
-    | 'cinema'
-    | 'vertical'
-    | 'instagram'
-    | 'story'
-    | 'banner'
-    | 'card'
+  | 'auto'
+  | 'square'
+  | 'portrait'
+  | 'landscape'
+  | 'wide'
+  | 'ultrawide'
+  | 'tall'
+  | 'photo'
+  | 'golden'
+  | 'cinema'
+  | 'vertical'
+  | 'instagram'
+  | 'story'
+  | 'banner'
+  | 'card'
   fallbackObjectFit?: 'cover' | 'contain' | 'fill' | 'scale-down' | 'none'
   dominantSide?: 'left' | 'right' | 'none'
   gap?: number
@@ -178,6 +178,24 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
       const dimensions: Record<string, { width: number; height: number }> = {}
 
       for (const image of images) {
+        // Se já temos a orientação e aspecto fornecidos (via banco de dados), usamos diretamente
+        if (image.orientation && image.aspectRatio) {
+          orientations[image.id] = image.orientation
+          // Dimensões dummy pois o que importa é a proporção e orientação
+          // Para o cálculo de grid por linhas ser preciso, usamos o aspectRatio para definir dimensões proporcionais
+          let width = 1000
+          let height = 1000
+
+          if (image.aspectRatio === 'landscape') { height = 750 } // 4:3
+          else if (image.aspectRatio === 'portrait') { height = 1333 } // 3:4
+          else if (image.aspectRatio === 'wide') { height = 562 } // 16:9
+          else if (image.aspectRatio === 'ultrawide') { height = 428 } // 21:9
+          else if (image.aspectRatio === 'tall') { height = 1500 } // 2:3
+
+          dimensions[image.id] = { width, height }
+          continue
+        }
+
         try {
           const img = new Image()
           img.src = image.url
@@ -280,13 +298,13 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
 
     // Pega as imagens desta linha
     const rowImages = validImages.slice(startIndex, startIndex + gridColumns)
-    
+
     if (rowImages.length === 0) return null
 
     // Calcula a altura proporcional de cada imagem se todas tiverem a mesma largura
     // A largura de cada célula é 100% / gridColumns
     const heights: number[] = []
-    
+
     for (const img of rowImages) {
       const dims = imageDimensions[img.id]
       if (dims && dims.width > 0) {
@@ -346,7 +364,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     }
 
     const aspectRatio = getAdaptiveAspectRatio(imageId)
-    
+
     // Para grids (não solo), se o aspect ratio for 'auto', usar o fallback para garantir mesma altura
     if (mode === 'grid' && aspectRatio === 'auto' && fallbackAspectRatio !== 'auto') {
       return fallbackAspectRatio
@@ -437,8 +455,8 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
             ...backgroundStyle
           }}
         >
-          <div 
-            className={isDominantGrid && isNonDominant ? 'w-full h-full flex items-center justify-center' : 'w-full h-full'} 
+          <div
+            className={isDominantGrid && isNonDominant ? 'w-full h-full flex items-center justify-center' : 'w-full h-full'}
             style={backgroundStyle}
           >
             <ImageCard
@@ -492,20 +510,20 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
    */
   const renderGridRows = () => {
     const rows = []
-    
+
     for (let i = 0; i < validImages.length; i += gridColumns) {
       const rowImages = validImages.slice(i, i + gridColumns)
       const rowHeight = getRowHeight(i)
-      
+
       // Calcula o aspect ratio da linha baseado na menor altura proporcional
       // Se não tiver dimensões ainda, usa um valor padrão
       const rowAspectRatio = rowHeight || 1
-      
+
       rows.push(
-        <div 
-          key={`row-${i}`} 
+        <div
+          key={`row-${i}`}
           className={`grid ${getGridClass().replace('grid ', '')} ${getGapClass(gap)}`}
-          style={{ 
+          style={{
             // Cada célula terá a mesma altura baseada no aspect ratio da menor imagem
             gridTemplateColumns: `repeat(${gridColumns}, 1fr)`
           }}
@@ -513,10 +531,10 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
           {rowImages.map((image, idx) => {
             const globalIndex = i + idx
             const dims = imageDimensions[image.id]
-            
+
             return (
-              <div 
-                key={image.id} 
+              <div
+                key={image.id}
                 className="relative overflow-hidden"
                 style={{
                   // Altura proporcional baseada na menor imagem da linha
@@ -532,7 +550,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
         </div>
       )
     }
-    
+
     return rows
   }
 
