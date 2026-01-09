@@ -64,6 +64,8 @@ export interface ImageCardProps {
   objectFit?: 'cover' | 'contain' | 'fill' | 'scale-down' | 'none'
   /** Mostrar sobreposição do título da imagem */
   showTitle?: boolean
+  /** Configuração de tamanhos para responsividade (atributo sizes do Next/Image) */
+  sizes?: string
 }
 
 export interface ImageCardPropsExtended extends ImageCardProps {
