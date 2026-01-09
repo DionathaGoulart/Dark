@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { loadFromStorage, STORAGE_KEYS } from './DataPrefetcher'
+import { loadFromStorage, STORAGE_KEYS } from './storage'
 import { createClient } from '@/lib/supabase/client'
 
 /**
@@ -16,7 +16,7 @@ export const useProjectData = (slug: string) => {
       // Tenta carregar do cache primeiro
       const cacheKey = `${STORAGE_KEYS.PROJECT_DATA_PREFIX}${slug}`
       const cached = loadFromStorage<any>(cacheKey)
-      
+
       if (cached) {
         setProject(cached)
         setLoading(false)
@@ -37,7 +37,7 @@ export const useProjectData = (slug: string) => {
         // Salva no cache
         try {
           sessionStorage.setItem(cacheKey, JSON.stringify(data))
-        } catch (e) {}
+        } catch (e) { }
       }
       setLoading(false)
     }
@@ -65,7 +65,7 @@ export const useProjectImages = (projectId: string | null) => {
       // Tenta carregar do cache primeiro
       const cacheKey = `${STORAGE_KEYS.PROJECT_IMAGES_PREFIX}${projectId}`
       const cached = loadFromStorage<any[]>(cacheKey)
-      
+
       if (cached) {
         setImages(cached)
         setLoading(false)
@@ -86,7 +86,7 @@ export const useProjectImages = (projectId: string | null) => {
         // Salva no cache
         try {
           sessionStorage.setItem(cacheKey, JSON.stringify(data))
-        } catch (e) {}
+        } catch (e) { }
       }
       setLoading(false)
     }
