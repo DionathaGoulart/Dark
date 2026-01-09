@@ -386,6 +386,39 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     return ''
   }
 
+  const getSizesString = (
+    isDominantGrid: boolean,
+    isNonDominant: boolean
+  ): string => {
+    if (mode === 'solo') {
+      return '(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw'
+    }
+
+    if (isDominantGrid) {
+      if (isNonDominant) {
+        // Item menor no grid dominante (aprox 1/3 do espaço)
+        return '(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw'
+      } else {
+        // Item dominante (aprox 2/3 do espaço)
+        return '(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 66vw'
+      }
+    }
+
+    // Grids normais
+    switch (gridColumns) {
+      case 2:
+        return '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 50vw'
+      case 3:
+        return '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+      case 4:
+        return '(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw'
+      case 5:
+        return '(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw'
+      default:
+        return '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw'
+    }
+  }
+
   // ================================
   // AUXILIARES DE RENDERIZAÇÃO
   // ================================
@@ -478,6 +511,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
               className={imageClasses}
               disableShadow
               priority={index < 6} // Primeiras 6 imagens são prioritárias
+              sizes={getSizesString(isDominantGrid, isNonDominant)}
             />
           </div>
         </div>
@@ -581,6 +615,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
           className="w-full h-full"
           disableShadow
           priority={index < 6}
+          sizes={getSizesString(false, false)}
         />
       </div>
     )

@@ -24,7 +24,8 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
   objectFit = 'cover',
   showTitle = true,
   disableShadow = false,
-  priority = false
+  priority = false,
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw'
 }) => {
   const [isVisible, setIsVisible] = useState(true)
   const [isLoaded, setIsLoaded] = useState(false)
@@ -56,7 +57,7 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
           src={image.url}
           alt={image.alt || ''}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+          sizes={sizes}
           className={`${objectFitClass} ${showHoverEffect ? 'group-hover:scale-105 group-hover:brightness-90' : ''} transition-all duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           style={showHoverEffect ? { transition: 'transform 200ms, filter 200ms, opacity 300ms', willChange: 'transform' } : undefined}
           priority={priority}
