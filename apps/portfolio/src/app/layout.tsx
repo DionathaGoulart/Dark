@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { MainLayout } from '@/shared/components/layouts/MainLayout'
 import { AnalyticsInitializer } from '@/components/AnalyticsInitializer'
 import { DataPrefetcher, RoutePrefetcher } from '@/lib/prefetch'
+import { GlobalLoader } from '@/components/ui/GlobalLoader'
+import { PreloadProvider } from '@/providers/GlobalPreloadProvider'
 import { validateEnvironment } from '@/shared/utils/envValidation'
 import { getPortfolioSeoData, getPortfolioSettings, getNavigationItems } from '@/lib/api/server'
 import '@/styles/global.css'
@@ -17,7 +19,7 @@ if (typeof window === 'undefined') {
 // Cache do layout por 60 segundos
 export const revalidate = 60
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
@@ -100,25 +102,28 @@ export default async function RootLayout({
       <body className={inter.variable}>
         <I18nProvider>
           <ThemeProvider>
-            <AnalyticsInitializer gaMeasurementId={gaMeasurementId} />
-            <DataPrefetcher />
-            <RoutePrefetcher />
-            <MainLayout
-              logoSrc={settingsData?.logo_url}
-              instagramUrl={settingsData?.instagram_url}
-              youtubeUrl={settingsData?.youtube_url}
-              footerText={
-                settingsData?.footer_text_pt || settingsData?.footer_text_en
-                  ? {
+            <PreloadProvider>
+              <AnalyticsInitializer gaMeasurementId={gaMeasurementId} />
+              <GlobalLoader loadingImage={settingsData?.loading_image_url} />
+              <DataPrefetcher />
+              <RoutePrefetcher />
+              <MainLayout
+                logoSrc={settingsData?.logo_url}
+                instagramUrl={settingsData?.instagram_url}
+                youtubeUrl={settingsData?.youtube_url}
+                footerText={
+                  settingsData?.footer_text_pt || settingsData?.footer_text_en
+                    ? {
                       pt: settingsData?.footer_text_pt || settingsData?.footer_text || '',
                       en: settingsData?.footer_text_en || settingsData?.footer_text || ''
                     }
-                  : undefined
-              }
-              navigationItems={navigationItems}
-            >
-              {children}
-            </MainLayout>
+                    : undefined
+                }
+                navigationItems={navigationItems}
+              >
+                {children}
+              </MainLayout>
+            </PreloadProvider>
           </ThemeProvider>
         </I18nProvider>
       </body>
