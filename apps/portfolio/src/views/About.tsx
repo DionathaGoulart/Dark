@@ -67,7 +67,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ pageData }) => {
 
         <div className="prose prose-lg max-w-none">
           {description && (
-            <p className="text-primary-black/60 dark:text-primary-white/60 leading-relaxed">
+            <p className="text-primary-black/60 dark:text-primary-white/60 leading-relaxed whitespace-pre-line">
               {description}
             </p>
           )}

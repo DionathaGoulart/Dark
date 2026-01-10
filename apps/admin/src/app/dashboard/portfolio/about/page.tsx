@@ -178,7 +178,7 @@ export default function AboutPage() {
                   onChange={(e) => setPageData({ ...pageData, content_pt: e.target.value })}
                   rows={10}
                   className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
-                  placeholder="Escreva o conteúdo da página About em português..."
+                  placeholder="Escreva o conteúdo da página About em português (suporta quebras de linha)..."
                 />
               </div>
             </div>
@@ -214,7 +214,7 @@ export default function AboutPage() {
                   onChange={(e) => setPageData({ ...pageData, content_en: e.target.value })}
                   rows={10}
                   className="w-full px-4 py-2 border-2 border-primary-black dark:border-primary-white rounded bg-transparent text-primary-black dark:text-primary-white"
-                  placeholder="Write the About page content in English..."
+                  placeholder="Write the About page content in English (supports line breaks)..."
                 />
               </div>
             </div>
