@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,23 +22,56 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@core": ["./src/core"],
-      "@core/*": ["./src/core/*"],
-      "@shared": ["./src/shared"],
-      "@shared/*": ["./src/shared/*"],
-      "@features": ["./src/features"],
-      "@features/*": ["./src/features/*"],
-      "@types": ["./src/types"],
-      "@types/*": ["./src/types/*"],
-      "@assets": ["./src/assets"],
-      "@assets/*": ["./src/assets/*"],
-      "@views": ["./src/views"],
-      "@views/*": ["./src/views/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@core": [
+        "./src/core"
+      ],
+      "@core/*": [
+        "./src/core/*"
+      ],
+      "@shared": [
+        "./src/shared"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
+      ],
+      "@features": [
+        "./src/features"
+      ],
+      "@features/*": [
+        "./src/features/*"
+      ],
+      "@types": [
+        "./src/types"
+      ],
+      "@types/*": [
+        "./src/types/*"
+      ],
+      "@assets": [
+        "./src/assets"
+      ],
+      "@assets/*": [
+        "./src/assets/*"
+      ],
+      "@views": [
+        "./src/views"
+      ],
+      "@views/*": [
+        "./src/views/*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
-
