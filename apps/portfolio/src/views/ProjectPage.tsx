@@ -416,15 +416,12 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
         ? (img.alt_text_pt || img.alt_text_en || '')
         : (img.alt_text_en || img.alt_text_pt || '')
 
+      const optimizedUrls = generateOptimizedUrls(img.image_url)
+
       return {
         id: img.id,
-        url: img.image_url,
-        urls: {
-          original: img.image_url,
-          thumbnail: img.image_url,
-          medium: img.image_url,
-          large: img.image_url
-        },
+        url: optimizedUrls.medium || img.image_url,
+        urls: optimizedUrls,
         title: altText,
         alt: altText,
         aspectRatio: img.aspect_ratio || 'auto',

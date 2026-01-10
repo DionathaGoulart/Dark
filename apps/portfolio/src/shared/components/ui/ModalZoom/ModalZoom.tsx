@@ -146,15 +146,14 @@ export const ModalZoom: React.FC<ModalZoomProps> = ({ image, onClose }) => {
       <button
         type="button"
         onClick={handleImageClick}
-        className="focus:outline-none focus:ring-2 focus:ring-primary-white/50"
+        className="focus:outline-none focus:ring-2 focus:ring-primary-white/50 flex items-center justify-center p-4 content-center"
         aria-label={image.alt || 'Imagem ampliada'}
       >
         <img
           src={imageUrl}
           alt={image.alt || ''}
-          className={`max-w-full max-h-full object-contain transition-opacity duration-300 ${
-            isLoading ? 'opacity-0' : 'opacity-100'
-          }`}
+          className={`max-w-[90vw] max-h-[90vh] object-contain transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
+            }`}
           onLoad={handleLoad}
           onError={handleError}
         />
