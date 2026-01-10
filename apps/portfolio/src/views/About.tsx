@@ -29,14 +29,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ pageData }) => {
   useDocumentTitle('about')
 
   // Usar dados do Supabase se disponíveis, senão usar traduções
-  const title = pageData 
+  const title = pageData
     ? (language === 'pt' ? pageData.title_pt : pageData.title_en)
     : t.pages.about.title
   const description = pageData
     ? (language === 'pt' ? pageData.content_pt : pageData.content_en) || ''
     : t.pages.about.description
   const content = pageData
-    ? (language === 'pt' ? pageData.content_pt : pageData.content_en) || ''
+    ? ''
     : t.pages.about.content
 
   // ================================
