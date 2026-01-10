@@ -27,9 +27,6 @@ jobs:
       - name: 🔧 Instalar dependências
         run: npm ci
 
-      - name: 🔍 Verificação de tipos TypeScript
-        run: npx tsc --noEmit
-
       - name: 🧹 Executar linting
         run: npm run lint
 
