@@ -132,6 +132,7 @@ export interface MasonryGridProps extends GridConfig {
 export interface MasonryGridPropsExtended extends MasonryGridProps {
   objectFit?: 'cover' | 'contain' | 'fill' | 'scale-down' | 'none'
   emptyMessage?: string
+  autoHeight?: boolean
 }
 
 // ================================

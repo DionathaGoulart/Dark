@@ -13,7 +13,7 @@ const OBJECT_FIT_CLASSES = {
   none: 'object-none'
 } as const
 
-export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }> = memo(({
+export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean, autoHeight?: boolean }> = memo(({
   image,
   onClick,
   onLoad,
@@ -25,6 +25,7 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
   showTitle = true,
   disableShadow = false,
   priority = false,
+  autoHeight = false,
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw'
 }) => {
   const [isVisible, setIsVisible] = useState(true)
@@ -34,7 +35,10 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
 
   const objectFitClass = OBJECT_FIT_CLASSES[objectFit] || 'object-cover'
   const hasAspectClass = className.includes('aspect-')
-  const containerClasses = `${isSquare ? 'aspect-square' : hasAspectClass ? '' : 'aspect-[4/5]'} ${className}`.trim()
+  // Se autoHeight for true, não aplicamos aspect-ratio padrão nem fill
+  const containerClasses = autoHeight
+    ? className
+    : `${isSquare ? 'aspect-square' : hasAspectClass ? '' : 'aspect-[4/5]'} ${className}`.trim()
 
   const handleClick = () => onClick?.(image)
   const handleError = () => { setIsVisible(false); onError?.(image) }
@@ -53,22 +57,46 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean }
         className={`relative w-full h-full ${disableShadow ? '' : 'shadow-lg'} ${showHoverEffect ? 'group-hover:shadow-xl' : ''}`}
         style={showHoverEffect ? { transition: 'box-shadow 200ms' } : undefined}
       >
-        <Image
-          src={image.url}
-          alt={image.alt || ''}
-          fill
-          sizes={sizes}
-          className={`${objectFitClass} ${showHoverEffect ? 'group-hover:scale-105 group-hover:brightness-90' : ''} transition-all duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={showHoverEffect ? { transition: 'transform 200ms, filter 200ms, opacity 300ms', willChange: 'transform' } : undefined}
-          priority={priority}
-          onLoad={handleLoad}
-          onError={handleError}
-          quality={85}
-        />
+        {autoHeight ? (
+          <Image
+            src={image.url}
+            alt={image.alt || ''}
+            width={0}
+            height={0}
+            sizes={sizes}
+            className={`w-full h-auto ${showHoverEffect ? 'group-hover:scale-105 group-hover:brightness-90' : ''} transition-all duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            style={{
+              width: '100%',
+              height: 'auto',
+              ...(showHoverEffect ? { transition: 'transform 200ms, filter 200ms, opacity 300ms', willChange: 'transform' } : {})
+            }}
+            priority={priority}
+            onLoad={handleLoad}
+            onError={handleError}
+            quality={85}
+          />
+        ) : (
+          <Image
+            src={image.url}
+            alt={image.alt || ''}
+            fill
+            sizes={sizes}
+            className={`${objectFitClass} ${showHoverEffect ? 'group-hover:scale-105 group-hover:brightness-90' : ''} transition-all duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            style={showHoverEffect ? { transition: 'transform 200ms, filter 200ms, opacity 300ms', willChange: 'transform' } : undefined}
+            priority={priority}
+            onLoad={handleLoad}
+            onError={handleError}
+            quality={85}
+          />
+        )}
 
         {/* Skeleton de carregamento */}
-        {!isLoaded && (
+        {!isLoaded && !autoHeight && (
           <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
+        )}
+        {/* Skeleton para autoHeight (altura mínima) */}
+        {!isLoaded && autoHeight && (
+          <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 animate-pulse min-h-[200px]" />
         )}
 
         {showHoverEffect && image.title && showTitle && (

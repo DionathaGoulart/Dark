@@ -81,7 +81,8 @@ export const MasonryGrid: React.FC<MasonryGridPropsExtended> = ({
   isSquareGrid = false,
   showHoverEffect = false,
   objectFit = 'cover',
-  emptyMessage
+  emptyMessage,
+  autoHeight = false
 }) => {
   // ================================
   // ESTADO E REFS
@@ -189,6 +190,7 @@ export const MasonryGrid: React.FC<MasonryGridPropsExtended> = ({
                   isSquare={isSquareGrid}
                   showHoverEffect={showHoverEffect}
                   objectFit={objectFit}
+                  autoHeight={autoHeight}
                 />
               </div>
             ))}

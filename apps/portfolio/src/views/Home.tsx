@@ -40,7 +40,7 @@ interface HomePageProps {
 export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
   const { language } = useI18n()
   const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null)
-  
+
   // Usa dados do servidor ou do cache
   const { data: cachedImages } = useHomeImages(homeImages)
   const sourceImages = cachedImages || homeImages
@@ -117,6 +117,7 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
           onImageError={handleImageError}
           columnCount={COLUMN_CONFIG}
           gap={3}
+          autoHeight={true}
         />
       </section>
 
