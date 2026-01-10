@@ -4,6 +4,7 @@
 import React, { useState, memo } from 'react'
 import Image from 'next/image'
 import { ImageCardPropsExtended } from '@/types'
+import supabaseLoader from '@/lib/imageLoader'
 
 const OBJECT_FIT_CLASSES = {
   cover: 'object-cover',
@@ -74,6 +75,7 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean, 
             onLoad={handleLoad}
             onError={handleError}
             quality={85}
+            loader={supabaseLoader}
           />
         ) : (
           <Image
@@ -87,6 +89,7 @@ export const ImageCard: React.FC<ImageCardPropsExtended & { priority?: boolean, 
             onLoad={handleLoad}
             onError={handleError}
             quality={85}
+            loader={supabaseLoader}
           />
         )}
 
