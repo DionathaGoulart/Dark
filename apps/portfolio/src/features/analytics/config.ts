@@ -10,7 +10,7 @@ import { AnalyticsConfig } from './types'
  */
 export const ANALYTICS_CONFIG: AnalyticsConfig = {
   measurementId: undefined, // Será definido dinamicamente via props
-  enabled: process.env.NODE_ENV === 'production'
+  enabled: true // Habilita tracking se o script estiver carregado (window.gtag existe)
 }
 
 // ================================
