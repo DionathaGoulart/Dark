@@ -1,3 +1,6 @@
+'use client'
+
+
 import Script from 'next/script'
 import { useAnalytics } from '@/features/analytics/hooks'
 import { validateAnalyticsConfig } from '@/features/analytics/config'
