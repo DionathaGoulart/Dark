@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import { I18nProvider } from '@/core/providers/I18nProvider'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { MainLayout } from '@/shared/components/layouts/MainLayout'
@@ -103,7 +104,25 @@ export default async function RootLayout({
         <I18nProvider>
           <ThemeProvider>
             <PreloadProvider>
-              <AnalyticsInitializer gaMeasurementId={gaMeasurementId} />
+              <AnalyticsInitializer />
+              {/* Google Analytics Injection */}
+              {gaMeasurementId && (
+                <>
+                  <Script
+                    src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+                    strategy="afterInteractive"
+                  />
+                  <Script id="google-analytics" strategy="afterInteractive">
+                    {`
+                      window.dataLayer = window.dataLayer || [];
+                      function gtag(){dataLayer.push(arguments);}
+                      gtag('js', new Date());
+
+                      gtag('config', '${gaMeasurementId}');
+                    `}
+                  </Script>
+                </>
+              )}
               <GlobalLoader loadingImage={settingsData?.loading_image_url} />
               <DataPrefetcher />
               <RoutePrefetcher />
