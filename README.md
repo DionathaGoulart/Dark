@@ -1,112 +1,90 @@
-# Dark Portfolio Monorepo
+<div align="center">
 
-Monorepo com 3 sites Next.js gerenciados pelo Turbo:
+# DARK ECOSYSTEM
+### MONOREPO
 
-1. **Portfolio** (`apps/portfolio`) - Portfólio principal
-2. **Dark-Links** (`apps/dark-links`) - Página de links
-3. **Site3** (`apps/site3`) - Preset base para futuros projetos
+![TurboRepo](https://img.shields.io/badge/TURBOREPO-EF4444?style=for-the-badge&logo=turborepo&logoColor=white)
+![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 
-## 🚀 Tecnologias
+<br />
 
-- Next.js 15
-- TypeScript
-- Tailwind CSS
-- Turbo (Monorepo)
+**A unified ecosystem containing my personal portfolio, link-in-bio platform, and administrative dashboard.**
+**Managed efficiently with Turborepo.**
 
-## 📁 Estrutura do Projeto
+[Explore Apps](#-applications) • [Getting Started](#-getting-started) • [License](#-license)
 
+</div>
+
+---
+
+## 🏗️ Architecture
+
+This repository operates as a high-performance Monorepo, leveraging **Turborepo** to orchestrate build systems and operational pipelines across multiple applications.
+
+```mermaid
+graph TD;
+    Root-->Apps;
+    Apps-->Portfolio;
+    Apps-->DarkLinks;
+    Apps-->Admin;
+    Root-->Packages;
+    Packages-->UI;
+    Packages-->Config;
 ```
-Dark-Portifolio/
-├── apps/                    # Aplicações Next.js
-│   ├── portfolio/          # Portfólio principal
-│   ├── dark-links/         # Página de links
-│   └── site3/              # Preset base
-├── package.json             # Configuração do monorepo
-└── turbo.json               # Configuração do Turbo
-```
 
-Para mais detalhes sobre a estrutura, veja [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md).
+---
 
-## 📦 Instalação
+## 🚀 Applications
+
+<div align="center">
+
+| Application | Description | Tech Stack | Port |
+|:-----------:|:----------- |:---------- |:----:|
+| **[👨‍💻 Portfolio](./apps/portfolio/README.md)** | Personal showcase of projects and skills. | `Next.js` `React 19` `Tailwind` | `3000` |
+| **[🔗 Dark Links](./apps/dark-links/README.md)** | High-performance Link-in-Bio platform. | `Next.js` `Supabase` `Analytics` | `3001` |
+| **[🛡️ Admin](./apps/admin/README.md)** | Internal CMS for content management. | `Next.js` `RHF` `Supabase Auth` | `3002` |
+
+</div>
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+*   **Node.js 18+**
+*   **npm 9+** or **pnpm** (recommended)
+
+### Installation
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/DionathaGoulart/Dark.git
+
+# 2. Enter the directory
+cd Dark
+
+# 3. Install dependencies
 npm install
 ```
 
-## 🛠️ Desenvolvimento
+### ⚡ Quick Start
 
-### Executar todos os sites simultaneamente
+Run the entire ecosystem simultaneously:
+
 ```bash
 npm run dev
 ```
 
-Isso irá iniciar os 3 sites ao mesmo tempo:
-- **Portfolio**: http://localhost:3000
-- **Dark-Links**: http://localhost:3001
-- **Site3**: http://localhost:3002
+> This command initializes the local development server for all applications using **Turborepo's** parallel execution engine.
 
-### Executar um site específico
-```bash
-npm run dev:portfolio
-npm run dev:dark-links
-npm run dev:site3
-```
+---
 
-## 🏗️ Build
+## 📄 License
 
-### Build de todos os sites
-```bash
-npm run build
-```
+This project is proprietary and confidential.
 
-### Build de um site específico
-```bash
-npm run build:portfolio
-npm run build:dark-links
-npm run build:site3
-```
-
-## 📡 Deploy na Netlify
-
-Cada site pode ser deployado separadamente na Netlify com URLs diferentes.
-
-Para instruções detalhadas, veja [DEPLOY.md](./DEPLOY.md).
-
-### Resumo Rápido
-
-1. Crie um novo site no Netlify
-2. Configure:
-   - **Base directory**: `apps/[nome-do-app]`
-   - **Build command**: `npm run build`
-   - **Publish directory**: `apps/[nome-do-app]/.next`
-   - **Node version**: 18 ou superior
-
-## 🔧 Scripts Disponíveis
-
-- `npm run dev` - Executa **todos os 3 sites simultaneamente**
-- `npm run build` - Build de todos os sites
-- `npm run lint` - Lint de todos os sites
-- `npm run dev:portfolio` - Executa apenas o portfolio (porta 3000)
-- `npm run dev:dark-links` - Executa apenas o dark-links (porta 3001)
-- `npm run dev:site3` - Executa apenas o site3 (porta 3002)
-
-## 📝 Documentação
-
-- [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) - Estrutura detalhada do projeto
-- [DEPLOY.md](./DEPLOY.md) - Guia completo de deploy na Netlify
-- [docs/STRUCTURE_GUIDE.md](./docs/STRUCTURE_GUIDE.md) - Guia visual da estrutura
-
-## 📌 Portas dos Apps
-
-Cada app roda em uma porta diferente quando executado simultaneamente:
-
-- **Portfolio**: http://localhost:3000
-- **Dark-Links**: http://localhost:3001
-- **Site3**: http://localhost:3002
-
-## 💡 Dicas
-
-- Use `npm run dev` para desenvolver todos os sites ao mesmo tempo
-- O Turbo otimiza os builds, reconstruindo apenas o que mudou
-- Cada site é independente e pode ter sua própria configuração
-- Para parar todos os processos, use `Ctrl+C` no terminal
+**Copyright © 2026 Dionatha Goulart.**
+All Rights Reserved.
