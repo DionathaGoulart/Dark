@@ -1,67 +1,86 @@
-# Admin Panel
+<div align="center">
 
-Painel de administração para gerenciar os sites Portfolio e Dark Links.
+# DARK ADMIN
+### DASHBOARD
 
-## Configuração
+![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
+![React Hook Form](https://img.shields.io/badge/React_Hook_Form-EC5990?style=for-the-badge&logo=react-hook-form&logoColor=white)
+![Zod](https://img.shields.io/badge/Zod-3068B7?style=for-the-badge&logo=zod&logoColor=white)
 
-1. Instale as dependências:
+<br />
+
+**The control center for the Dark Ecosystem.**
+**Manages content, analyzes data, and controls configurations across all applications.**
+
+</div>
+
+---
+
+## 📸 Visual Tour
+
+<details open>
+<summary><strong>Desktop View</strong></summary>
+<br />
+<div align="center">
+  <img src="../../screenshots/admin/1.jpeg" alt="Desktop Preview" width="100%" style="border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+</div>
+</details>
+
+<br />
+
+<details>
+<summary><strong>Mobile Experience</strong></summary>
+<br />
+<div align="center">
+  <img src="../../screenshots/admin/mobile.jpeg" alt="Mobile Preview" width="300" style="border-radius: 12px; border: 4px solid #333;">
+</div>
+</details>
+
+---
+
+## ✨ Key Features
+
+*   **🛡️ Secure Authentication**: Robust RBAC (Role-Based Access Control) powered by Supabase Auth.
+*   **📝 CMS Capabilities**: CRUD operations for Portfolio projects, Link-in-Bio entries, and Global Settings.
+*   **🖼️ Media Management**: Integrated file upload for images and assets directly to Supabase Storage.
+*   **✅ Type-Safe Forms**: Complex form handling made easy with React Hook Form and Zod validation.
+*   **⚙️ Global Config**: Centralized control over feature flags and site-wide configurations.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technology | Description |
+| :--- | :--- | :--- |
+| **Framework** | `Next.js 15` | App Router |
+| **Database** | `Supabase` | PostgreSQL & Storage |
+| **Forms** | `React Hook Form` | Form State Management |
+| **Validation** | `Zod` | Schema Validation |
+| **Security** | `Middleware` | Edge-based Protection |
+
+---
+
+## 🚀 Deployment
+
+### Local Development
+
+To start the development server specifically for the admin panel:
+
 ```bash
-npm install
-```
+# From root
+npm run dev:admin
 
-2. Configure as variáveis de ambiente:
-```bash
-cp .env.example .env.local
-```
-
-Preencha as variáveis:
-- `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Chave anônima do Supabase
-
-## Estrutura do Banco de Dados
-
-### Executar Migrations
-
-**IMPORTANTE**: Antes de usar o painel, você precisa executar as migrations no Supabase.
-
-1. Acesse o [Supabase Dashboard](https://app.supabase.com)
-2. Selecione seu projeto
-3. Vá em **SQL Editor** no menu lateral
-4. Clique em **New Query**
-5. Abra o arquivo `supabase/migrations/001_create_dark_links_tables.sql`
-6. Copie e cole todo o conteúdo no SQL Editor
-7. Clique em **Run** (ou pressione `Ctrl+Enter`)
-
-Para mais detalhes, veja o [README das migrations](./supabase/migrations/README.md).
-
-### Configurar Storage para Upload de Imagens
-
-Para permitir upload de imagens, você precisa configurar os buckets de storage no Supabase.
-
-**IMPORTANTE**: 
-- Para **Dark Links**: Siga o guia em [storage-setup.md](./supabase/storage-setup.md) para configurar o bucket `dark-links-assets` e as políticas de acesso.
-- Para **Portfolio**: Siga o guia em [portfolio-storage-setup.md](./supabase/portfolio-storage-setup.md) para configurar o bucket `portfolio-assets` e as políticas de acesso.
-
-### Tabelas Criadas
-
-As migrations criam as seguintes tabelas:
-
-- **portfolio_content**: Conteúdo do portfolio (já deve existir)
-- **links_content**: Cards de links do Dark Links
-- **dark_links_seo**: Configurações de SEO (PT/EN, Open Graph, Twitter Cards, Analytics, Robots)
-- **dark_links_settings**: Configurações gerais (imagens, textos, links sociais)
-
-Todas as tabelas incluem:
-- Campos `created_at` e `updated_at` automáticos
-- Triggers para atualizar `updated_at` automaticamente
-- Valores iniciais padrão inseridos automaticamente
-
-Para ver a estrutura completa, consulte o arquivo de migration: `supabase/migrations/001_create_dark_links_tables.sql`
-
-## Executar
-
-```bash
+# OR specifically
+cd apps/admin
 npm run dev
 ```
 
-O painel estará disponível em `http://localhost:3002`
+The application will launch at `http://localhost:3002`.
+
+---
+
+## 📄 License
+
+**Copyright © 2026 Dionatha Goulart.**
+All Rights Reserved.
