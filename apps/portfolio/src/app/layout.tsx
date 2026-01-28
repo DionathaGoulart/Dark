@@ -1,3 +1,4 @@
+import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Script from 'next/script'
@@ -11,6 +12,7 @@ import { PreloadProvider } from '@/providers/GlobalPreloadProvider'
 import { validateEnvironment } from '@/shared/utils/envValidation'
 import { getPortfolioSeoData, getPortfolioSettings, getNavigationItems } from '@/lib/api/server'
 import '@/styles/global.css'
+import { Language } from '@/types'
 
 // Valida variáveis de ambiente no servidor
 if (typeof window === 'undefined') {
@@ -26,14 +28,31 @@ const inter = Inter({
   variable: '--font-inter',
 })
 
+async function getLanguageFromHeaders(): Promise<Language> {
+  const headersList = await headers()
+  const acceptLanguage = headersList.get('accept-language')
+
+  if (acceptLanguage?.toLowerCase().includes('pt')) {
+    return 'pt'
+  }
+
+  return 'en'
+}
+
 export async function generateMetadata(): Promise<Metadata> {
-  const seoData = await getPortfolioSeoData('pt')
+  const lang = await getLanguageFromHeaders()
+  // Sempre busca dados em 'pt' para ter base, mas podemos ajustar getPortfolioSeoData para aceitar 'en' se necessário.
+  // O getPortfolioSeoData já tem suporte a locale, vamos usar.
+  const seoData = await getPortfolioSeoData(lang)
   const settingsData = await getPortfolioSettings()
 
-  const title = seoData?.title_pt || 'Dark - Portfolio'
-  const description = seoData?.description_pt || 'Portfolio de arte digital e design'
-  const keywords = seoData?.keywords_pt || 'dark, portfolio, arte digital, design'
-  const canonicalUrl = seoData?.canonical_url_pt
+  const title = (lang === 'pt' ? seoData?.title_pt : seoData?.title_en) || seoData?.title_pt || 'Dark - Portfolio'
+  const description = (lang === 'pt' ? seoData?.description_pt : seoData?.description_en) || seoData?.description_pt || 'Digital Art & Design Portfolio'
+  const keywordsStr = (lang === 'pt' ? seoData?.keywords_pt : seoData?.keywords_en) || seoData?.keywords_pt || 'dark, portfolio, digital art, design'
+  const keywords = keywordsStr.split(',').map(k => k.trim())
+
+  const canonicalUrl = (lang === 'pt' ? seoData?.canonical_url_pt : seoData?.canonical_url_en) || seoData?.canonical_url_pt
+
   const ogImage = seoData?.og_image_url
   const ogType = seoData?.og_type || 'website'
   const ogSiteName = seoData?.og_site_name || 'Dark - Portfolio'
@@ -46,7 +65,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const metadata: Metadata = {
     title,
     description,
-    keywords: keywords.split(',').map(k => k.trim()),
+    keywords,
     robots,
     ...(canonicalUrl && {
       alternates: {
@@ -83,6 +102,9 @@ export async function generateMetadata(): Promise<Metadata> {
       icon: favicon,
       apple: favicon,
     },
+    verification: {
+      google: '9hf7cUmB50oxkbfJaaOBC6ciXx7HLHscwiKkFqWX4kw',
+    },
   }
 
   return metadata
@@ -93,15 +115,18 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const seoData = await getPortfolioSeoData('pt')
+  const lang = await getLanguageFromHeaders()
+
+  // Passamos o idioma detectado para as queries
+  const seoData = await getPortfolioSeoData(lang)
   const settingsData = await getPortfolioSettings()
   const navigationItems = await getNavigationItems()
   const gaMeasurementId = seoData?.ga_measurement_id
 
   return (
-    <html lang="pt" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body className={inter.variable}>
-        <I18nProvider>
+        <I18nProvider initialLanguage={lang}>
           <ThemeProvider>
             <PreloadProvider>
               <AnalyticsInitializer />

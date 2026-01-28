@@ -19,6 +19,7 @@ interface I18nContextType {
 
 interface I18nProviderProps {
   children: ReactNode
+  initialLanguage?: Language
 }
 
 // ================================
@@ -43,7 +44,7 @@ const SUPPORTED_LANGUAGES: Language[] = ['pt', 'en']
  */
 const detectBrowserLanguage = (): Language => {
   if (typeof window === 'undefined') return 'pt'
-  
+
   const browserLang = navigator.language.toLowerCase()
 
   if (browserLang.startsWith('pt')) {
@@ -109,19 +110,28 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined)
  * Provedor I18n que gerencia estado de idioma e traduções
  * Detecta automaticamente o idioma do navegador e persiste preferência do usuário
  */
-export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
-  // Sempre começa com 'pt' para evitar hydration mismatch
-  const [language, setLanguageState] = useState<Language>('pt')
+export const I18nProvider: React.FC<I18nProviderProps> = ({ children, initialLanguage }) => {
+  // Inicialização do estado - usa initialLanguage se fornecido, senão 'pt' como fallback seguro de SSR
+  const [language, setLanguageState] = useState<Language>(initialLanguage || 'pt')
   const [isHydrated, setIsHydrated] = useState(false)
 
-  // Após hydration, carrega idioma salvo ou detecta do navegador
+  // Após hydration, verifica se há preferência salva ou detecta se não houve initialLanguage
   useEffect(() => {
-    const savedLanguage = getStoredLanguage() || detectBrowserLanguage()
-    if (savedLanguage !== 'pt') {
+    // Se temos um idioma salvo no storage, ele tem prioridade sobre tudo
+    const savedLanguage = getStoredLanguage()
+
+    if (savedLanguage && savedLanguage !== language) {
       setLanguageState(savedLanguage)
+    } else if (!initialLanguage && !savedLanguage) {
+      // Fallback para detecção do navegador apenas se não houver inicial nem salvo
+      const detected = detectBrowserLanguage()
+      if (detected !== language) {
+        setLanguageState(detected)
+      }
     }
+
     setIsHydrated(true)
-  }, [])
+  }, [initialLanguage, language])
 
   // ================================
   // MANIPULADORES
