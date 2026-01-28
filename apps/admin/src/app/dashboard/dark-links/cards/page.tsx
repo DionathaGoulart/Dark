@@ -18,7 +18,6 @@ interface Card {
 }
 
 export default function CardsManagementPage() {
-  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [cards, setCards] = useState<Card[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -52,13 +51,12 @@ export default function CardsManagementPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
       loadCards()
     }
 
@@ -71,7 +69,7 @@ export default function CardsManagementPage() {
       // Se não tiver title_pt ou title_en, usar o title como fallback para ambos
       const titlePt = card.title_pt || card.title || ''
       const titleEn = card.title_en || card.title || ''
-      
+
       setFormData({
         title_pt: titlePt,
         title_en: titleEn,
@@ -96,15 +94,15 @@ export default function CardsManagementPage() {
 
   const closeModal = () => {
     setIsModalOpen(false)
-      setEditingCard(null)
-      setFormData({
-        title_pt: '',
-        title_en: '',
-        url: '',
-        description: '',
-        icon_url: '',
-        order_index: 0
-      })
+    setEditingCard(null)
+    setFormData({
+      title_pt: '',
+      title_en: '',
+      url: '',
+      description: '',
+      icon_url: '',
+      order_index: 0
+    })
   }
 
   const handleSave = async () => {
@@ -115,6 +113,7 @@ export default function CardsManagementPage() {
 
     try {
       // Preparar dados para salvar, removendo campos vazios e icon_url
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dataToSave: any = {
         title_pt: formData.title_pt || null,
         title_en: formData.title_en || null,
@@ -205,7 +204,7 @@ export default function CardsManagementPage() {
       if (cardToDelete.icon_url && cardToDelete.icon_url.includes('supabase.co/storage')) {
         const filePath = extractFilePathFromUrl(cardToDelete.icon_url)
         const bucket = getBucketFromUrl(cardToDelete.icon_url)
-        
+
         if (filePath && bucket) {
           const { error: storageError } = await supabase.storage
             .from(bucket)

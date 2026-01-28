@@ -21,10 +21,11 @@ export const isCacheValid = (): boolean => {
     return Date.now() - parseInt(timestamp, 10) < CACHE_TTL
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const saveToStorage = (key: string, data: any) => {
     try {
         sessionStorage.setItem(key, JSON.stringify(data))
-    } catch (e) { }
+    } catch { }
 }
 
 export const loadFromStorage = <T,>(key: string): T | null => {

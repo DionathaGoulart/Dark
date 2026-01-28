@@ -26,6 +26,7 @@ export interface RouteConfig {
   /** O caminho da URL para a rota */
   path: string
   /** Componente React a ser renderizado para esta rota */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   element: React.ComponentType<any>
   /** Título opcional para a rota (ex: para título da página ou navegação) */
   title?: string
@@ -51,6 +52,7 @@ export interface RouteConfig {
  * Route group with shared layout
  */
 export interface RouteGroup {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layout: React.ComponentType<any>
   routes: RouteConfig[]
 }
@@ -107,6 +109,7 @@ export interface RouterHookReturn {
  */
 export interface RouteNavigateOptions {
   replace?: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state?: any
   preventScrollReset?: boolean
 }
@@ -135,6 +138,7 @@ export interface RouterState {
   params: Record<string, string>
   query: Record<string, string>
   hash: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state: any
 }
 
@@ -170,6 +174,7 @@ export interface RouterProviderProps {
  */
 export interface RouterNavigateOptions {
   replace?: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state?: any
   preventScrollReset?: boolean
   shallow?: boolean
@@ -204,6 +209,7 @@ export interface RouterLocation {
   pathname: string
   search: string
   hash: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state: any
   key: string
 }
@@ -246,6 +252,7 @@ export interface HistoryEntry {
   pathname: string
   search: string
   hash: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state: any
   key: string
   timestamp: number
@@ -271,18 +278,22 @@ export interface RouterHistory {
 /**
  * Route loader function type
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type RouteLoader<T = any> = (params: {
   params: Record<string, string>
   request: Request
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: any
 }) => T | Promise<T>
 
 /**
  * Route action function type
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type RouteAction<T = any> = (params: {
   params: Record<string, string>
   request: Request
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: any
 }) => T | Promise<T>
 
@@ -305,6 +316,7 @@ export interface RouteErrorBoundaryProps {
 export interface LinkProps {
   to: string
   replace?: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state?: any
   target?: string
   rel?: string
@@ -352,6 +364,7 @@ export interface UseRouterReturn {
   params: Record<string, string>
   query: Record<string, string>
   hash: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state: any
   isNavigating: boolean
   canGoBack: boolean

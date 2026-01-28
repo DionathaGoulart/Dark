@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
-import { ArrowLeft, Plus, Trash2, Home, Upload, X, Save, ArrowUp, ArrowDown, Edit } from 'lucide-react'
+import { ArrowLeft, Trash2, Home, Upload, X, Save, ArrowUp, ArrowDown, Edit } from 'lucide-react'
 
 interface HomeImage {
   id?: string
@@ -16,7 +16,6 @@ interface HomeImage {
 }
 
 export default function HomeManagementPage() {
-  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [images, setImages] = useState<HomeImage[]>([])
   const [uploading, setUploading] = useState(false)
@@ -67,7 +66,7 @@ export default function HomeManagementPage() {
       const fileName = `home-${Date.now()}.${fileExt}`
       const filePath = `portfolio/home/${fileName}`
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('portfolio-assets')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -98,7 +97,7 @@ export default function HomeManagementPage() {
     setUploading(true)
     try {
       const newImages: HomeImage[] = []
-      
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         const url = await uploadFile(file)
@@ -345,7 +344,7 @@ export default function HomeManagementPage() {
             <div className="text-center py-12 border-2 border-dashed border-primary-black dark:border-primary-white rounded-lg">
               <Home size={48} className="mx-auto mb-4 text-primary-black/50 dark:text-primary-white/50" />
               <p className="text-primary-black/70 dark:text-primary-white/70 mb-4">
-                Nenhuma imagem encontrada. Clique em "Adicionar Imagens" para começar.
+                Nenhuma imagem encontrada. Clique em &quot;Adicionar Imagens&quot; para começar.
               </p>
             </div>
           ) : (
@@ -383,7 +382,7 @@ export default function HomeManagementPage() {
                         {image.is_active ? 'Ativo' : 'Inativo'}
                       </span>
                     </div>
-                    <img
+                    <img // eslint-disable-line @next/next/no-img-element
                       src={image.image_url}
                       alt={image.alt_text_pt || 'Home image'}
                       className="w-full max-w-md h-48 object-cover rounded border-2 border-primary-black dark:border-primary-white"
@@ -449,7 +448,7 @@ export default function HomeManagementPage() {
               </div>
 
               <div className="space-y-4 mb-6">
-                <img
+                <img // eslint-disable-line @next/next/no-img-element
                   src={editingImage.image_url}
                   alt={editingImage.alt_text_pt || 'Preview'}
                   className="w-full h-64 object-cover rounded border-2 border-primary-black dark:border-primary-white"

@@ -16,7 +16,7 @@ export const generateOptimizedUrls = (originalUrl: string): OptimizedUrls => {
   // O navegador fará o downscale automaticamente, mantendo máxima qualidade
   // Futuramente pode-se implementar geração de múltiplas versões no upload
   const url = originalUrl
-  
+
   return {
     thumbnail: url,  // Para lazy loading inicial
     medium: url,     // Para visualização padrão
@@ -35,7 +35,8 @@ export const generateOptimizedUrls = (originalUrl: string): OptimizedUrls => {
  * @param urls - Objeto OptimizedUrls
  * @returns undefined (não usa srcset para evitar problemas no Chrome)
  */
-export const generateSrcSet = (urls: OptimizedUrls): string | undefined => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const generateSrcSet = (_urls: OptimizedUrls): string | undefined => {
   // Como todas as URLs são iguais (original), não precisamos de srcset
   // Isso evita problemas de renderização no Chrome
   // O navegador usará apenas o src, que já tem máxima qualidade
@@ -52,6 +53,7 @@ export const getCloudinaryBaseUrl = (): string => ''
  * Legacy function - returns empty array as Cloudinary is no longer used
  * @deprecated Cloudinary is no longer used, images come from Supabase Storage
  */
-export const generateOriginalPrintUrls = (count: number = 30): string[] => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const generateOriginalPrintUrls = (_count: number = 30): string[] => {
   return []
 }

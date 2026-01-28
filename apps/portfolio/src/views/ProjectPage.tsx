@@ -39,16 +39,7 @@ interface GridSection {
  */
 import { generateOptimizedUrls } from '@/features/gallery/utils'
 
-const convertToImageItem = (img: ProjectImage, index: number): ImageItem => {
-  const optimizedUrls = generateOptimizedUrls(img.image_url)
-  return {
-    id: img.id,
-    url: optimizedUrls.medium || img.image_url,
-    urls: optimizedUrls,
-    title: img.alt_text_pt || img.alt_text_en || '',
-    alt: img.alt_text_pt || img.alt_text_en || ''
-  }
-}
+
 
 /**
  * Mapeia aspect_ratio para classes Tailwind
@@ -80,8 +71,7 @@ const createGridSections = (
   images: ImageItem[],
   projectImages: ProjectImage[],
   onImageClick: (image: ImageItem) => void,
-  onImageError: (image: ImageItem) => void,
-  language: string
+  onImageError: (image: ImageItem) => void
 ): GridSection[] => {
   const sections: GridSection[] = []
   const processedIndices = new Set<number>()
@@ -112,7 +102,7 @@ const createGridSections = (
   })
 
   // Processar grupos de grid
-  groups.forEach((group, groupId) => {
+  groups.forEach((group) => {
     // Encontrar a primeira imagem do grupo que tem layout_type definido
     const firstImageWithLayout = group.projectImages.find(img => img.layout_type) || group.projectImages[0]
     const layoutType = firstImageWithLayout.layout_type || 'solo'
@@ -411,7 +401,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
 
   // Converter ProjectImage para ImageItem diretamente
   const images = useMemo(() => {
-    return activeImages.map((img, idx) => {
+    return activeImages.map((img) => {
       const altText = language === 'pt'
         ? (img.alt_text_pt || img.alt_text_en || '')
         : (img.alt_text_en || img.alt_text_pt || '')
@@ -433,9 +423,9 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
     })
   }, [activeImages, language])
 
-  const [loading, setLoading] = useState(false)
-  const [lazyLoading, setLazyLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const loading = false
+  const lazyLoading = false
+  const error: string | null = null
 
   // Handlers definidos antes do useMemo
   const handleImageClick = (image: ImageItem) => {
@@ -454,10 +444,9 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
       images,
       activeImages,
       handleImageClick,
-      handleImageError,
-      language
+      handleImageError
     )
-  }, [images, activeImages, language])
+  }, [images, activeImages])
 
   // ================================
   // EFFECTS
@@ -507,7 +496,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ project, images: proje
     )
   }
 
-  const title = language === 'pt' ? project.title_pt : project.title_en
+
   const description = language === 'pt' ? project.description_pt : project.description_en
 
   return (

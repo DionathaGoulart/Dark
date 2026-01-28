@@ -11,6 +11,7 @@ import React from 'react'
 export interface Metadata {
   type: string
   createdAt: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any // Allows for additional, less strict metadata
 }
 
@@ -117,6 +118,7 @@ export type Theme = 'light' | 'dark'
 // ================================
 
 /** Função para obter classes CSS condicionalmente */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ClassNameGetter = (...args: any[]) => string
 
 /** Configuração de breakpoints */

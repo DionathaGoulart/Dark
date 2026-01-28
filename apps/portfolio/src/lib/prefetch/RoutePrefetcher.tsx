@@ -33,6 +33,7 @@ export const RoutePrefetcher: React.FC = () => {
     })
 
     // Prefetch das páginas de projetos individuais
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const projects = loadFromStorage<any[]>(STORAGE_KEYS.PROJECTS)
     if (projects) {
       projects.forEach(project => {

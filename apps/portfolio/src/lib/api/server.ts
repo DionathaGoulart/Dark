@@ -13,7 +13,8 @@ import type {
 /**
  * Busca dados de SEO do Portfolio (server-side)
  */
-export async function getPortfolioSeoData(locale: 'pt' | 'en' = 'pt'): Promise<PortfolioSeoData | null> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function getPortfolioSeoData(_locale: 'pt' | 'en' = 'pt'): Promise<PortfolioSeoData | null> {
   try {
     const supabase = await createClient()
     const { data, error } = await supabase

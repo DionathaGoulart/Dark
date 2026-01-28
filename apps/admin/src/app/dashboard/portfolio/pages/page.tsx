@@ -18,7 +18,7 @@ interface Page {
 }
 
 export default function PagesManagementPage() {
-  const [user, setUser] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null) // Removed unused user state
   const [loading, setLoading] = useState(true)
   const [pages, setPages] = useState<Page[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -53,13 +53,13 @@ export default function PagesManagementPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
+      // setUser(user)
       loadPages()
     }
 
@@ -212,7 +212,7 @@ export default function PagesManagementPage() {
             <div className="text-center py-12 border-2 border-dashed border-primary-black dark:border-primary-white rounded-lg">
               <FileText size={48} className="mx-auto mb-4 text-primary-black/50 dark:text-primary-white/50" />
               <p className="text-primary-black/70 dark:text-primary-white/70">
-                Nenhuma página encontrada. Clique em "Adicionar Página" para começar.
+                Nenhuma página encontrada. Clique em &quot;Adicionar Página&quot; para começar.
               </p>
             </div>
           ) : (

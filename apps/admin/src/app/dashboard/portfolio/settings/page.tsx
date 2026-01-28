@@ -19,7 +19,7 @@ interface SettingsData {
 }
 
 export default function PortfolioSettingsPage() {
-  const [user, setUser] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null) // Removed unused user state
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingIcon, setUploadingIcon] = useState(false)
@@ -101,7 +101,7 @@ export default function PortfolioSettingsPage() {
         return
       }
 
-      setUser(user)
+      // setUser(user)
       loadSettings()
     }
 
@@ -126,7 +126,7 @@ export default function PortfolioSettingsPage() {
       const fileName = `${type}-${Date.now()}.${fileExt}`
       const filePath = `portfolio/${fileName}`
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('portfolio-assets')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -334,7 +334,7 @@ export default function PortfolioSettingsPage() {
                   </button>
                   {settingsData.site_icon_url && (
                     <div className="relative inline-block">
-                      <img
+                      <img // eslint-disable-line @next/next/no-img-element
                         src={settingsData.site_icon_url}
                         alt="Preview Favicon"
                         className="w-16 h-16 object-cover rounded border-2 border-primary-black dark:border-primary-white"
@@ -398,7 +398,7 @@ export default function PortfolioSettingsPage() {
                   </button>
                   {settingsData.logo_url && (
                     <div className="relative inline-block">
-                      <img
+                      <img // eslint-disable-line @next/next/no-img-element
                         src={settingsData.logo_url}
                         alt="Preview Logo"
                         className="w-32 h-32 object-contain border-2 border-primary-black dark:border-primary-white rounded"
@@ -462,7 +462,7 @@ export default function PortfolioSettingsPage() {
                   </button>
                   {settingsData.loading_image_url && (
                     <div className="relative inline-block bg-black/10 dark:bg-white/10 p-2 rounded">
-                      <img
+                      <img // eslint-disable-line @next/next/no-img-element
                         src={settingsData.loading_image_url}
                         alt="Preview Loading"
                         className="w-32 h-32 object-contain rounded"

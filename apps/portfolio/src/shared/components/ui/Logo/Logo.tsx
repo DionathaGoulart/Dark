@@ -32,8 +32,8 @@ export const Logo: React.FC<LogoProps> = ({
 
   // Converte StaticImageData para string se necessário
   const logoSrc: string = src || (
-    typeof logoOptimized === 'string' 
-      ? logoOptimized 
+    typeof logoOptimized === 'string'
+      ? logoOptimized
       : (logoOptimized as { src?: string })?.src ?? ''
   )
 
@@ -55,7 +55,7 @@ export const Logo: React.FC<LogoProps> = ({
   return (
     <div className={containerClasses}>
       <h1>
-        <img
+        <img // eslint-disable-line @next/next/no-img-element
           src={logoSrc}
           alt={alt}
           className={imageClasses}

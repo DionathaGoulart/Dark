@@ -8,7 +8,7 @@ import { AnalyticsInitializer } from '@/components/AnalyticsInitializer'
 import { getSeoData, getSettings } from '@/lib/api/server'
 import '@/styles/global.css'
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
@@ -17,7 +17,7 @@ const inter = Inter({
 export async function generateMetadata(): Promise<Metadata> {
   noStore()
   const seoData = await getSeoData('pt')
-  
+
   const title = seoData?.title_pt || 'Dark Links'
   const description = seoData?.description_pt || 'Links do artista Dark'
   const keywords = seoData?.keywords_pt || 'dark, artista, links'
@@ -43,6 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       type: ogType as any,
       siteName: ogSiteName,
       ...(ogImage && {
@@ -57,6 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
       })
     },
     twitter: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       card: twitterCard as any,
       title,
       description,

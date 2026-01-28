@@ -13,7 +13,8 @@ import {
   SuccessMessageProps,
   FormFieldProps,
   ContactFormComponentProps,
-  SubmitStatus
+  SubmitStatus,
+  Translation
 } from '@/types'
 
 // ================================
@@ -114,7 +115,7 @@ const sendEmail = async (formData: FormData, contactEmail?: string): Promise<voi
  */
 const ContactInfo: React.FC<ContactInfoProps & { contactEmail?: string }> = ({ description, contactEmail }) => {
   const email = contactEmail || DEFAULT_CONTACT_EMAIL
-  
+
   return (
     <div className="border-l-2 border-primary-black dark:border-primary-white pl-6">
       <p className="text-primary-black/60 dark:text-primary-white/60 leading-relaxed mb-8">
@@ -310,7 +311,7 @@ const DecorativeDivider: React.FC = () => (
 /**
  * Custom hook to handle form state and submission
  */
-const useContactForm = (t: any, contactEmail?: string) => {
+const useContactForm = (t: Translation, contactEmail?: string) => {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
@@ -419,7 +420,7 @@ interface ContactPageData {
  * Contact page with form functionality using EmailJS
  * Features contact information and message sending capabilities
  */
-export const ContactPage: React.FC<ContactPageProps & { pageData?: ContactPageData | null; contactEmail?: string }> = ({ 
+export const ContactPage: React.FC<ContactPageProps & { pageData?: ContactPageData | null; contactEmail?: string }> = ({
   className = '',
   pageData,
   contactEmail
@@ -437,7 +438,7 @@ export const ContactPage: React.FC<ContactPageProps & { pageData?: ContactPageDa
   useDocumentTitle('contact')
 
   // Usar dados do Supabase se disponíveis
-  const title = pageData 
+  const title = pageData
     ? (language === 'pt' ? pageData.title_pt : pageData.title_en)
     : t.pages.contact.title
   const description = pageData

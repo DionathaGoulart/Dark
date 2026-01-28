@@ -69,7 +69,7 @@ export interface HeaderConfig extends SocialUrls {
 }
 
 /** Props do componente LayoutHeader */
-export interface LayoutHeaderProps extends HeaderConfig {}
+export type LayoutHeaderProps = HeaderConfig
 
 // ================================
 // FOOTER TYPES

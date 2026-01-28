@@ -6,10 +6,21 @@ import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 import { ArrowLeft, Plus, Edit, Trash2, Link as LinkIcon } from 'lucide-react'
 
+
+interface LinkContent {
+  id: string
+  title: string
+  url: string
+  description?: string
+  icon_url?: string
+  created_at?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any
+}
+
 export default function LinksManagementPage() {
-  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [links, setLinks] = useState<any[]>([])
+  const [links, setLinks] = useState<LinkContent[]>([])
   const router = useRouter()
 
   const loadLinks = useCallback(async () => {
@@ -31,13 +42,12 @@ export default function LinksManagementPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
       loadLinks()
     }
 
@@ -95,7 +105,7 @@ export default function LinksManagementPage() {
               >
                 <div className="flex items-center gap-4 flex-1">
                   {link.icon_url && (
-                    <img
+                    <img // eslint-disable-line @next/next/no-img-element
                       src={link.icon_url}
                       alt={link.title || 'Ícone'}
                       className="w-12 h-12 object-cover rounded"

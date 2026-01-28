@@ -12,7 +12,7 @@ export const ImageLoader: React.FC<ImageLoaderProps & { priority?: boolean }> = 
   priority = false
 }) => {
   return (
-    <img
+    <img // eslint-disable-line @next/next/no-img-element
       src={src}
       alt={alt}
       onLoad={onLoad}

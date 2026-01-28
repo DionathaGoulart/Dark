@@ -54,7 +54,7 @@ export interface LinkCard {
 /**
  * Busca dados de SEO do Dark Links
  */
-export async function getSeoData(locale: 'pt' | 'en' = 'pt'): Promise<SeoData | null> {
+export async function getSeoData(_locale: 'pt' | 'en' = 'pt'): Promise<SeoData | null> {
   try {
     const supabase = createClient()
     const { data, error } = await supabase

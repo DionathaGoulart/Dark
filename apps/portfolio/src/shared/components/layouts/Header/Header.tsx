@@ -10,7 +10,7 @@ import {
   ThemeToggle
 } from '@/shared'
 import { useI18n } from '@/core/providers'
-import { HeaderConfig, SocialUrls, NavItem } from '@/types'
+import { HeaderConfig, SocialUrls, NavItem, NavigationItemFromDB, Translation } from '@/types'
 
 // ================================
 // CONSTANTES
@@ -28,7 +28,7 @@ const DEFAULT_SOCIAL_URLS = {
 /**
  * Cria itens de navegação com rótulos traduzidos
  */
-const createNavItems = (t: any, language: string, customNav?: NavItem[], navigationItems?: any[]) => {
+const createNavItems = (t: Translation, language: string, customNav?: NavItem[], navigationItems?: NavigationItemFromDB[]) => {
   // Se houver navigationItems do Supabase, usar eles
   if (navigationItems && navigationItems.length > 0) {
     return navigationItems.map(item => ({
@@ -36,12 +36,12 @@ const createNavItems = (t: any, language: string, customNav?: NavItem[], navigat
       href: item.href
     }))
   }
-  
+
   // Se houver customNav, usar ele
   if (customNav && customNav.length > 0) {
     return customNav
   }
-  
+
   // Fallback para traduções padrão
   return [
     { label: t.nav.home, href: '/' },
@@ -85,7 +85,7 @@ const SocialLinks: React.FC<SocialUrls> = ({ instagramUrl, youtubeUrl }) => (
 /**
  * Navegação desktop com layout centralizado
  */
-const DesktopNavigation: React.FC<{ navItems: any[] }> = ({ navItems }) => (
+const DesktopNavigation: React.FC<{ navItems: NavItem[] }> = ({ navItems }) => (
   <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
     <Navigation items={navItems} />
   </div>
@@ -94,7 +94,7 @@ const DesktopNavigation: React.FC<{ navItems: any[] }> = ({ navItems }) => (
 /**
  * Navegação mobile com controles
  */
-const MobileNavigation: React.FC<{ navItems: any[] }> = ({ navItems }) => (
+const MobileNavigation: React.FC<{ navItems: NavItem[] }> = ({ navItems }) => (
   <div className="md:hidden flex items-center space-x-3">
     <LanguageSwitch />
     <ThemeToggle />
@@ -135,7 +135,7 @@ export const LayoutHeader: React.FC<HeaderConfig> = ({
   // VALORES COMPUTADOS
   // ================================
 
-  const navItems = createNavItems(t, language, customNav, navigationItems)
+  const navItems = createNavItems(t, language, customNav, navigationItems as NavigationItemFromDB[])
 
   // ================================
   // RETORNOS ANTECIPADOS

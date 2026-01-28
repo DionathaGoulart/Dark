@@ -120,9 +120,9 @@ interface ProjectsPageProps {
  * Usa dados do servidor + cache do sessionStorage para navegação instantânea
  */
 export const ProjectsPage: React.FC<ProjectsPageProps> = ({ projects = [] }) => {
-  const { t, language } = useI18n()
+  const { language } = useI18n()
   const router = useRouter()
-  
+
   // Usa dados do servidor ou do cache
   const { data: cachedProjects } = useProjects(projects)
   const sourceProjects = (cachedProjects || projects) as Project[]

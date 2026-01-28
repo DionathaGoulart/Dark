@@ -53,7 +53,7 @@ const UTM_PRESETS = [
 ]
 
 export default function PortfolioSeoPage() {
-  const [user, setUser] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null) // Removed unused user state
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [utmLinks, setUtmLinks] = useState<UtmLink[]>([])
@@ -160,7 +160,7 @@ export default function PortfolioSeoPage() {
     url.searchParams.set('utm_campaign', utm.utm_campaign)
     if (utm.utm_term) url.searchParams.set('utm_term', utm.utm_term)
     if (utm.utm_content) url.searchParams.set('utm_content', utm.utm_content)
-    
+
     return url.toString()
   }, [])
 
@@ -255,13 +255,13 @@ export default function PortfolioSeoPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
+      // setUser(user)
       loadSeoData()
       loadUtmLinks()
     }

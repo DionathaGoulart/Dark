@@ -16,7 +16,7 @@ interface PageData {
 }
 
 export default function AboutPage() {
-  const [user, setUser] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null) // Removed unused user state
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [pageData, setPageData] = useState<PageData>({

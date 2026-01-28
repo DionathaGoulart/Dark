@@ -20,7 +20,7 @@ interface Project {
 }
 
 export default function ProjectsManagementPage() {
-  const [user, setUser] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null) // Removed unused user state
   const [loading, setLoading] = useState(true)
   const [projects, setProjects] = useState<Project[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -78,7 +78,7 @@ export default function ProjectsManagementPage() {
       const fileName = `project-cover-${Date.now()}.${fileExt}`
       const filePath = `portfolio/projects/${fileName}`
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('portfolio-assets')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -275,7 +275,7 @@ export default function ProjectsManagementPage() {
             <div className="col-span-full text-center py-12 border-2 border-dashed border-primary-black dark:border-primary-white rounded-lg">
               <FolderKanban size={48} className="mx-auto mb-4 text-primary-black/50 dark:text-primary-white/50" />
               <p className="text-primary-black/70 dark:text-primary-white/70">
-                Nenhum projeto encontrado. Clique em "Adicionar Projeto" para começar.
+                Nenhum projeto encontrado. Clique em &quot;Adicionar Projeto&quot; para começar.
               </p>
             </div>
           ) : (
@@ -285,7 +285,7 @@ export default function ProjectsManagementPage() {
                 className="border-2 border-primary-black dark:border-primary-white rounded-lg overflow-hidden"
               >
                 <div className="relative aspect-square">
-                  <img
+                  <img // eslint-disable-line @next/next/no-img-element
                     src={project.cover_image_url}
                     alt={project.title_pt}
                     className="w-full h-full object-cover"
@@ -479,7 +479,7 @@ export default function ProjectsManagementPage() {
                     </button>
                     {formData.cover_image_url && (
                       <div className="relative">
-                        <img
+                        <img // eslint-disable-line @next/next/no-img-element
                           src={formData.cover_image_url}
                           alt="Preview"
                           className="w-full h-64 object-cover rounded border-2 border-primary-black dark:border-primary-white"

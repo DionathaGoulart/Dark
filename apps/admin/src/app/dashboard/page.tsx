@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client';
 import { MainLayout } from '@/shared'
 
 export default function DashboardPage() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -13,7 +14,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
@@ -70,7 +71,7 @@ export default function DashboardPage() {
             <p className="text-primary-black/70 dark:text-primary-white/70 mb-4">
               Gerencie imagens, textos e conteúdo do site portfolio
             </p>
-            <button 
+            <button
               onClick={() => router.push('/dashboard/portfolio')}
               className="px-4 py-2 bg-primary-black dark:bg-primary-white text-primary-white dark:text-primary-black border-2 border-primary-black dark:border-primary-white rounded hover:bg-primary-white dark:hover:bg-primary-black hover:text-primary-black dark:hover:text-primary-white transition-all duration-300"
             >
@@ -85,7 +86,7 @@ export default function DashboardPage() {
             <p className="text-primary-black/70 dark:text-primary-white/70 mb-4">
               Configure SEO, configurações gerais e cards do site Dark Links
             </p>
-            <button 
+            <button
               onClick={() => router.push('/dashboard/dark-links')}
               className="px-4 py-2 bg-primary-black dark:bg-primary-white text-primary-white dark:text-primary-black border-2 border-primary-black dark:border-primary-white rounded hover:bg-primary-white dark:hover:bg-primary-black hover:text-primary-black dark:hover:text-primary-white transition-all duration-300"
             >

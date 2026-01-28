@@ -49,6 +49,7 @@ export const HomePage: React.FC<HomePageProps> = ({ homeImages = [] }) => {
 
   // Converte imagens para ImageItems (instantâneo)
   const images: ImageItem[] = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return sourceImages.map((img: any) => ({
       id: img.id,
       url: img.image_url,

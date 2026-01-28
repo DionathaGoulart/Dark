@@ -77,13 +77,7 @@ const getStoredLanguage = (): Language | null => {
   return null
 }
 
-/**
- * Obtém idioma inicial do armazenamento ou detecção do navegador
- */
-const getInitialLanguage = (): Language => {
-  if (typeof window === 'undefined') return 'pt'
-  return getStoredLanguage() || detectBrowserLanguage()
-}
+
 
 /**
  * Salva idioma de forma segura no localStorage
@@ -113,7 +107,6 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined)
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children, initialLanguage }) => {
   // Inicialização do estado - usa initialLanguage se fornecido, senão 'pt' como fallback seguro de SSR
   const [language, setLanguageState] = useState<Language>(initialLanguage || 'pt')
-  const [isHydrated, setIsHydrated] = useState(false)
 
   // Após hydration, verifica se há preferência salva ou detecta se não houve initialLanguage
   useEffect(() => {
@@ -130,7 +123,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, initialLan
       }
     }
 
-    setIsHydrated(true)
+
   }, [initialLanguage, language])
 
   // ================================

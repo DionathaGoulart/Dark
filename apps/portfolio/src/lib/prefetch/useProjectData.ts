@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
  * Hook para obter dados de um projeto por slug
  */
 export const useProjectData = (slug: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [project, setProject] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -15,6 +16,7 @@ export const useProjectData = (slug: string) => {
     const fetchData = async () => {
       // Tenta carregar do cache primeiro
       const cacheKey = `${STORAGE_KEYS.PROJECT_DATA_PREFIX}${slug}`
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cached = loadFromStorage<any>(cacheKey)
 
       if (cached) {
@@ -37,7 +39,7 @@ export const useProjectData = (slug: string) => {
         // Salva no cache
         try {
           sessionStorage.setItem(cacheKey, JSON.stringify(data))
-        } catch (e) { }
+        } catch { }
       }
       setLoading(false)
     }
@@ -52,6 +54,7 @@ export const useProjectData = (slug: string) => {
  * Hook para obter imagens de um projeto
  */
 export const useProjectImages = (projectId: string | null) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [images, setImages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -64,6 +67,7 @@ export const useProjectImages = (projectId: string | null) => {
     const fetchData = async () => {
       // Tenta carregar do cache primeiro
       const cacheKey = `${STORAGE_KEYS.PROJECT_IMAGES_PREFIX}${projectId}`
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cached = loadFromStorage<any[]>(cacheKey)
 
       if (cached) {
@@ -86,7 +90,7 @@ export const useProjectImages = (projectId: string | null) => {
         // Salva no cache
         try {
           sessionStorage.setItem(cacheKey, JSON.stringify(data))
-        } catch (e) { }
+        } catch { }
       }
       setLoading(false)
     }

@@ -183,7 +183,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
           orientations[image.id] = image.orientation
           // Dimensões dummy pois o que importa é a proporção e orientação
           // Para o cálculo de grid por linhas ser preciso, usamos o aspectRatio para definir dimensões proporcionais
-          let width = 1000
+          const width = 1000
           let height = 1000
 
           if (image.aspectRatio === 'landscape') { height = 750 } // 4:3
@@ -325,8 +325,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
   }
 
   const getDominanceClasses = (
-    index: number,
-    isInPair: boolean = false
+    index: number
   ): string => {
     if (mode !== 'grid' || gridColumns !== 2 || dominantSide === 'none') {
       return ''
@@ -357,7 +356,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
     return ''
   }
 
-  const getAdjustedAspectRatio = (imageId: string, index: number): string => {
+  const getAdjustedAspectRatio = (imageId: string): string => {
     // Remove proporção fixa para grade dominante para permitir ajuste de altura
     if (mode === 'grid' && gridColumns === 2 && dominantSide !== 'none') {
       return 'auto'
@@ -425,11 +424,10 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
 
   const renderImageCard = (
     image: ImageItem,
-    index: number,
-    isInPair: boolean = false
+    index: number
   ) => {
-    const dominanceClasses = getDominanceClasses(index, isInPair)
-    const adaptiveAspectRatio = getAdjustedAspectRatio(image.id, index)
+    const dominanceClasses = getDominanceClasses(index)
+    const adaptiveAspectRatio = getAdjustedAspectRatio(image.id)
     const adaptiveObjectFit = getAdaptiveObjectFit(image.id)
     const aspectClasses = getAspectRatioClass(adaptiveAspectRatio)
     const isDominantGrid =
@@ -503,7 +501,7 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
                   ? 'contain' // Não dominante: usar contain para centralizar
                   : isGridMode
                     ? 'cover' // Forçar cover em grids para cortar excesso
-                    : (adaptiveObjectFit as any)
+                    : (adaptiveObjectFit as 'cover' | 'contain' | 'fill' | 'scale-down' | 'none')
               }
               showHoverEffect={false}
               enableHoverScale={false}
@@ -530,8 +528,8 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
       pairs.push(
         <div key={`pair-${i}`} className="w-full" style={backgroundStyle}>
           <div className={`flex items-stretch ${getGapClass(gap)}`}>
-            {renderImageCard(image1, i, true)}
-            {image2 && renderImageCard(image2, i + 1, true)}
+            {renderImageCard(image1, i)}
+            {image2 && renderImageCard(image2, i + 1)}
           </div>
         </div>
       )
@@ -564,7 +562,6 @@ export const AdaptiveImageGrid: React.FC<AdaptiveImageGridProps> = ({
         >
           {rowImages.map((image, idx) => {
             const globalIndex = i + idx
-            const dims = imageDimensions[image.id]
 
             return (
               <div

@@ -16,7 +16,7 @@ interface NavItem {
 }
 
 export default function NavigationManagementPage() {
-  const [user, setUser] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null) // Removed unused user state
   const [loading, setLoading] = useState(true)
   const [navItems, setNavItems] = useState<NavItem[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -49,13 +49,13 @@ export default function NavigationManagementPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
+      // setUser(user)
       loadNavItems()
     }
 
@@ -200,7 +200,7 @@ export default function NavigationManagementPage() {
             <div className="text-center py-12 border-2 border-dashed border-primary-black dark:border-primary-white rounded-lg">
               <NavIcon size={48} className="mx-auto mb-4 text-primary-black/50 dark:text-primary-white/50" />
               <p className="text-primary-black/70 dark:text-primary-white/70">
-                Nenhum item de navegação encontrado. Clique em "Adicionar Item" para começar.
+                Nenhum item de navegação encontrado. Clique em &quot;Adicionar Item&quot; para começar.
               </p>
             </div>
           ) : (

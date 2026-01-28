@@ -21,7 +21,7 @@ interface SettingsData {
 }
 
 export default function ContactPage() {
-  const [user, setUser] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null) // Removed unused user state
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [pageData, setPageData] = useState<PageData>({
@@ -95,13 +95,13 @@ export default function ContactPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
+      // setUser(user)
       loadPage()
       loadSettings()
     }

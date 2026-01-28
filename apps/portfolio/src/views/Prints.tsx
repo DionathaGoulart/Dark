@@ -5,47 +5,19 @@ import React, { useEffect } from 'react'
 import { trackEvent } from '@/features/analytics'
 import { useDocumentTitle } from '@/shared'
 import { useI18n } from '@/core/providers'
-import { Translation, LinkItemProps, LinkData, DecorativeDividerProps } from '@/types'
+import { LinkItemProps } from '@/types'
 
 // ================================
 // CONSTANTS
 // ================================
 
-const LINKS_DATA: LinkData[] = [
-  {
-    titleKey: 'redbubble',
-    url: 'http://GoodDark.redbubble.com',
-    icon: '',
-    eventName: 'click_redbubble'
-  },
-  {
-    titleKey: 'inprnt',
-    url: 'https://www.inprnt.com/gallery/darkning/',
-    icon: '',
-    eventName: 'click_inprnt'
-  },
-  {
-    titleKey: 'displate',
-    url: 'https://displate.com/Darkning?art=683cd403062f7',
-    icon: '',
-    eventName: 'click_displate'
-  }
-]
+
 
 // ================================
 // HELPER COMPONENTS
 // ================================
 
-/**
- * Decorative divider element
- */
-const DecorativeDivider: React.FC<DecorativeDividerProps> = ({
-  className = ''
-}) => (
-  <div
-    className={`mt-8 w-16 h-0.5 bg-black dark:bg-white mx-auto ${className}`}
-  />
-)
+
 
 /**
  * Individual link item component
@@ -69,15 +41,7 @@ const LinkItem: React.FC<LinkItemProps> = ({ title, url, icon, onClick }) => (
 // HELPER FUNCTIONS
 // ================================
 
-/**
- * Get translated title for a link with fallback logic
- */
-const getLinkTitle = (link: LinkData, t: any): string => {
-  if (link.titleKey && t.pages?.prints?.links?.[link.titleKey]) {
-    return t.pages.prints.links[link.titleKey]
-  }
-  return link.title || link.titleKey || 'Unknown'
-}
+
 
 // ================================
 // MAIN COMPONENT
@@ -105,7 +69,7 @@ interface StoreCard {
  * Prints & Artwork links page component
  * Displays a collection of links to various art platforms and portfolio sites
  */
-export const PrintsPage: React.FC<{ 
+export const PrintsPage: React.FC<{
   pageData?: PrintsPageData | null
   storeCards?: StoreCard[]
 }> = ({ pageData, storeCards = [] }) => {
@@ -114,13 +78,13 @@ export const PrintsPage: React.FC<{
   useDocumentTitle('prints')
 
   // Usar dados do Supabase se disponíveis
-  const title = pageData 
+  const title = pageData
     ? (language === 'pt' ? pageData.title_pt : pageData.title_en)
     : t.pages.prints.title
 
   // Usar apenas cards do banco, sem fallback
   const displayCards = storeCards.map(card => ({
-    title: language === 'pt' 
+    title: language === 'pt'
       ? (card.title_pt || card.title_en || '')
       : (card.title_en || card.title_pt || ''),
     url: card.url,
@@ -194,7 +158,7 @@ export const PrintsPage: React.FC<{
           ) : (
             <div className="text-center py-12">
               <p className="text-primary-black/50 dark:text-primary-white/50">
-                {language === 'pt' 
+                {language === 'pt'
                   ? 'Nenhuma loja disponível no momento.'
                   : 'No stores available at the moment.'}
               </p>

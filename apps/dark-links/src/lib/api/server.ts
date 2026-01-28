@@ -4,7 +4,7 @@ import type { SeoData, SettingsData, LinkCard } from './darkLinks'
 /**
  * Busca dados de SEO do Dark Links (server-side)
  */
-export async function getSeoData(locale: 'pt' | 'en' = 'pt'): Promise<SeoData | null> {
+export async function getSeoData(_locale: 'pt' | 'en' = 'pt'): Promise<SeoData | null> {
   try {
     const supabase = await createClient()
     const { data, error } = await supabase

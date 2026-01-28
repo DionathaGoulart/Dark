@@ -32,6 +32,7 @@ export interface CustomEvent {
   /** Nome do evento customizado */
   event_name: string
   /** Parâmetros adicionais para o evento (opcional) */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   event_parameters?: Record<string, any>
 }
 

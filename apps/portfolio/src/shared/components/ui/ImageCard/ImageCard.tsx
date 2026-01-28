@@ -1,6 +1,6 @@
 'use client'
 
-/* eslint-disable react/prop-types */
+
 import React, { useState, memo } from 'react'
 import Image from 'next/image'
 import { ImageCardPropsExtended } from '@/types'

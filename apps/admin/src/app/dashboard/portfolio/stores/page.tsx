@@ -25,7 +25,7 @@ interface StoreCard {
 }
 
 export default function StoresPage() {
-  const [user, setUser] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null) // Removed unused user state
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [pageData, setPageData] = useState<PageData>({
@@ -90,13 +90,13 @@ export default function StoresPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
+      // setUser(user)
       loadPage()
       loadCards()
     }
@@ -196,6 +196,7 @@ export default function StoresPage() {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dataToSave: any = {
         title_pt: cardFormData.title_pt || null,
         title_en: cardFormData.title_en || null,

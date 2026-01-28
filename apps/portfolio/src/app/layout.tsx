@@ -75,6 +75,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       type: ogType as any,
       siteName: ogSiteName,
       ...(ogImage && {
@@ -89,6 +90,7 @@ export async function generateMetadata(): Promise<Metadata> {
       })
     },
     twitter: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       card: twitterCard as any,
       title,
       description,

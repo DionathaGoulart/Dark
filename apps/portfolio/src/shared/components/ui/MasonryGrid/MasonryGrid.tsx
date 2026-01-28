@@ -11,11 +11,13 @@ import { ImageItem, MasonryGridProps, MasonryGridPropsExtended } from '@/types'
 /**
  * Utilitário de debounce para otimizar eventos de redimensionamento
  */
-const debounce = (func: Function, wait: number) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const debounce = (func: (...args: any[]) => void, wait: number) => {
   let timeout: NodeJS.Timeout
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (...args: any[]) => {
     clearTimeout(timeout)
-    timeout = setTimeout(() => func.apply(null, args), wait)
+    timeout = setTimeout(() => func(...args), wait)
   }
 }
 

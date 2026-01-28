@@ -27,7 +27,6 @@ interface SeoData {
 }
 
 export default function SeoManagementPage() {
-  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [seoData, setSeoData] = useState<SeoData>({
@@ -76,13 +75,12 @@ export default function SeoManagementPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
       loadSeoData()
     }
 

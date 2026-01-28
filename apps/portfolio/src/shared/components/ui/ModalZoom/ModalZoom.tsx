@@ -127,7 +127,7 @@ export const ModalZoom: React.FC<ModalZoomProps> = ({ image, onClose }) => {
   // ================================
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+    //
     <div
       className="fixed inset-0 bg-primary-black/90 flex items-center justify-center z-50 p-4 cursor-pointer"
       onClick={onClose}
@@ -149,7 +149,7 @@ export const ModalZoom: React.FC<ModalZoomProps> = ({ image, onClose }) => {
         className="focus:outline-none focus:ring-2 focus:ring-primary-white/50 flex items-center justify-center p-4 content-center"
         aria-label={image.alt || 'Imagem ampliada'}
       >
-        <img
+        <img // eslint-disable-line @next/next/no-img-element
           src={imageUrl}
           alt={image.alt || ''}
           className={`max-w-[90vw] max-h-[90vh] object-contain transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'

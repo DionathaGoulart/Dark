@@ -52,9 +52,9 @@ export interface LinkCard {
 /**
  * Busca dados de SEO do Dark Links
  */
-export async function getSeoData(locale: 'pt' | 'en' = 'pt'): Promise<SeoData | null> {
+export async function getSeoData(): Promise<SeoData | null> {
   try {
-  
+
     const { data, error } = await supabase
       .from('dark_links_seo')
       .select('*')
@@ -77,7 +77,7 @@ export async function getSeoData(locale: 'pt' | 'en' = 'pt'): Promise<SeoData | 
  */
 export async function getSettings(): Promise<SettingsData | null> {
   try {
-  
+
     const { data, error } = await supabase
       .from('dark_links_settings')
       .select('*')
@@ -100,7 +100,7 @@ export async function getSettings(): Promise<SettingsData | null> {
  */
 export async function getLinkCards(): Promise<LinkCard[]> {
   try {
-  
+
     const { data, error } = await supabase
       .from('links_content')
       .select('*')

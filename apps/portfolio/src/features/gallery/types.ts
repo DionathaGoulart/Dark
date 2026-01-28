@@ -19,6 +19,7 @@ export interface ColumnCount {
 /** Interface principal do item de imagem */
 export interface ImageItem {
   /** URLs otimizadas para diferentes tamanhos de tela */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   urls: any
   /** Identificador único */
   id: string

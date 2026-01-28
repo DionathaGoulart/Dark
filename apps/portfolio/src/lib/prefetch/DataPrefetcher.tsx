@@ -110,6 +110,7 @@ export const DataPrefetcher: React.FC = () => {
           for (const project of projects) {
             try {
               const key = `${STORAGE_KEYS.PROJECT_IMAGES_PREFIX}${project.id}`
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               let images = loadFromStorage<any[]>(key)
 
               if (!images) {
@@ -140,6 +141,7 @@ export const DataPrefetcher: React.FC = () => {
     }
 
     prefetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return null

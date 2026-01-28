@@ -19,7 +19,6 @@ interface SettingsData {
 }
 
 export default function SettingsManagementPage() {
-  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingIcon, setUploadingIcon] = useState(false)
@@ -104,13 +103,12 @@ export default function SettingsManagementPage() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      
+
       if (error || !user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
       loadSettings()
     }
 
@@ -139,7 +137,7 @@ export default function SettingsManagementPage() {
       const filePath = `dark-links/${fileName}`
 
       // Fazer upload para o Supabase Storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('dark-links-assets')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -343,7 +341,7 @@ export default function SettingsManagementPage() {
                   </button>
                   {settingsData.site_icon_url && (
                     <div className="relative inline-block">
-                      <img
+                      <img // eslint-disable-line @next/next/no-img-element
                         src={settingsData.site_icon_url}
                         alt="Preview Favicon"
                         className="w-16 h-16 object-cover rounded border-2 border-primary-black dark:border-primary-white"
@@ -408,7 +406,7 @@ export default function SettingsManagementPage() {
                   </button>
                   {settingsData.profile_image_url && (
                     <div className="relative inline-block">
-                      <img
+                      <img // eslint-disable-line @next/next/no-img-element
                         src={settingsData.profile_image_url}
                         alt="Preview Profile"
                         className="w-24 h-24 object-cover rounded-full border-4 border-primary-black dark:border-primary-white"

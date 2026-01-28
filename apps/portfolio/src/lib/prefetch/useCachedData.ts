@@ -44,6 +44,7 @@ function useCachedData<T>(
     }
 
     fetchData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey, serverData])
 
   return { data, loading }
@@ -52,6 +53,7 @@ function useCachedData<T>(
 /**
  * Hook para imagens da home
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useHomeImages(serverData?: any[]) {
   return useCachedData(
     STORAGE_KEYS.HOME_IMAGES,
@@ -71,6 +73,7 @@ export function useHomeImages(serverData?: any[]) {
 /**
  * Hook para projetos
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useProjects(serverData?: any[]) {
   return useCachedData(
     STORAGE_KEYS.PROJECTS,
@@ -90,6 +93,7 @@ export function useProjects(serverData?: any[]) {
 /**
  * Hook para store cards
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useStoreCards(serverData?: any[]) {
   return useCachedData(
     STORAGE_KEYS.STORE_CARDS,

@@ -28,7 +28,7 @@ export default function LoginPage() {
         router.push('/dashboard')
         router.refresh()
       }
-    } catch (err: any) {
+    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
       setError(err.message || 'Erro ao fazer login')
     } finally {
       setLoading(false)
@@ -42,11 +42,11 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-primary-black dark:text-primary-white mb-6 text-center">
             Painel Admin
           </h1>
-          
+
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label 
-                htmlFor="email" 
+              <label
+                htmlFor="email"
                 className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2"
               >
                 Email
@@ -63,8 +63,8 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label 
-                htmlFor="password" 
+              <label
+                htmlFor="password"
                 className="block text-sm font-medium text-primary-black dark:text-primary-white mb-2"
               >
                 Senha

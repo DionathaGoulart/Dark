@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useI18n } from '@/core/providers'
-import { BaseStyledProps } from '@/types'
+
 
 // ================================
 // INTERFACES
@@ -26,7 +26,7 @@ interface LayoutFooterProps {
  * Rodapé da aplicação com informações de copyright
  * Exibe texto de direitos traduzido com design responsivo
  */
-export const LayoutFooter: React.FC<LayoutFooterProps> = ({ 
+export const LayoutFooter: React.FC<LayoutFooterProps> = ({
   className = '',
   footerText
 }) => {
@@ -45,7 +45,7 @@ export const LayoutFooter: React.FC<LayoutFooterProps> = ({
 
   // Determinar qual texto exibir baseado no idioma
   let displayText: string
-  
+
   if (!footerText) {
     displayText = t.footer.rights
   } else if (typeof footerText === 'string') {
@@ -53,7 +53,7 @@ export const LayoutFooter: React.FC<LayoutFooterProps> = ({
     displayText = footerText
   } else {
     // Novo formato com objeto { pt, en }
-    displayText = language === 'pt' 
+    displayText = language === 'pt'
       ? (footerText.pt || footerText.en || t.footer.rights)
       : (footerText.en || footerText.pt || t.footer.rights)
   }
