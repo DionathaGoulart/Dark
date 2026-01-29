@@ -162,7 +162,7 @@ export default function CardsManagementPage() {
       // Formato: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
       const urlObj = new URL(url)
       // Pode ser dark-links-assets ou outro bucket
-      const pathMatch = urlObj.pathname.match(/\/storage\/v1\/object\/public\/([^\/]+)\/(.+)/)
+      const pathMatch = urlObj.pathname.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)/)
       if (pathMatch && pathMatch[1] && pathMatch[2]) {
         return pathMatch[2]
       }
@@ -176,7 +176,7 @@ export default function CardsManagementPage() {
   const getBucketFromUrl = (url: string): string | null => {
     try {
       const urlObj = new URL(url)
-      const pathMatch = urlObj.pathname.match(/\/storage\/v1\/object\/public\/([^\/]+)\//)
+      const pathMatch = urlObj.pathname.match(/\/storage\/v1\/object\/public\/([^/]+)\//)
       if (pathMatch && pathMatch[1]) {
         return pathMatch[1]
       }
